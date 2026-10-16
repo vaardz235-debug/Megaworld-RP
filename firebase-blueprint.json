@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "Player": {
+      "title": "Player",
+      "description": "Represents a user's profile, avatar customization, achievement progress, and inventory.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "username": { "type": "string" },
+        "avatarModel": { "type": "string" },
+        "outfit": { "type": "string" },
+        "achievements": { "type": "array", "items": { "type": "string" } },
+        "activeQuests": { "type": "array", "items": { "type": "string" } },
+        "completedQuests": { "type": "array", "items": { "type": "string" } },
+        "inventory": { "type": "object" },
+        "health": { "type": "number" },
+        "hunger": { "type": "number" },
+        "gameMode": { "type": "string" }
+      },
+      "required": ["uid", "username"]
+    },
+    "GameMode": {
+      "title": "GameMode",
+      "description": "Represents a game mode setting or instance.",
+      "type": "object",
+      "properties": {
+        "modeId": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string", "enum": ["survival", "creative", "territory", "tycoon"] }
+      },
+      "required": ["modeId", "title", "type"]
+    },
+    "Achievement": {
+      "title": "Achievement",
+      "description": "Represents an unlockable achievement.",
+      "type": "object",
+      "properties": {
+        "achievementId": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["achievementId", "title"]
+    }
+  },
+  "firestore": {
+    "/players/{uid}": {
+      "schema": "Player",
+      "description": "User profiles"
+    },
+    "/gameModes/{modeId}": {
+      "schema": "GameMode",
+      "description": "Configured game modes"
+    },
+    "/achievements/{achievementId}": {
+      "schema": "Achievement",
+      "description": "Global achievements"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "MegaWorld RP",
+  "description": "A multi-themed multiplayer role-playing world with integrated cloud sync and workspace productivity tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

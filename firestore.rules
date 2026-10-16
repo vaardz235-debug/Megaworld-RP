@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global helper: signed in
+    function isSignedIn() { return request.auth != null; }
+
+    // Helper: is owner of profile
+    function isOwner(uid) { return isSignedIn() && request.auth.uid == uid; }
+
+    // Placeholder Admin check (needs adjustment to actual admin strategy)
+    function isAdmin() { return isSignedIn() && request.auth.token.email == "vaardz235@gmail.com"; }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /players/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow write: if isOwner(uid);
+    }
+
+    match /gameModes/{modeId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /achievements/{achievementId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

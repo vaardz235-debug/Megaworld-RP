@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 1; }
+  100% { transform: scale(2); opacity: 0; }
+}
+.animate-ripple {
+  animation: ripple 1s linear infinite;
+}
+
+@keyframes fog-move {
+  0%, 100% { transform: translateX(-5%); opacity: 0.3; }
+  50% { transform: translateX(5%); opacity: 0.5; }
+}
+.animate-fog {
+  animation: fog-move 10s ease-in-out infinite;
+}
+
+/* Minecraft Splash Text Animation */
+@keyframes mc-splash {
+  0%, 100% {
+    transform: rotate(-16deg) scale(1);
+  }
+  50% {
+    transform: rotate(-16deg) scale(1.15);
+  }
+}
+.animate-mc-splash {
+  animation: mc-splash 1.2s ease-in-out infinite;
+  transform-origin: center center;
+}
+
+/* Minecraft Stone Button Style */
+.mc-btn {
+  background-color: #646464;
+  border-top: 3px solid #b4b4b4;
+  border-left: 3px solid #b4b4b4;
+  border-right: 3px solid #262626;
+  border-bottom: 3px solid #262626;
+  color: #e0e0e0;
+  text-shadow: 2px 2px 0px #181818;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  transition: all 0.08s ease;
+  user-select: none;
+}
+
+.mc-btn:hover {
+  background-color: #787878;
+  border-top-color: #d2d2d2;
+  border-left-color: #d2d2d2;
+  border-right-color: #1a1a1a;
+  border-bottom-color: #1a1a1a;
+  color: #ffffa0;
+  text-shadow: 2px 2px 0px #242400;
+}
+
+.mc-btn:active {
+  background-color: #4b4b4b;
+  border-top: 3px solid #1a1a1a;
+  border-left: 3px solid #1a1a1a;
+  border-right: 3px solid #909090;
+  border-bottom: 3px solid #909090;
+  transform: translateY(1px);
+}
+
+.mc-btn-primary {
+  background-color: #3b6d22;
+  border-top-color: #70be44;
+  border-left-color: #70be44;
+  border-right-color: #1e3a10;
+  border-bottom-color: #1e3a10;
+  color: #ffffff;
+}
+
+.mc-btn-primary:hover {
+  background-color: #488629;
+  border-top-color: #8ce856;
+  border-left-color: #8ce856;
+  color: #ffff99;
+}
+
+/* Sprunki Rhythm Animations */
+@keyframes sprunki-bop {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-3px) scaleY(1.05);
+  }
+}
+.animate-sprunki-bop {
+  animation: sprunki-bop 0.55s ease-in-out infinite;
+}
+
+@keyframes note-float {
+  0% {
+    transform: translateY(0) scale(0.7) rotate(-10deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-20px) scale(1.1) rotate(15deg);
+    opacity: 0;
+  }
+}
+.animate-note-float-1 {
+  animation: note-float 1.6s ease-out infinite;
+}
+.animate-note-float-2 {
+  animation: note-float 2s ease-out infinite 0.8s;
+}
+
+@keyframes glitch-shake {
+  0%, 100% { transform: translate(0, 0); filter: hue-rotate(0deg); }
+  25% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+  50% { transform: translate(2px, -1px); filter: hue-rotate(180deg); }
+  75% { transform: translate(-1px, -2px); filter: hue-rotate(270deg); }
+}
+.animate-glitch {
+  animation: glitch-shake 0.3s steps(2, start) infinite;
+}
+
+/* Countryball / Polandball Physics & Animations */
+@keyframes cb-squish {
+  0%, 100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  30% {
+    transform: translateY(-8px) scale(0.92, 1.08) rotate(3deg);
+  }
+  60% {
+    transform: translateY(-12px) scale(1.04, 0.96) rotate(-2deg);
+  }
+  80% {
+    transform: translateY(1px) scale(1.12, 0.88);
+  }
+}
+.animate-cb-squish {
+  animation: cb-squish 0.65s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+}
+
+@keyframes cb-blink {
+  0%, 94%, 100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  96%, 98% {
+    transform: scaleY(0.12);
+    opacity: 0.95;
+  }
+}
+.animate-cb-blink {
+  animation: cb-blink 4s infinite;
+}
+
+@keyframes cb-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+.animate-cb-wobble {
+  animation: cb-wobble 3s ease-in-out infinite;
+}
+
+@keyframes plunger-wobble {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+}
+.animate-plunger-wobble {
+  animation: plunger-wobble 1.2s ease-in-out infinite;
+}
+
+/* 3D Voxel Map & Block Enhancements */
+@keyframes torch-flicker {
+  0%, 100% {
+    transform: scale(1) translateY(0);
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9));
+  }
+  25% {
+    transform: scale(1.08) translateY(-1px) rotate(-2deg);
+    filter: drop-shadow(0 0 12px rgba(245, 158, 11, 1));
+  }
+  50% {
+    transform: scale(0.95) translateY(0.5px) rotate(1deg);
+    filter: drop-shadow(0 0 7px rgba(251, 191, 36, 0.8));
+  }
+  75% {
+    transform: scale(1.12) translateY(-0.5px) rotate(2deg);
+    filter: drop-shadow(0 0 14px rgba(245, 158, 11, 1));
+  }
+}
+.animate-torch-flicker {
+  animation: torch-flicker 0.6s ease-in-out infinite;
+}
+
+@keyframes block-pop {
+  0% { transform: scale(0.75); }
+  60% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+.animate-block-pop {
+  animation: block-pop 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes gem-sparkle {
+  0%, 100% { opacity: 0.6; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.2); filter: drop-shadow(0 0 6px rgba(34, 211, 238, 0.9)); }
+}
+.animate-gem-sparkle {
+  animation: gem-sparkle 1.8s ease-in-out infinite;
+}
+
+@keyframes wheat-sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+.animate-wheat-sway {
+  animation: wheat-sway 2s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+@keyframes rain-fall-3d {
+  0% { transform: translateY(-40px) translateX(0); opacity: 0; }
+  20% { opacity: 0.8; }
+  90% { opacity: 0.9; }
+  100% { transform: translateY(400px) translateX(-60px); opacity: 0; }
+}
+
+@keyframes snow-fall-3d {
+  0% { transform: translateY(-20px) translateX(0) rotate(0deg); opacity: 0; }
+  30% { opacity: 0.9; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(350px) translateX(30px) rotate(180deg); opacity: 0; }
+}
+
+

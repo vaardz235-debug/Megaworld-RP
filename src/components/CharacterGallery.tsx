@@ -9,6 +9,8 @@ import { audioEngine } from '../utils/audioEngine';
 import { speechEngine } from '../utils/speechEngine';
 import { COUNTRYBALLS_DATA, CountryballData, REGIONS_LIST } from '../data/countryballsData';
 import { CountryballDossierModal, CountryballHoverPreview } from './CountryballDossier';
+import { countryballAudio, COUNTRYBALL_AUDIO_PROFILES } from '../utils/countryballAudioLibrary';
+import SprunkiBeatStudio from './SprunkiBeatStudio';
 
 export const ALL_CHARACTERS: CharacterData[] = [
   // ================= MINECRAFT CHARACTERS =================
@@ -487,6 +489,34 @@ export const ALL_CHARACTERS: CharacterData[] = [
     color: 'bg-amber-800', 
     description: 'Centuries-old autumn redwood tree deity radiating warm organic acoustic bass and rustling amber leaves!' 
   },
+  { 
+    id: 185, 
+    name: 'Verity', 
+    type: 'sprnuki', 
+    subtype: 'verity',
+    musicalNote: 'Voice 7 / Celestial Starlight Truth',
+    color: 'bg-purple-600', 
+    description: '✨ The Celestial Star Oracle of Truth! (The Verity Update) Radiant starlight halo crown, amethyst tiara, celestial wings, and crystalline harmonic glass chimes!' 
+  },
+  { 
+    id: 186, 
+    name: 'Eclipse Verity (Horror Phase 2)', 
+    type: 'sprnuki', 
+    subtype: 'verity',
+    isHorror: true,
+    musicalNote: 'Abyssal Truth / Void Chime',
+    color: 'bg-indigo-950', 
+    description: 'Phase 2 Eclipse: Cosmic void entity crowned with a blood starlight tiara, reality-warping truth resonance, and dark matter celestial wings!' 
+  },
+  { 
+    id: 187, 
+    name: 'Verity in a Box', 
+    type: 'sprnuki', 
+    subtype: 'verity_box',
+    musicalNote: 'Music Box / Spring Boing Melody',
+    color: 'bg-purple-900', 
+    description: '📦 The iconic Jack-in-the-Box Verity Morph! (The Verity Update) Turn the golden winding crank to hear celestial music box notes, then POP! out with star fireworks!' 
+  },
 
   // ================= THOMAS & FRIENDS =================
   { 
@@ -695,12 +725,193 @@ export const ALL_CHARACTERS: CharacterData[] = [
     flag: cb.flag,
     description: `${cb.motto} — ${cb.lorePerk}`,
   })),
+
+  // ================= ROBLOX CHARACTERS (ICONIC ROBLOX ROSTER) =================
+  {
+    id: 501,
+    name: 'Classic Noob',
+    type: 'roblox',
+    subtype: 'noob',
+    robloxHeadColor: '#facc15',
+    robloxTorsoColor: '#0055ff',
+    robloxLegsColor: '#16a34a',
+    robloxFace: 'smile',
+    robloxHat: 'none',
+    robloxGear: 'sword',
+    color: 'bg-yellow-400',
+    description: 'The legendary yellow-skinned, blue-shirted, green-legged Roblox icon! Armed with the classic Linked Sword and ready to say "OOF!"',
+  },
+  {
+    id: 502,
+    name: 'Bacon Hair (Pal Hair)',
+    type: 'roblox',
+    subtype: 'bacon',
+    robloxHeadColor: '#f5d0a9',
+    robloxTorsoColor: '#1e3a8a',
+    robloxLegsColor: '#451a03',
+    robloxFace: 'winning',
+    robloxHat: 'bacon',
+    robloxGear: 'cola',
+    color: 'bg-amber-800',
+    description: 'The cool modern avatar with iconic swept brown Pal Hair, navy denim jacket, winning smile, and a refreshing can of Bloxy Cola!',
+  },
+  {
+    id: 503,
+    name: 'Builderman',
+    type: 'roblox',
+    subtype: 'builderman',
+    robloxHeadColor: '#f5d0a9',
+    robloxTorsoColor: '#ea580c',
+    robloxLegsColor: '#334155',
+    robloxFace: 'smile',
+    robloxHat: 'hardhat',
+    robloxGear: 'coil',
+    color: 'bg-orange-500',
+    description: 'CEO and Chief Architect of Robloxia! Wearing the safety orange hard hat and wielding the bouncing Gravity Coil!',
+  },
+  {
+    id: 504,
+    name: 'Guest 666',
+    type: 'roblox',
+    subtype: 'guest',
+    robloxHeadColor: '#1c1917',
+    robloxTorsoColor: '#0a0a0a',
+    robloxLegsColor: '#09090b',
+    robloxFace: 'beast',
+    robloxHat: 'beanie',
+    robloxGear: 'sword',
+    color: 'bg-red-950',
+    description: 'The mythical creepypasta legend of Roblox! Pitch black body, demonic glowing red eyes, sharp fangs, and 666 beanie!',
+  },
+  {
+    id: 505,
+    name: 'Korblox Deathspeaker',
+    type: 'roblox',
+    subtype: 'korblox',
+    robloxHeadColor: '#0ea5e9',
+    robloxTorsoColor: '#0369a1',
+    robloxLegsColor: '#075985',
+    robloxFace: 'chill',
+    robloxHat: 'none',
+    robloxGear: 'speed_coil',
+    color: 'bg-cyan-600',
+    description: 'The frostbite archon of Roblox! Features the famous floating frozen toothpick skeleton leg, icy skull, and glowing red Speed Coil!',
+  },
+  {
+    id: 506,
+    name: 'Dominus Aureus',
+    type: 'roblox',
+    subtype: 'dominus',
+    robloxHeadColor: '#09090b',
+    robloxTorsoColor: '#18181b',
+    robloxLegsColor: '#18181b',
+    robloxFace: 'void',
+    robloxHat: 'dominus',
+    robloxGear: 'sword',
+    color: 'bg-neutral-900',
+    description: 'Multimillion-Robux mythic hooded emperor! Glowing white void eyes, golden winged trim, and absolute high-society flex!',
+  },
+  {
+    id: 507,
+    name: 'Valkyrie Warrior',
+    type: 'roblox',
+    subtype: 'valkyrie',
+    robloxHeadColor: '#facc15',
+    robloxTorsoColor: '#475569',
+    robloxLegsColor: '#334155',
+    robloxFace: 'epic',
+    robloxHat: 'valkyrie',
+    robloxGear: 'sword',
+    color: 'bg-slate-500',
+    description: 'Elite champion wearing the sacred winged silver Valkyrie Helm with emerald crown jewel and epic face!',
+  },
+
+  // ================= XILAM CHARACTERS =================
+  {
+    id: 701,
+    name: 'Oggy',
+    type: 'xilam',
+    subtype: 'oggy',
+    color: 'bg-blue-500',
+    description: 'The lazy, good-natured blue cat from Oggy and the Cockroaches! Armed with his trusty red flyswatter and a dream of peaceful naps.',
+  },
+  {
+    id: 702,
+    name: 'Jack',
+    type: 'xilam',
+    subtype: 'jack',
+    color: 'bg-emerald-700',
+    description: 'Oggy\'s tough, muscular green cousin and mechanical genius in a white tank shirt! Always ready for high-octane cartoon slapstick.',
+  },
+  {
+    id: 703,
+    name: 'Joey',
+    type: 'xilam',
+    subtype: 'joey',
+    color: 'bg-fuchsia-700',
+    description: 'The scheming cockroach leader with one pink eye and one yellow eye! Full of grand plans to raid Oggy\'s refrigerator.',
+  },
+  {
+    id: 704,
+    name: 'Dee Dee',
+    type: 'xilam',
+    subtype: 'deedee',
+    color: 'bg-orange-500',
+    description: 'The ravenous, chubby orange cockroach with big green eyes who will eat absolutely everything in sight!',
+  },
+  {
+    id: 705,
+    name: 'Marky',
+    type: 'xilam',
+    subtype: 'marky',
+    color: 'bg-slate-500',
+    description: 'The tall, smooth-talking cockroach with curled antennae and romantic guitar serenades.',
+  },
+  {
+    id: 706,
+    name: 'Sharko',
+    type: 'xilam',
+    subtype: 'sharko',
+    color: 'bg-slate-400',
+    description: 'The muscular great white shark lifeguard from Zig & Sharko! Fierce protector of Marina with unstoppable ocean strength.',
+  },
+  {
+    id: 707,
+    name: 'Zig',
+    type: 'xilam',
+    subtype: 'zig',
+    color: 'bg-amber-700',
+    description: 'The scruffy desert island hyena forever devising hilarious Rube Goldberg traps and cartoon inventions.',
+  },
+  {
+    id: 708,
+    name: 'Marina',
+    type: 'xilam',
+    subtype: 'marina',
+    color: 'bg-teal-400',
+    description: 'The joyful, singing mermaid with pink sea star hair clip, lavender hair, and iridescent turquoise tail.',
+  },
 ];
 
 export default function CharacterGallery({ onSelect }: { onSelect: (char: any) => void }) {
-  const [selectedFilter, setSelectedFilter] = useState<'all' | 'minecraft' | 'sprnuki' | 'train' | 'countryball'>('all');
+  const [selectedFilter, setSelectedFilter] = useState<'all' | 'minecraft' | 'sprnuki' | 'train' | 'countryball' | 'roblox'>('all');
   const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [horrorModeAll, setHorrorModeAll] = useState(false);
+
+  // Countryball Regional Audio Motif State
+  const [isHoverSoundEnabled, setIsHoverSoundEnabled] = useState<boolean>(() => countryballAudio.getIsHoverSoundEnabled());
+  const [activeMotifCountry, setActiveMotifCountry] = useState<string | null>(null);
+
+  // Sprunki Incredibox Studio Mode State
+  const [sprunkiStudioOpen, setSprunkiStudioOpen] = useState<boolean>(false);
+  const [sprunkiViewMode, setSprunkiViewMode] = useState<'both' | 'studio' | 'cards'>('both');
+
+  useEffect(() => {
+    const unsub = countryballAudio.subscribe((country) => {
+      setActiveMotifCountry(country);
+    });
+    return () => unsub();
+  }, []);
 
   // Incredibox Multi-Track Beat Crew Studio
   const [beatCrew, setBeatCrew] = useState<{ id: number; name: string; subtype?: string; muted?: boolean }[]>([
@@ -874,7 +1085,7 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
           <Sparkles className="text-yellow-400" /> Choose Your Character & Speech Studio
         </h2>
         <p className="text-stone-400 text-xs sm:text-sm max-w-3xl mx-auto font-mono">
-          Now with <strong>130 Characters</strong>! <strong>27 Minecraft Mobs & Heroes</strong>, <strong>27 Sprunkis</strong>, <strong>28 Sodor Locomotives</strong>, and <strong>48 Countryballs</strong> with Full Historical Dossiers & Stats!
+          Now with <strong>140 Characters</strong>! Featuring <strong>The Verity Update</strong> ✨ (Oracle Verity, Eclipse Verity & Verity in a Box), <strong>27 Minecraft Mobs & Heroes</strong>, <strong>30 Sprunkis</strong>, <strong>28 Sodor Locomotives</strong>, <strong>48 Countryballs</strong>, and <strong>7 Roblox Legends</strong>!
         </p>
 
         {/* Global Quick Action Strip */}
@@ -908,9 +1119,10 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
         {/* Filter Navigation Tabs */}
         <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
           {[
-            { id: 'all', label: '🌟 All Cast (130)' },
+            { id: 'all', label: '🌟 All Cast (140)' },
+            { id: 'sprnuki', label: '🔮 30 Sprunkis (Verity Update ✨)' },
+            { id: 'roblox', label: '🟥 7 Roblox Legends (Noob, Bacon, Builderman...)' },
             { id: 'minecraft', label: '⛏️ 27 Minecraft Heroes & Mobs' },
-            { id: 'sprnuki', label: '🎵 27 Sprunkis (Real Incredibox Cast)' },
             { id: 'train', label: '🚂 28 Trains' },
             { id: 'countryball', label: '🌐 48 Countryballs (Dossier & Stats)' },
           ].map(tab => (
@@ -949,13 +1161,50 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
                 </div>
               </div>
 
-              {/* Quick Actions: Random Dossier & Space Program Info */}
+              {/* Quick Actions: Audio Toggle, Random Dossier & Space Program Info */}
               <div className="flex items-center gap-2 flex-wrap">
+                {/* Folk Motifs Audio Toggle */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = countryballAudio.toggleHoverSound();
+                    setIsHoverSoundEnabled(next);
+                  }}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow ${
+                    isHoverSoundEnabled
+                      ? 'bg-blue-600/30 hover:bg-blue-600/45 text-blue-200 border-blue-400'
+                      : 'bg-stone-800 text-stone-400 border-stone-700 hover:text-stone-200'
+                  }`}
+                  title="Toggle instant musical folk instrument motifs when hovering Countryball cards"
+                >
+                  {isHoverSoundEnabled ? (
+                    <>
+                      <Volume2 size={13} className="text-blue-400 animate-pulse" />
+                      <span>🔊 Hover Motifs: ON</span>
+                    </>
+                  ) : (
+                    <>
+                      <VolumeX size={13} className="text-stone-400" />
+                      <span>🔇 Hover Motifs: MUTED</span>
+                    </>
+                  )}
+                </button>
+
+                {activeMotifCountry && (
+                  <div className="flex items-center gap-1.5 bg-blue-950/90 border border-blue-400/60 px-3 py-1 rounded-xl text-xs text-blue-200 animate-pulse shadow">
+                    <Sparkles size={12} className="text-yellow-300 animate-spin" />
+                    <span className="truncate max-w-[200px] sm:max-w-[320px]">
+                      🎶 <strong>{activeMotifCountry}</strong>: {COUNTRYBALL_AUDIO_PROFILES[activeMotifCountry]?.instrument || 'Folk Motif'}
+                    </span>
+                  </div>
+                )}
+
                 <button
                   type="button"
                   onClick={() => {
                     const randomCb = COUNTRYBALLS_DATA[Math.floor(Math.random() * COUNTRYBALLS_DATA.length)];
                     setSelectedCountryballDossier(randomCb);
+                    countryballAudio.playMotif(randomCb.name, true);
                   }}
                   className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 text-amber-300 border border-amber-500/50 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow"
                 >
@@ -968,6 +1217,7 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
                   onClick={() => {
                     const poland = COUNTRYBALLS_DATA.find(c => c.name === 'Poland') || COUNTRYBALLS_DATA[0];
                     setSelectedCountryballDossier(poland);
+                    countryballAudio.playMotif('Poland', true);
                   }}
                   className="px-3.5 py-1.5 rounded-xl bg-red-600/25 hover:bg-red-600/40 text-red-300 border border-red-500/50 text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow"
                   title="View Poland's unique 0% space program in canon lore"
@@ -1030,200 +1280,96 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
         )}
 
         {/* ================= INCREDIBOX SPRUNKI LIVE BEAT STUDIO ================= */}
-        {(selectedFilter === 'all' || selectedFilter === 'sprnuki') && (
-          <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-stone-900/90 border border-orange-500/40 shadow-2xl relative overflow-hidden backdrop-blur">
-            <div className="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-stone-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className={`p-2 rounded-xl ${isJamPlaying ? 'bg-orange-500 text-black animate-pulse' : 'bg-stone-800 text-orange-400'}`}>
-                  <Disc3 size={20} className={isJamPlaying ? 'animate-spin' : ''} style={{ animationDuration: '3s' }} />
+        {selectedFilter === 'sprnuki' && (
+          <div className="mt-4">
+            {/* View Mode Switcher for Sprunki */}
+            <div className="flex items-center justify-between gap-3 mb-2 flex-wrap bg-stone-900/80 p-2.5 rounded-2xl border border-stone-800 font-mono text-xs">
+              <div className="flex items-center gap-2">
+                <span className="text-orange-400 font-bold">Sprunki View:</span>
+                <div className="flex items-center bg-stone-950 p-1 rounded-xl border border-stone-800">
+                  <button
+                    type="button"
+                    onClick={() => setSprunkiViewMode('studio')}
+                    className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
+                      sprunkiViewMode === 'studio' 
+                        ? 'bg-orange-500 text-black shadow' 
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    🎛️ Studio Only
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSprunkiViewMode('both')}
+                    className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
+                      sprunkiViewMode === 'both' 
+                        ? 'bg-orange-500 text-black shadow' 
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    🌟 Studio + Cards
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSprunkiViewMode('cards')}
+                    className={`px-3 py-1 rounded-lg font-bold transition cursor-pointer ${
+                      sprunkiViewMode === 'cards' 
+                        ? 'bg-orange-500 text-black shadow' 
+                        : 'text-stone-400 hover:text-white'
+                    }`}
+                  >
+                    🃏 27 Character Cards
+                  </button>
                 </div>
-                <div className="text-left font-mono">
-                  <h3 className="text-sm font-black text-white flex items-center gap-2">
-                    Sprunki Incredibox Beat Studio
+              </div>
+
+              <div className="text-stone-400 text-[11px]">
+                Drag character badges onto the 7 stage podiums to mix loops!
+              </div>
+            </div>
+
+            {/* Full Interactive Sprunki Beat Studio */}
+            {(sprunkiViewMode === 'studio' || sprunkiViewMode === 'both') && (
+              <SprunkiBeatStudio 
+                allCharacters={ALL_CHARACTERS}
+                onSelectCharacter={onSelect}
+              />
+            )}
+          </div>
+        )}
+
+        {/* When viewing All cast, show quick launcher for Sprunki Beat Studio */}
+        {selectedFilter === 'all' && (
+          <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-stone-900 via-orange-950/40 to-stone-900 border border-orange-500/40 shadow-2xl relative overflow-hidden backdrop-blur font-mono">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-orange-500 text-black shadow-lg shadow-orange-950/50">
+                  <Disc3 size={24} className="animate-spin" style={{ animationDuration: '4s' }} />
+                </div>
+                <div className="text-left">
+                  <h3 className="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                    Sprunki Incredibox Interactive Beat Studio
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 border border-orange-500/40 font-normal">
-                      Multi-Track Live Crew
+                      Drag & Drop Stage
                     </span>
                   </h3>
-                  <p className="text-[11px] text-stone-400">
-                    Assemble up to 7 Sprunkis to build your synchronized custom beatbox groove!
+                  <p className="text-xs text-stone-300">
+                    Live 7-podium mixing stage with tempo control (60-160 BPM), solo/mute buttons, and Black Top Hat horror mode!
                   </p>
                 </div>
               </div>
 
-              {/* Master Studio Controls */}
-              <div className="flex items-center gap-2">
-                {/* Play / Stop Master Button */}
-                <button
-                  onClick={toggleJamPlay}
-                  className={`px-4 py-2 rounded-xl text-xs font-black font-mono flex items-center gap-2 cursor-pointer shadow-lg transition active:scale-95 ${
-                    isJamPlaying
-                      ? 'bg-red-600 hover:bg-red-500 text-white shadow-red-900/50'
-                      : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/50'
-                  }`}
-                >
-                  {isJamPlaying ? (
-                    <>
-                      <Square size={14} className="fill-white" />
-                      <span>STOP BEAT</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play size={14} className="fill-white" />
-                      <span>PLAY CREW BEAT</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Randomize Crew Button */}
-                <button
-                  onClick={randomizeCrew}
-                  className="px-3 py-2 rounded-xl text-xs font-bold font-mono bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 flex items-center gap-1.5 cursor-pointer transition shadow"
-                  title="Randomize crew members"
-                >
-                  <Shuffle size={13} className="text-amber-400" />
-                  <span>Random</span>
-                </button>
-
-                {/* Clear Crew Button */}
-                <button
-                  onClick={() => setBeatCrew([])}
-                  className="p-2 rounded-xl text-stone-400 hover:text-red-400 bg-stone-800/80 hover:bg-stone-800 border border-stone-700 cursor-pointer transition shadow"
-                  title="Clear all crew slots"
-                >
-                  <Trash2 size={15} />
-                </button>
-              </div>
-            </div>
-
-            {/* 16-Step Rhythm Sequencer Visualizer */}
-            <div className="mb-4 flex items-center justify-between gap-1 px-1">
-              {[...Array(16)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-2 flex-1 rounded-sm transition-all duration-75 ${
-                    activeStep === i 
-                      ? (horrorModeAll ? 'bg-red-500 scale-y-200 shadow-[0_0_8px_#ef4444]' : 'bg-orange-400 scale-y-200 shadow-[0_0_8px_#fb923c]')
-                      : (i % 4 === 0 ? 'bg-stone-700' : 'bg-stone-800')
-                  }`}
-                />
-              ))}
-            </div>
-
-            {/* Active Beat Crew Slots (Up to 7) */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
-              {[...Array(7)].map((_, idx) => {
-                const member = beatCrew[idx];
-                const fullChar = member ? ALL_CHARACTERS.find(c => c.id === member.id) : null;
-
-                if (!member || !fullChar) {
-                  return (
-                    <div
-                      key={idx}
-                      className="border-2 border-dashed border-stone-800 rounded-xl p-2.5 flex flex-col items-center justify-center min-h-[110px] text-stone-600 font-mono text-[11px] gap-1 bg-stone-950/40"
-                    >
-                      <Plus size={16} className="text-stone-700" />
-                      <span>Slot {idx + 1}</span>
-                      <span className="text-[9px] text-stone-600">Select Below</span>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div
-                    key={member.id}
-                    className={`rounded-xl p-2 flex flex-col items-center justify-between relative border transition shadow-md ${
-                      member.muted 
-                        ? 'bg-stone-950/60 border-stone-800 opacity-60' 
-                        : horrorModeAll
-                        ? 'bg-red-950/40 border-red-800/80 shadow-red-950/30'
-                        : 'bg-stone-950 border-orange-500/30 shadow-orange-950/20'
-                    }`}
-                  >
-                    {/* Remove 'X' button */}
-                    <button
-                      onClick={() => toggleCrewMember(fullChar)}
-                      className="absolute top-1 right-1 text-stone-500 hover:text-red-400 text-xs font-bold w-4 h-4 rounded-full flex items-center justify-center cursor-pointer"
-                      title="Remove from crew"
-                    >
-                      ×
-                    </button>
-
-                    {/* Mute Toggle */}
-                    <button
-                      onClick={() => toggleMuteMember(member.id)}
-                      className={`absolute top-1 left-1 p-0.5 rounded cursor-pointer ${
-                        member.muted ? 'text-red-400 bg-red-950/50' : 'text-emerald-400 bg-stone-800'
-                      }`}
-                      title={member.muted ? "Unmute track" : "Mute track"}
-                    >
-                      {member.muted ? <VolumeX size={11} /> : <Volume2 size={11} />}
-                    </button>
-
-                    {/* Mini Avatar */}
-                    <div className="my-1 scale-90">
-                      <CharacterAvatar
-                        character={{
-                          ...fullChar,
-                          isHorror: horrorModeAll || fullChar.isHorror
-                        }}
-                        size="sm"
-                        isWalking={isJamPlaying && !member.muted}
-                      />
-                    </div>
-
-                    {/* Member Name & Tag */}
-                    <div className="text-center font-mono w-full">
-                      <p className="text-[11px] font-bold text-white truncate px-1">
-                        {member.name}
-                      </p>
-                      <span className={`text-[9px] px-1.5 py-0.2 rounded-full inline-block ${
-                        member.muted ? 'text-stone-500 bg-stone-900' : 'text-orange-400 bg-orange-950/60'
-                      }`}>
-                        {member.muted ? 'MUTED' : 'ACTIVE'}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Studio Bottom Bar: Tempo BPM & Mode controls */}
-            <div className="flex flex-wrap items-center justify-between gap-3 mt-4 pt-3 border-t border-stone-800 text-xs font-mono">
-              <div className="flex items-center gap-3">
-                <span className="text-stone-400">Tempo:</span>
-                <input
-                  type="range"
-                  min="75"
-                  max="145"
-                  value={jamBpm}
-                  onChange={(e) => setJamBpm(Number(e.target.value))}
-                  className="w-28 sm:w-36 accent-orange-500 cursor-pointer"
-                />
-                <span className="text-orange-400 font-bold">{jamBpm} BPM</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setHorrorModeAll(prev => !prev)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
-                    horrorModeAll
-                      ? 'bg-red-950 text-red-300 border-red-600 shadow-[0_0_12px_rgba(220,38,38,0.7)]'
-                      : 'bg-stone-800 text-stone-300 border-stone-700 hover:text-white'
-                  }`}
-                >
-                  {horrorModeAll ? (
-                    <>
-                      <Skull size={13} className="text-red-500" />
-                      <span>Phase 2 (Horror Mode): ON</span>
-                    </>
-                  ) : (
-                    <>
-                      <Flame size={13} className="text-orange-400" />
-                      <span>Phase 2 (Horror Mode): OFF</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFilter('sprnuki');
+                  setSprunkiViewMode('both');
+                }}
+                className="px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-400 text-black font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-2 cursor-pointer"
+              >
+                <Music size={14} />
+                <span>Launch Beat Studio Stage</span>
+              </button>
             </div>
           </div>
         )}
@@ -1571,7 +1717,8 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
       </div>
 
       {/* Characters Grid */}
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+      {!(selectedFilter === 'sprnuki' && sprunkiViewMode === 'studio') && (
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {filteredCharacters.map(char => {
           const isHovered = hoveredId === char.id;
 
@@ -1753,11 +1900,19 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
 
           return (
             <div
-              key={char.id}
-              onMouseEnter={() => setHoveredId(char.id)}
+              key={`${char.type}-${char.id}`}
+              onMouseEnter={() => {
+                setHoveredId(char.id);
+                if (char.type === 'countryball') {
+                  countryballAudio.playMotif(char.name);
+                }
+              }}
               onMouseLeave={() => setHoveredId(null)}
               onClick={() => {
                 if (char.type === 'countryball' && cbData) {
+                  // Play distinct regional folk motif + full voiced catchphrase + open dossier
+                  countryballAudio.playMotif(char.name, true);
+                  handleMakeCharacterTalk(effectiveChar);
                   setSelectedCountryballDossier(cbData);
                 }
               }}
@@ -1985,13 +2140,27 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
                 </div>
               )}
 
-              {/* Countryball Actions: View Historical Facts & Stats Dossier */}
+              {/* Countryball Actions: Play Folk Instrument Motif & View Historical Dossier */}
               {char.type === 'countryball' && cbData && (
                 <div className="w-full flex flex-col gap-1.5 mt-1 mb-2">
                   <button
                     type="button"
                     onClick={(e) => {
                       e.stopPropagation();
+                      countryballAudio.playMotif(char.name, true);
+                    }}
+                    className="w-full py-1.5 px-3 rounded-xl bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 hover:text-blue-100 border border-blue-500/40 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow"
+                    title={`Play ${COUNTRYBALL_AUDIO_PROFILES[char.name]?.instrument || 'regional folk motif'}`}
+                  >
+                    <Sparkles size={13} className="text-yellow-400" />
+                    <span className="truncate">🎵 Play Folk Motif ({COUNTRYBALL_AUDIO_PROFILES[char.name]?.instrument?.split('&')[0]?.trim() || 'Folk Motif'})</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      countryballAudio.playMotif(char.name, true);
                       setSelectedCountryballDossier(cbData);
                     }}
                     className="w-full py-1.5 px-3 rounded-xl bg-blue-600/25 hover:bg-blue-600/40 text-blue-300 hover:text-blue-100 border border-blue-500/50 text-xs font-mono font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer shadow"
@@ -2036,6 +2205,7 @@ export default function CharacterGallery({ onSelect }: { onSelect: (char: any) =
           );
         })}
       </div>
+      )}
 
       {/* Countryball Historical Dossier & Stats Modal */}
       {selectedCountryballDossier && (

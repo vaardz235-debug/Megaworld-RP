@@ -235,4 +235,288 @@
   100% { transform: translateY(350px) translateX(30px) rotate(180deg); opacity: 0; }
 }
 
+/* ==========================================================
+   MINECRAFT STEVE & MOB WALKING ANIMATIONS (CONTINUOUS STRIDE)
+   ========================================================== */
+@keyframes mc-leg-left {
+  0%, 100% {
+    transform: rotate(28deg);
+  }
+  50% {
+    transform: rotate(-28deg);
+  }
+}
+.animate-mc-leg-left {
+  animation: mc-leg-left 0.45s ease-in-out infinite;
+  transform-origin: top center;
+}
 
+@keyframes mc-leg-right {
+  0%, 100% {
+    transform: rotate(-28deg);
+  }
+  50% {
+    transform: rotate(28deg);
+  }
+}
+.animate-mc-leg-right {
+  animation: mc-leg-right 0.45s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+@keyframes mc-arm-left {
+  0%, 100% {
+    transform: rotate(-30deg);
+  }
+  50% {
+    transform: rotate(30deg);
+  }
+}
+.animate-mc-arm-left {
+  animation: mc-arm-left 0.45s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+@keyframes mc-arm-right {
+  0%, 100% {
+    transform: rotate(30deg);
+  }
+  50% {
+    transform: rotate(-30deg);
+  }
+}
+.animate-mc-arm-right {
+  animation: mc-arm-right 0.45s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+@keyframes mc-body-bob {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  25%, 75% {
+    transform: translateY(-2.5px);
+  }
+  50% {
+    transform: translateY(1px);
+  }
+}
+.animate-mc-body-bob {
+  animation: mc-body-bob 0.45s ease-in-out infinite;
+}
+
+/* Fast Sprinting Limb Animations */
+.animate-mc-leg-left-sprint {
+  animation: mc-leg-left 0.24s ease-in-out infinite;
+  transform-origin: top center;
+}
+.animate-mc-leg-right-sprint {
+  animation: mc-leg-right 0.24s ease-in-out infinite;
+  transform-origin: top center;
+}
+.animate-mc-arm-left-sprint {
+  animation: mc-arm-left 0.24s ease-in-out infinite;
+  transform-origin: top center;
+}
+.animate-mc-arm-right-sprint {
+  animation: mc-arm-right 0.24s ease-in-out infinite;
+  transform-origin: top center;
+}
+.animate-mc-body-bob-sprint {
+  animation: mc-body-bob 0.24s ease-in-out infinite;
+}
+
+@keyframes mc-jump-bounce {
+  0% { transform: translateY(0) scale(1, 1); }
+  45% { transform: translateY(-18px) scale(0.96, 1.06); }
+  85% { transform: translateY(2px) scale(1.04, 0.96); }
+  100% { transform: translateY(0) scale(1, 1); }
+}
+.animate-mc-jump {
+  animation: mc-jump-bounce 0.32s ease-out;
+}
+
+@keyframes mc-idle-sway {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+.animate-mc-idle-sway {
+  animation: mc-idle-sway 3s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+/* ==========================================================
+   165 FPS ULTRA HIGH-REFRESH RATE GPU HARDWARE ACCELERATION
+   ========================================================== */
+.map-canvas-165fps {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: scroll-position;
+}
+
+.map-grid-165fps {
+  will-change: transform;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  contain: layout paint;
+}
+
+.mc-cell-165fps {
+  content-visibility: auto;
+  contain-intrinsic-size: 40px 40px;
+  contain: layout paint;
+}
+
+.steve-billboard-165fps {
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* ==========================================================
+   ULTRA REALISM & TACTILE JUICE FX
+   ========================================================== */
+@keyframes camera-shake-heavy {
+  0% { transform: translate(0, 0); }
+  20% { transform: translate(-2.5px, 2px); }
+  40% { transform: translate(2px, -1.5px); }
+  60% { transform: translate(-1.5px, 1px); }
+  80% { transform: translate(1px, -0.5px); }
+  100% { transform: translate(0, 0); }
+}
+.animate-camera-shake {
+  animation: camera-shake-heavy 0.18s ease-out;
+}
+
+@keyframes loot-pop-up {
+  0% {
+    transform: translateY(0) scale(0.6) rotate(-6deg);
+    opacity: 0;
+  }
+  20% {
+    transform: translateY(-16px) scale(1.15) rotate(4deg);
+    opacity: 1;
+  }
+  60% {
+    transform: translateY(-28px) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-44px) scale(0.85);
+    opacity: 0;
+  }
+}
+.animate-loot-float {
+  animation: loot-pop-up 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes water-shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.85;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.95;
+  }
+}
+.animate-water-shimmer {
+  background-size: 200% 200%;
+  animation: water-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes lava-flow {
+  0%, 100% {
+    filter: brightness(1) drop-shadow(0 0 8px rgba(249, 115, 22, 0.7));
+  }
+  50% {
+    filter: brightness(1.2) drop-shadow(0 0 16px rgba(234, 88, 12, 0.9));
+  }
+}
+.animate-lava-glow {
+  animation: lava-flow 2s ease-in-out infinite;
+}
+
+@keyframes leaf-sway-fall {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(14px, 35px) rotate(180deg);
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(-10px, 75px) rotate(360deg);
+    opacity: 0;
+  }
+}
+.animate-leaf-fall {
+  animation: leaf-sway-fall 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes spore-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(8px, -14px) scale(1.4);
+    opacity: 0.9;
+  }
+}
+.animate-spore {
+  animation: spore-float 3.5s ease-in-out infinite;
+}
+
+@keyframes rain-streak-fall {
+  0% {
+    transform: translateY(-30px) rotate(15deg);
+    opacity: 0.2;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(180px) rotate(15deg);
+    opacity: 0;
+  }
+}
+.animate-rain-streak {
+  animation: rain-streak-fall 0.45s linear infinite;
+}
+
+@keyframes light-ray-pulse {
+  0%, 100% {
+    opacity: 0.12;
+  }
+  50% {
+    opacity: 0.28;
+  }
+}
+.animate-crepuscular-ray {
+  animation: light-ray-pulse 6s ease-in-out infinite;
+}
+
+@keyframes block-shatter-pop {
+  0% {
+    transform: scale(1);
+    filter: brightness(1.6);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+.animate-block-shatter {
+  animation: block-shatter-pop 0.15s ease-out forwards;
+}

@@ -36,6 +36,7 @@ interface GamePauseMenuProps {
   onSetTimeOfDay?: (hour: number) => void;
   isFlying?: boolean;
   onToggleFlying?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export default function GamePauseMenu({
@@ -51,7 +52,8 @@ export default function GamePauseMenu({
   onChangeWeather,
   onSetTimeOfDay,
   isFlying,
-  onToggleFlying
+  onToggleFlying,
+  onOpenSettings,
 }: GamePauseMenuProps) {
   const [subView, setSubView] = useState<'main' | 'options' | 'stats'>('main');
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -144,11 +146,18 @@ export default function GamePauseMenu({
 
             {/* 4. Options Submenu */}
             <button
-              onClick={() => setSubView('options')}
-              className="mc-btn w-full py-2.5 text-xs sm:text-sm font-bold rounded flex items-center justify-center gap-2 cursor-pointer shadow"
+              onClick={() => {
+                if (onOpenSettings) {
+                  onClose();
+                  onOpenSettings();
+                } else {
+                  setSubView('options');
+                }
+              }}
+              className="mc-btn w-full py-2.5 text-xs sm:text-sm font-bold rounded flex items-center justify-center gap-2 cursor-pointer shadow hover:scale-102 transition"
             >
-              <Settings size={16} className="text-stone-300" />
-              <span>Options & Controls...</span>
+              <Settings size={16} className="text-yellow-400" />
+              <span>Options & Settings...</span>
             </button>
 
             {/* 5. Save & Quit to Title */}

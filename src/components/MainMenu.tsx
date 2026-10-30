@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { User } from 'firebase/auth';
 import JukeboxPlayer from './JukeboxPlayer';
+import SettingsModal from './SettingsModal';
 
 const SPLASHES = [
   'Now with 2D Steve!',
@@ -44,12 +45,17 @@ const SPLASHES = [
   'Press B to Drop Beatbox!',
   '26 Sodor Locomotives Steam On!',
   'Watch out for Diesel 10 and Pinchy!',
-  'Hiro: Master of the Railway!'
+  'Hiro: Master of the Railway!',
+  'Roblox App Integrated!',
+  'The legendary OOF! sound!',
+  'Classic Noob with Linked Sword!',
+  'Play Tower Obby & Factory Tycoon!'
 ];
 
 interface MainMenuProps {
   onStartGame: (mode: 'survival' | 'creative') => void;
   onOpenGallery: () => void;
+  onOpenRoblox?: () => void;
   selectedAvatar: CharacterData;
   activeGameMode: 'survival' | 'creative';
   onChangeGameMode: (mode: 'survival' | 'creative') => void;
@@ -57,11 +63,20 @@ interface MainMenuProps {
   onSignIn: () => void;
   onPlayGuest: () => void;
   onSignOut: () => void;
+  onOpenSettings?: () => void;
+  onOpenAvatarStudio?: () => void;
+  onOpenQuests?: () => void;
+  onOpenMarketplace?: () => void;
+  onOpenStore?: () => void;
+  onOpenProgression?: () => void;
+  onOpenVoiceChat?: () => void;
+  onOpenDashboard?: () => void;
 }
 
 export default function MainMenu({
   onStartGame,
   onOpenGallery,
+  onOpenRoblox,
   selectedAvatar,
   activeGameMode,
   onChangeGameMode,
@@ -69,12 +84,26 @@ export default function MainMenu({
   onSignIn,
   onPlayGuest,
   onSignOut,
+  onOpenSettings,
+  onOpenAvatarStudio,
+  onOpenQuests,
+  onOpenMarketplace,
+  onOpenStore,
+  onOpenProgression,
+  onOpenVoiceChat,
+  onOpenDashboard,
 }: MainMenuProps) {
   const [splashIndex, setSplashIndex] = useState(0);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [difficulty, setDifficulty] = useState<'peaceful' | 'normal' | 'hard'>('normal');
+  const [difficulty, setDifficulty] = useState<'peaceful' | 'easy' | 'normal' | 'hard'>('normal');
+  const [isHopping, setIsHopping] = useState(false);
+
+  const handleSteveHop = () => {
+    setIsHopping(true);
+    setTimeout(() => setIsHopping(false), 300);
+  };
 
   useEffect(() => {
     // Pick a random splash text on load
@@ -105,9 +134,9 @@ export default function MainMenu({
       {/* Top Header Strip with User Profile & Quick Status */}
       <div className="relative z-10 w-full max-w-4xl flex items-center justify-between gap-4 px-2">
         <div className="flex items-center gap-2 bg-stone-900/90 border-2 border-stone-700/80 px-3.5 py-1.5 rounded-xl shadow-lg backdrop-blur-md">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse" />
           <span className="text-xs font-mono font-bold text-stone-300 uppercase tracking-wider">
-            MegaWorld 2D • Edition 1.6
+            MegaWorld 2D • The Verity Update (v1.7)
           </span>
         </div>
 
@@ -179,6 +208,14 @@ export default function MainMenu({
             <span className="h-0.5 w-12 bg-stone-600 inline-block" />
           </div>
 
+          {/* The Verity Update Active Badge */}
+          <div className="mt-2.5 flex items-center justify-center gap-2">
+            <span className="text-[10px] sm:text-xs font-mono font-bold tracking-wider text-purple-200 uppercase px-3.5 py-1 bg-gradient-to-r from-purple-950/90 via-indigo-900/90 to-purple-950/90 border border-purple-500/60 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center gap-1.5 animate-pulse">
+              <Sparkles size={12} className="text-amber-300" />
+              <span>THE VERITY UPDATE • Celestial Truth Shrine & Starlight Halo</span>
+            </span>
+          </div>
+
           {/* Yellow Bouncing Splash Text */}
           <div 
             onClick={handleNextSplash}
@@ -205,23 +242,40 @@ export default function MainMenu({
             {selectedAvatar.name}
           </div>
           
-          <div className="h-32 flex items-center justify-center my-1 filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.8)]">
-            <CharacterAvatar 
-              character={selectedAvatar} 
-              size="lg" 
-              isWalking={true} 
-              heldItem="pickaxe" 
-              showName={false} 
-            />
+          <div 
+            onClick={handleSteveHop}
+            className="h-32 flex flex-col items-center justify-center my-1 filter drop-shadow-[0_8px_12px_rgba(0,0,0,0.8)] cursor-pointer group select-none"
+            title="Click Steve to make him hop and move!"
+          >
+            <div className={`transition-transform duration-150 ${isHopping ? '-translate-y-4 scale-105' : 'group-hover:scale-105'}`}>
+              <CharacterAvatar 
+                character={selectedAvatar} 
+                size="lg" 
+                isWalking={true} 
+                heldItem="pickaxe" 
+                showName={false} 
+              />
+            </div>
+            <div className="text-[9px] font-mono text-emerald-400/80 mt-1 flex items-center gap-1 opacity-80 group-hover:opacity-100 transition">
+              <span>🚶 Walking Stride · Click to Hop</span>
+            </div>
           </div>
 
-          <button
-            onClick={onOpenGallery}
-            className="mc-btn w-full mt-3 py-2 text-xs font-bold rounded flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <Sparkles size={13} className="text-yellow-400" />
-            <span>Change Skin</span>
-          </button>
+          <div className="flex flex-col gap-1.5 w-full mt-3">
+            <button
+              onClick={onOpenAvatarStudio || onOpenGallery}
+              className="mc-btn mc-btn-primary w-full py-2 text-xs font-bold rounded flex items-center justify-center gap-1.5 cursor-pointer shadow"
+            >
+              <Sparkles size={13} className="text-yellow-300" />
+              <span>Avatar Creator Studio</span>
+            </button>
+            <button
+              onClick={onOpenGallery}
+              className="mc-btn w-full py-1.5 text-[11px] font-bold rounded flex items-center justify-center gap-1.5 cursor-pointer text-stone-300"
+            >
+              <span>Skin Gallery</span>
+            </button>
+          </div>
         </div>
 
         {/* Center: Iconic Classic Minecraft Menu Buttons */}
@@ -260,6 +314,97 @@ export default function MainMenu({
             </span>
           </button>
 
+          {/* 4 Brand Systems Row: Avatar Creator, Quests & Events, Marketplace, Cosmetic Store */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
+            <button
+              onClick={onOpenAvatarStudio}
+              className="mc-btn py-2.5 px-1.5 rounded text-xs font-bold flex flex-col items-center justify-center gap-1 cursor-pointer shadow hover:border-amber-400"
+              title="Open Avatar Creator & Studio"
+            >
+              <span className="text-base">🎨</span>
+              <span className="truncate">Avatar Studio</span>
+            </button>
+            <button
+              onClick={onOpenQuests}
+              className="mc-btn py-2.5 px-1.5 rounded text-xs font-bold flex flex-col items-center justify-center gap-1 cursor-pointer shadow hover:border-emerald-400"
+              title="Open Dynamic Quests & Scheduled Events Hub"
+            >
+              <span className="text-base">📜</span>
+              <span className="truncate">Quests & Events</span>
+            </button>
+            <button
+              onClick={onOpenMarketplace}
+              className="mc-btn py-2.5 px-1.5 rounded text-xs font-bold flex flex-col items-center justify-center gap-1 cursor-pointer shadow hover:border-yellow-400"
+              title="Open Cross-Brand In-Game Marketplace"
+            >
+              <span className="text-base">⚖️</span>
+              <span className="truncate">Marketplace</span>
+            </button>
+            <button
+              onClick={onOpenStore}
+              className="mc-btn py-2.5 px-1.5 rounded text-xs font-bold flex flex-col items-center justify-center gap-1 cursor-pointer shadow hover:border-amber-400 bg-amber-950/40 border border-amber-500/50 text-amber-200 hover:text-white"
+              title="Open Cross-Platform 10-Brand Cosmetic Store (Skins, Emotes, Accessories)"
+            >
+              <span className="text-base">🛍️</span>
+              <span className="truncate">Cosmetic Store</span>
+            </button>
+          </div>
+
+          {/* Cross-Platform Progression & Voice Chat Row */}
+          <div className="grid grid-cols-2 gap-2.5 w-full">
+            <button
+              onClick={onOpenProgression}
+              className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow hover:border-sky-400 bg-sky-950/30 border border-sky-500/40 text-sky-200 hover:text-white"
+              title="Cloud Progression, Skill Trees, Achievements & Cross-Device Sync"
+            >
+              <span className="text-base">☁️</span>
+              <span className="truncate">Cloud Progression & Skills</span>
+            </button>
+            <button
+              onClick={onOpenVoiceChat}
+              className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow hover:border-emerald-400 bg-emerald-950/30 border border-emerald-500/40 text-emerald-200 hover:text-white"
+              title="Low-Latency Spatial Proximity Voice Chat & Radar"
+            >
+              <span className="text-base">🎙️</span>
+              <span className="truncate">Proximity Voice Chat</span>
+            </button>
+          </div>
+
+          {/* Community Social Feed & Dashboard Button */}
+          {onOpenDashboard && (
+            <button
+              onClick={onOpenDashboard}
+              className="mc-btn w-full py-2.5 px-3.5 rounded text-xs font-bold flex items-center justify-between cursor-pointer shadow hover:border-amber-400 bg-amber-950/30 border border-amber-500/40 text-amber-200 hover:text-white transition group"
+              title="Community Dashboard, Social Feed, Shared 2D Builds & Screenshots"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">🏰</span>
+                <span className="font-mono">Community Social Feed & UGC Builds</span>
+              </div>
+              <span className="text-[10px] uppercase bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 font-mono">
+                Live UGC
+              </span>
+            </button>
+          )}
+
+          {/* Button: Open Roblox App */}
+          {onOpenRoblox && (
+            <button
+              onClick={onOpenRoblox}
+              className="mc-btn w-full py-3 px-4 rounded text-base font-bold flex items-center justify-between cursor-pointer group shadow-lg border-2 border-red-500/60 hover:border-red-400 bg-red-950/40 hover:bg-red-900/40 transition"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 bg-[#E2231A] rounded-xs shadow flex items-center justify-center transform -rotate-12 group-hover:rotate-0 transition-transform">
+                  <div className="w-2 h-2 bg-white rounded-2xs transform rotate-12" />
+                </div>
+                <span className="text-left font-mono">Open Roblox App</span>
+              </div>
+              <span className="text-[11px] font-mono uppercase bg-red-500/20 px-2 py-0.5 rounded text-red-200 border border-red-500/40">
+                Obby • Tycoon • R$ Robux
+              </span>
+            </button>
+          )}
+
           {/* Row of 2 Medium Buttons: Select Skin + How to Play */}
           <div className="grid grid-cols-2 gap-3 w-full">
             <button
@@ -281,11 +426,14 @@ export default function MainMenu({
           {/* Row of 2 Medium Buttons: Options & Settings + Sound Toggle */}
           <div className="grid grid-cols-2 gap-3 w-full">
             <button
-              onClick={() => setShowOptionsModal(true)}
-              className="mc-btn py-3 px-3 rounded text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow"
+              onClick={() => {
+                if (onOpenSettings) onOpenSettings();
+                else setShowOptionsModal(true);
+              }}
+              className="mc-btn py-3 px-3 rounded text-xs sm:text-sm font-bold flex items-center justify-center gap-2 cursor-pointer shadow hover:scale-102 transition"
             >
-              <Settings size={16} className="text-stone-300" />
-              <span>Options...</span>
+              <Settings size={16} className="text-yellow-400" />
+              <span>Options & Settings...</span>
             </button>
             <button
               onClick={() => setSoundEnabled(prev => !prev)}
@@ -354,92 +502,15 @@ export default function MainMenu({
         </div>
       </div>
 
-      {/* ================= OPTIONS MODAL ================= */}
-      {showOptionsModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-stone-900 border-4 border-stone-700 w-full max-w-lg p-6 rounded-2xl shadow-2xl text-stone-200">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-700 mb-4">
-              <div className="flex items-center gap-2 font-mono text-lg font-bold">
-                <Settings size={20} className="text-yellow-400" />
-                <span>Game Options & Settings</span>
-              </div>
-              <button
-                onClick={() => setShowOptionsModal(false)}
-                className="text-stone-400 hover:text-white p-1 cursor-pointer"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-4 font-mono text-xs">
-              <div>
-                <label className="block text-stone-300 mb-1.5 font-bold">Default Game Mode</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => onChangeGameMode('survival')}
-                    className={`mc-btn py-2 text-xs font-bold rounded ${
-                      activeGameMode === 'survival' ? 'mc-btn-primary' : ''
-                    }`}
-                  >
-                    ⚔️ Survival Mode
-                  </button>
-                  <button
-                    onClick={() => onChangeGameMode('creative')}
-                    className={`mc-btn py-2 text-xs font-bold rounded ${
-                      activeGameMode === 'creative' ? 'mc-btn-primary' : ''
-                    }`}
-                  >
-                    🎨 Creative Mode
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-stone-300 mb-1.5 font-bold">Game Difficulty</label>
-                <div className="grid grid-cols-3 gap-2">
-                  {(['peaceful', 'normal', 'hard'] as const).map((lvl) => (
-                    <button
-                      key={lvl}
-                      onClick={() => setDifficulty(lvl)}
-                      className={`mc-btn py-2 text-xs capitalize font-bold rounded ${
-                        difficulty === lvl ? 'mc-btn-primary' : ''
-                      }`}
-                    >
-                      {lvl}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-stone-300 mb-1.5 font-bold">Sound Effects & Ambience</label>
-                <button
-                  onClick={() => setSoundEnabled(!soundEnabled)}
-                  className={`mc-btn w-full py-2.5 text-xs font-bold rounded flex items-center justify-center gap-2 ${
-                    soundEnabled ? 'mc-btn-primary' : ''
-                  }`}
-                >
-                  {soundEnabled ? <Volume2 size={16} /> : <VolumeX size={16} />}
-                  <span>{soundEnabled ? 'Sound Effects: Enabled' : 'Sound Effects: Muted'}</span>
-                </button>
-              </div>
-
-              <div className="pt-2 border-t border-stone-800 text-[11px] text-stone-400">
-                <span className="text-yellow-400 font-bold">Tip:</span> In Creative Mode, you can fly, spawn infinite blocks, and break blocks instantly without tool durability.
-              </div>
-            </div>
-
-            <div className="mt-6 pt-3 border-t border-stone-700 flex justify-end">
-              <button
-                onClick={() => setShowOptionsModal(false)}
-                className="mc-btn px-6 py-2.5 text-xs font-bold rounded"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* ================= OPTIONS & SETTINGS MODAL ================= */}
+      <SettingsModal
+        isOpen={showOptionsModal}
+        onClose={() => setShowOptionsModal(false)}
+        activeGameMode={activeGameMode}
+        onChangeGameMode={onChangeGameMode}
+        difficulty={difficulty}
+        onChangeDifficulty={setDifficulty}
+      />
 
       {/* ================= HOW TO PLAY MODAL ================= */}
       {showHelpModal && (

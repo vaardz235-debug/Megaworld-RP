@@ -20,6 +20,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { speechEngine } from '../utils/speechEngine';
+import { countryballAudio, COUNTRYBALL_AUDIO_PROFILES } from '../utils/countryballAudioLibrary';
 
 interface CountryballDossierModalProps {
   countryball: CountryballData | null;
@@ -38,8 +39,16 @@ export function CountryballDossierModal({
 }: CountryballDossierModalProps) {
   const [activeTab, setActiveTab] = useState<'facts' | 'stats' | 'lore'>('facts');
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isMotifPlaying, setIsMotifPlaying] = useState(false);
 
   if (!countryball) return null;
+
+  const audioProfile = COUNTRYBALL_AUDIO_PROFILES[countryball.name] || 
+    COUNTRYBALL_AUDIO_PROFILES[countryball.commonName] || {
+      instrument: 'Traditional Regional Folk Lute & Bells',
+      regionalStyle: `${countryball.region} Melody`,
+      folkTradition: 'Traditional heritage instrument celebration'
+    };
 
   const currentIndex = allCountryballs.findIndex(c => c.id === countryball.id);
   const prevCb = currentIndex > 0 ? allCountryballs[currentIndex - 1] : allCountryballs[allCountryballs.length - 1];
@@ -59,6 +68,14 @@ export function CountryballDossierModal({
       quote,
       () => setIsSpeaking(false)
     );
+  };
+
+  const handlePlayMotif = () => {
+    setIsMotifPlaying(true);
+    countryballAudio.playMotif(countryball.name, true);
+    setTimeout(() => {
+      setIsMotifPlaying(false);
+    }, 1400);
   };
 
   const statItems = [
@@ -178,10 +195,36 @@ export function CountryballDossierModal({
                 <p className="text-xs text-stone-400 mt-1">
                   Motto: <span className="text-stone-300">{countryball.motto}</span>
                 </p>
+                {/* Folk Instrument & Regional Motif Tag */}
+                <div className="mt-2 p-2 rounded-xl bg-blue-950/40 border border-blue-500/30 text-left text-xs">
+                  <div className="text-[10px] text-blue-300 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <span>🎵 Regional Folk Music & Instrument</span>
+                  </div>
+                  <div className="text-stone-200 font-bold text-xs mt-0.5">
+                    {audioProfile.instrument} <span className="text-amber-400">({audioProfile.regionalStyle})</span>
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-0.5">
+                    {audioProfile.folkTradition}
+                  </div>
+                </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={handlePlayMotif}
+                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow ${
+                    isMotifPlaying
+                      ? 'bg-blue-600 text-white border-blue-400 animate-pulse'
+                      : 'bg-blue-600/20 hover:bg-blue-600/35 text-blue-300 border-blue-500/40'
+                  }`}
+                  title="Play authentic traditional regional instrument motif via Web Audio API"
+                >
+                  <Sparkles size={13} className={isMotifPlaying ? 'animate-spin text-yellow-300' : 'text-blue-400'} />
+                  <span>{isMotifPlaying ? '🎶 Playing Motif...' : '🎵 Play Folk Instrument Motif'}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={handleSpeak}

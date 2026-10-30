@@ -1,9 +1,10 @@
 import React from 'react';
+import XilamAvatar from './XilamAvatar';
 
 export interface CharacterData {
   id: number;
   name: string;
-  type: 'minecraft' | 'sprnuki' | 'train' | 'countryball';
+  type: 'minecraft' | 'sprnuki' | 'train' | 'countryball' | 'roblox' | 'xilam';
   subtype?: string;
   color?: string;
   flag?: string;
@@ -15,12 +16,35 @@ export interface CharacterData {
   cape?: 'none' | 'mojang' | 'creeper' | 'elytra';
   isEnchanted?: boolean;
   isCharged?: boolean;
+  robloxHeadColor?: string;
+  robloxTorsoColor?: string;
+  robloxLegsColor?: string;
+  robloxFace?: 'smile' | 'chill' | 'winning' | 'epic' | 'happy' | 'beast' | 'void';
+  robloxHat?: 'none' | 'bacon' | 'hardhat' | 'dominus' | 'valkyrie' | 'shades' | 'beanie';
+  robloxGear?: 'none' | 'sword' | 'cola' | 'coil' | 'speed_coil' | 'subspace';
+  customHat?: string;
+  customFace?: string;
+  customWings?: string;
+  customAura?: string;
+  customEmblem?: string;
+  customClass?: string;
+  customTitle?: string;
+  bodyType?: string;
+  hairStyle?: string;
+  hairColor?: string;
+  shirtStyle?: string;
+  shirtColor?: string;
+  pantsStyle?: string;
+  pantsColor?: string;
+  skinColor?: string;
 }
 
 interface CharacterAvatarProps {
   character: CharacterData;
   size?: 'sm' | 'md' | 'lg' | 'xl';
   isWalking?: boolean;
+  isSprinting?: boolean;
+  isJumping?: boolean;
   isTalking?: boolean;
   speechText?: string;
   heldItem?: string;
@@ -50,6 +74,8 @@ export default function CharacterAvatar({
   character,
   size = 'md',
   isWalking = false,
+  isSprinting = false,
+  isJumping = false,
   isTalking = false,
   speechText,
   heldItem,
@@ -105,20 +131,38 @@ export default function CharacterAvatar({
         </div>
       )}
 
-      {/* Floating Name Tag (counter-flipped if facing left) */}
+      {/* Floating Name & Title Tag (counter-flipped if facing left) */}
       {showName && (
         <div 
-          className="absolute -top-6 bg-black/85 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-white tracking-wider border border-white/20 whitespace-nowrap z-30 shadow-md flex items-center gap-1"
+          className="absolute -top-7 bg-black/90 px-2 py-0.5 rounded text-[10px] font-mono font-bold text-white tracking-wider border border-white/20 whitespace-nowrap z-30 shadow-md flex flex-col items-center gap-0.5"
           style={{ transform: direction === 'left' ? 'scaleX(-1)' : 'none' }}
         >
-          {isTalking && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />}
-          <span>{character.name}</span>
+          {character.customTitle && (
+            <span className="text-[7.5px] uppercase font-black tracking-widest text-amber-300 bg-amber-950/80 px-1 rounded border border-amber-500/40 leading-tight">
+              {character.customTitle}
+            </span>
+          )}
+          <div className="flex items-center gap-1 leading-none">
+            {isTalking && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping inline-block" />}
+            <span>{character.name}</span>
+          </div>
         </div>
       )}
 
+      {/* Back Layer: Custom Wings & Aura */}
+      <RenderCustomWings wings={character.customWings} />
+      <RenderCustomAura aura={character.customAura} />
+
       {/* Render Character according to type */}
       {character.type === 'minecraft' && (
-        <MinecraftAvatar character={character} subtype={subtype} isWalking={isWalking} heldItem={heldItem} />
+        <MinecraftAvatar 
+          character={character} 
+          subtype={subtype} 
+          isWalking={isWalking} 
+          isSprinting={isSprinting}
+          isJumping={isJumping}
+          heldItem={heldItem} 
+        />
       )}
 
       {character.type === 'sprnuki' && (
@@ -132,8 +176,498 @@ export default function CharacterAvatar({
       {character.type === 'countryball' && (
         <CountryballAvatar character={character} isWalking={isWalking} heldItem={heldItem} />
       )}
+
+      {character.type === 'roblox' && (
+        <RobloxAvatar 
+          character={character} 
+          isWalking={isWalking} 
+          isSprinting={isSprinting}
+          isJumping={isJumping}
+          heldItem={heldItem} 
+        />
+      )}
+
+      {character.type === 'xilam' && (
+        <XilamAvatar 
+          character={character} 
+          isWalking={isWalking} 
+          heldItem={heldItem} 
+        />
+      )}
+
+      {/* Front Layer: Custom Hairstyles, Clothing Overlays, Hats, Eyewear & Brand Emblems */}
+      <RenderCustomHair hair={character.hairStyle} color={character.hairColor} />
+      <RenderCustomShirtOverlay shirt={character.shirtStyle} shirtColor={character.shirtColor} />
+      <RenderCustomHat hat={character.customHat} />
+      <RenderCustomFace face={character.customFace} />
+      <RenderCustomEmblem emblem={character.customEmblem} />
     </div>
   );
+}
+
+/* ==========================================================
+   CUSTOM COSMETIC ACCESSORY RENDERERS
+========================================================== */
+function RenderCustomWings({ wings }: { wings?: string }) {
+  if (!wings || wings === 'none') return null;
+  if (wings === 'back_elytra') {
+    return (
+      <div className="absolute top-7 left-1/2 -translate-x-1/2 -z-10 flex gap-4 pointer-events-none opacity-90 drop-shadow">
+        <div className="w-5 h-12 bg-slate-700 border border-slate-500 rounded-bl-full transform -rotate-25 shadow-md" />
+        <div className="w-5 h-12 bg-slate-700 border border-slate-500 rounded-br-full transform rotate-25 shadow-md" />
+      </div>
+    );
+  }
+  if (wings === 'back_mojang') {
+    return (
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 -z-10 w-8 h-14 bg-red-700 border-2 border-red-900 rounded-b-md shadow-lg flex flex-col items-center justify-center pointer-events-none">
+        <div className="w-4 h-4 bg-amber-400 rounded-full flex items-center justify-center text-[8px] font-bold text-black">M</div>
+      </div>
+    );
+  }
+  if (wings === 'back_katana') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 -z-10 w-12 h-14 pointer-events-none drop-shadow">
+        <div className="w-1.5 h-14 bg-slate-300 border border-black rotate-45 absolute left-5" />
+        <div className="w-1.5 h-14 bg-slate-300 border border-black -rotate-45 absolute left-5" />
+      </div>
+    );
+  }
+  if (wings === 'back_angel') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 -z-10 flex gap-6 pointer-events-none animate-pulse">
+        <div className="w-7 h-14 bg-white/90 border border-amber-200 rounded-tl-full rounded-bl-3xl transform -rotate-30 shadow-[0_0_12px_#fef08a]" />
+        <div className="w-7 h-14 bg-white/90 border border-amber-200 rounded-tr-full rounded-br-3xl transform rotate-30 shadow-[0_0_12px_#fef08a]" />
+      </div>
+    );
+  }
+  if (wings === 'back_dragon') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 -z-10 flex gap-6 pointer-events-none">
+        <div className="w-8 h-14 bg-neutral-900 border border-purple-500 rounded-tl-full transform -rotate-35 shadow-[0_0_10px_#a855f7]" />
+        <div className="w-8 h-14 bg-neutral-900 border border-purple-500 rounded-tr-full transform rotate-35 shadow-[0_0_10px_#a855f7]" />
+      </div>
+    );
+  }
+  if (wings === 'back_turtle') {
+    return (
+      <div className="absolute top-7 left-1/2 -translate-x-1/2 -z-10 w-10 h-10 bg-emerald-800 border-2 border-emerald-950 rounded-full shadow-inner pointer-events-none flex items-center justify-center">
+        <div className="w-6 h-6 border border-emerald-400/50 rounded-full" />
+      </div>
+    );
+  }
+  if (wings === 'back_kiwi') {
+    return (
+      <div className="absolute top-6 -right-2 -z-10 flex items-center justify-center pointer-events-none drop-shadow-md">
+        <span className="text-xl animate-bounce">🥝</span>
+      </div>
+    );
+  }
+  if (wings === 'back_allblacks_cape') {
+    return (
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 -z-10 w-12 h-16 bg-neutral-950 border-2 border-neutral-700 rounded-b-xl shadow-xl flex flex-col items-center justify-center pointer-events-none">
+        <span className="text-xs text-white">🌿</span>
+      </div>
+    );
+  }
+  return null;
+}
+
+function RenderCustomAura({ aura }: { aura?: string }) {
+  if (!aura || aura === 'none') return null;
+  if (aura === 'aura_flame') {
+    return (
+      <div className="absolute -inset-4 pointer-events-none rounded-full animate-pulse -z-20 bg-gradient-to-t from-orange-600/30 via-red-500/20 to-yellow-400/30 blur-sm flex items-center justify-center">
+        <span className="absolute -top-3 text-xs animate-bounce">🔥</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_electric') {
+    return (
+      <div className="absolute -inset-4 pointer-events-none rounded-full -z-20 border-2 border-cyan-400/70 shadow-[0_0_16px_#22d3ee] animate-ping" />
+    );
+  }
+  if (aura === 'aura_emerald') {
+    return (
+      <div className="absolute -inset-3 pointer-events-none rounded-full -z-20 bg-emerald-500/20 shadow-[0_0_14px_#34d399] blur-[2px]" />
+    );
+  }
+  if (aura === 'aura_gold') {
+    return (
+      <div className="absolute -inset-4 pointer-events-none rounded-full -z-20 bg-amber-400/25 shadow-[0_0_18px_#f59e0b] blur-[2px] flex items-center justify-around">
+        <span className="text-[10px] animate-spin">✨</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_void') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-purple-950/40 border border-purple-500/40 shadow-[0_0_20px_#9333ea] blur-[3px]" />
+    );
+  }
+  if (aura === 'aura_silver_fern') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-emerald-950/40 border-2 border-emerald-400/60 shadow-[0_0_22px_#34d399] blur-[2px] flex items-center justify-between px-1">
+        <span className="text-[11px] animate-pulse">🌿</span>
+        <span className="text-[11px] animate-pulse">✨</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_yt_viral') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-red-600/25 border border-red-500/50 shadow-[0_0_20px_#ef4444] blur-[2px] flex items-center justify-around">
+        <span className="text-[10px] animate-bounce">▶️</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_bp_solaris') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-amber-500/25 border border-yellow-400 shadow-[0_0_20px_#eab308] blur-[2px] flex items-center justify-center">
+        <span className="text-[10px] animate-spin">🌻</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_newworld_azoth') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-cyan-900/40 border-2 border-cyan-400/70 shadow-[0_0_22px_#06b6d4] blur-[3px] flex items-center justify-center">
+        <span className="text-[10px] animate-pulse">💠</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_tarragower_wisdom') {
+    return (
+      <div className="absolute -inset-4 pointer-events-none rounded-full -z-20 border border-indigo-400/60 shadow-[0_0_18px_#818cf8] blur-[1px] flex items-center justify-around">
+        <span className="text-[9px] animate-spin">📐</span>
+      </div>
+    );
+  }
+  return null;
+}
+
+function RenderCustomHat({ hat }: { hat?: string }) {
+  if (!hat || hat === 'none') return null;
+  if (hat === 'hat_crown') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow-md">
+        <div className="w-8 h-4 bg-amber-400 border border-amber-600 rounded-b-xs flex items-center justify-around px-0.5 shadow-sm">
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+          <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" />
+          <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+        </div>
+        <div className="flex justify-between w-8 -mt-5">
+          <div className="w-2 h-2 bg-amber-400 border-t border-l border-amber-600 transform -rotate-45" />
+          <div className="w-2.5 h-2.5 bg-amber-300 border border-amber-600 transform rotate-45 -mt-0.5" />
+          <div className="w-2 h-2 bg-amber-400 border-t border-r border-amber-600 transform rotate-45" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_sombrero') {
+    return (
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-14 h-2 bg-amber-700 border border-amber-950 rounded-full shadow" />
+        <div className="w-6 h-4 bg-amber-600 border border-amber-950 rounded-t-lg -mt-5 mx-auto" />
+      </div>
+    );
+  }
+  if (hat === 'hat_ushanka') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-9 h-5 bg-stone-700 border border-stone-900 rounded-t-md shadow flex items-center justify-center">
+          <div className="w-3 h-3 bg-red-600 rounded-full border border-yellow-400" />
+        </div>
+        <div className="flex justify-between w-10 -mt-1 px-0.5">
+          <div className="w-2 h-4 bg-stone-600 border border-stone-900 rounded-b-sm" />
+          <div className="w-2 h-4 bg-stone-600 border border-stone-900 rounded-b-sm" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_tophat') {
+    return (
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-6 h-7 bg-neutral-900 border border-neutral-950 rounded-t-xs flex flex-col justify-end">
+          <div className="w-full h-1.5 bg-red-600" />
+        </div>
+        <div className="w-10 h-1.5 bg-neutral-900 border border-neutral-950 rounded-full -mt-0.5 mx-auto" />
+      </div>
+    );
+  }
+  if (hat === 'hat_chef') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-8 h-6 bg-white border border-stone-300 rounded-t-full shadow flex items-center justify-center">
+          <span className="text-[7px] font-bold text-amber-500">M</span>
+        </div>
+        <div className="w-7 h-1.5 bg-stone-200 border border-stone-400 -mt-0.5 mx-auto rounded-xs" />
+      </div>
+    );
+  }
+  if (hat === 'hat_dominus') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-10 h-7 bg-amber-500 border-2 border-amber-700 rounded-t-xl shadow-md flex items-center justify-around px-1 pt-1">
+          <div className="w-1.5 h-1.5 bg-red-600 rounded-full shadow-[0_0_4px_#ef4444]" />
+          <div className="w-1.5 h-1.5 bg-red-600 rounded-full shadow-[0_0_4px_#ef4444]" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_mining') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-9 h-4 bg-amber-400 border border-amber-600 rounded-t-md shadow flex items-center justify-center">
+          <div className="w-2.5 h-2.5 bg-white rounded-full border border-neutral-800 shadow-[0_0_6px_#ffffff]" />
+        </div>
+        <div className="w-11 h-1.5 bg-amber-500 border border-amber-700 rounded-full -mt-0.5 mx-auto" />
+      </div>
+    );
+  }
+  if (hat === 'hat_viking') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex items-center">
+        <div className="w-2 h-4 bg-amber-100 border border-stone-800 rounded-tl-full transform -rotate-45" />
+        <div className="w-8 h-4 bg-stone-500 border border-stone-800 rounded-t-md shadow" />
+        <div className="w-2 h-4 bg-amber-100 border border-stone-800 rounded-tr-full transform rotate-45" />
+      </div>
+    );
+  }
+  if (hat === 'hat_halo') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+        <div className="w-9 h-2.5 border-2 border-amber-300 rounded-full shadow-[0_0_8px_#fde047] animate-pulse" />
+      </div>
+    );
+  }
+  if (hat === 'hat_silver_fern') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-9 h-4 bg-neutral-900 border border-neutral-700 rounded-t-lg shadow flex items-center justify-center">
+          <span className="text-[9px] text-white">🌿</span>
+        </div>
+        <div className="w-11 h-1.5 bg-neutral-800 border-b border-neutral-600 rounded-full -mt-0.5" />
+      </div>
+    );
+  }
+  if (hat === 'hat_kowhai') {
+    return (
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center justify-center">
+        <div className="w-10 h-3 border-2 border-yellow-400 bg-yellow-400/20 rounded-full shadow-[0_0_8px_#facc15] flex justify-around items-center px-1">
+          <span className="text-[8px]">🌼</span>
+          <span className="text-[8px]">🌼</span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
+function RenderCustomFace({ face }: { face?: string }) {
+  if (!face || face === 'none') return null;
+  if (face === 'face_shades') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-9 h-2.5 bg-black border border-white/60 rounded-xs flex items-center justify-around px-0.5">
+          <div className="w-1 h-0.5 bg-white ml-0.5" />
+          <div className="w-1 h-0.5 bg-white mr-0.5" />
+        </div>
+      </div>
+    );
+  }
+  if (face === 'face_monocle') {
+    return (
+      <div className="absolute top-4 right-1 z-30 pointer-events-none drop-shadow">
+        <div className="w-3.5 h-3.5 border-2 border-amber-400 bg-sky-200/40 rounded-full shadow" />
+      </div>
+    );
+  }
+  if (face === 'face_bandana') {
+    return (
+      <div className="absolute top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-8 h-3.5 bg-red-700 border border-black rounded-b-lg flex items-center justify-around">
+          <div className="w-1 h-1 bg-white rounded-full opacity-70" />
+          <div className="w-1 h-1 bg-white rounded-full opacity-70" />
+        </div>
+      </div>
+    );
+  }
+  if (face === 'face_cyborg') {
+    return (
+      <div className="absolute top-4 left-2 z-30 pointer-events-none drop-shadow">
+        <div className="w-3 h-3 bg-red-600 border border-stone-800 rounded-full shadow-[0_0_6px_#ef4444] animate-pulse" />
+      </div>
+    );
+  }
+  if (face === 'face_goggles') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex gap-1 items-center">
+        <div className="w-4 h-3.5 border-2 border-amber-600 bg-cyan-300/60 rounded-full" />
+        <div className="w-1 h-0.5 bg-stone-800" />
+        <div className="w-4 h-3.5 border-2 border-amber-600 bg-cyan-300/60 rounded-full" />
+      </div>
+    );
+  }
+  if (face === 'face_ta_moko') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex flex-col items-center opacity-85">
+        <span className="text-[10px] text-cyan-950 font-black">🌀</span>
+      </div>
+    );
+  }
+  if (face === 'face_pounamu') {
+    return (
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center justify-center">
+        <div className="w-2.5 h-3 bg-emerald-600 border border-emerald-900 rounded-b-md shadow-[0_0_4px_#10b981]" />
+      </div>
+    );
+  }
+  return null;
+}
+
+function RenderCustomEmblem({ emblem }: { emblem?: string }) {
+  if (!emblem || emblem === 'none') return null;
+  const iconMap: Record<string, string> = {
+    emblem_mc: '⛏️',
+    emblem_roblox: '🟥',
+    emblem_countryball: '🌐',
+    emblem_xilam: '🪰',
+    emblem_nz: '🌿',
+    emblem_mcdonalds: '🍟',
+    emblem_bp: '🌻',
+    emblem_youtube: '💎',
+    emblem_tarragower: '🏛️',
+    emblem_newworld: '🧭',
+  };
+  const icon = iconMap[emblem];
+  if (!icon) return null;
+  return (
+    <div className="absolute bottom-1 right-0 z-30 w-4 h-4 bg-stone-900/90 border border-amber-400 rounded-full flex items-center justify-center text-[9px] shadow pointer-events-none">
+      {icon}
+    </div>
+  );
+}
+
+function RenderCustomHair({ hair, color = '#451a03' }: { hair?: string; color?: string }) {
+  if (!hair || hair === 'hair_none') return null;
+
+  if (hair === 'hair_bacon') {
+    return (
+      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-10 h-3 rounded-t-lg shadow" style={{ backgroundColor: color }} />
+        <div className="flex gap-1 -mt-0.5">
+          <div className="w-2.5 h-3.5 rounded-b-sm" style={{ backgroundColor: color }} />
+          <div className="w-3 h-2 rounded-b-xs" style={{ backgroundColor: color }} />
+          <div className="w-2.5 h-4 rounded-b-md" style={{ backgroundColor: color }} />
+        </div>
+      </div>
+    );
+  }
+
+  if (hair === 'hair_spiky') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex gap-0.5">
+        <div className="w-2 h-5 rounded-tl-full transform -rotate-20" style={{ backgroundColor: color }} />
+        <div className="w-2.5 h-6 rounded-t-full -mt-1" style={{ backgroundColor: color }} />
+        <div className="w-2.5 h-5 rounded-tr-full transform rotate-15" style={{ backgroundColor: color }} />
+      </div>
+    );
+  }
+
+  if (hair === 'hair_curly') {
+    return (
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex gap-1">
+        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+        <div className="w-4 h-4 rounded-full -mt-1" style={{ backgroundColor: color }} />
+        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: color }} />
+      </div>
+    );
+  }
+
+  if (hair === 'hair_ponytail') {
+    return (
+      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-8 h-2.5 rounded-t-md" style={{ backgroundColor: color }} />
+        <div className="w-2 h-7 rounded-b-full -mt-1 ml-5 shadow" style={{ backgroundColor: color }} />
+      </div>
+    );
+  }
+
+  if (hair === 'hair_wizard') {
+    return (
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-10 h-3 rounded-t-lg bg-slate-300" />
+        <div className="flex justify-between w-11 -mt-0.5 px-0.5">
+          <div className="w-2.5 h-7 bg-slate-300 rounded-b-sm" />
+          <div className="w-2.5 h-7 bg-slate-300 rounded-b-sm" />
+        </div>
+      </div>
+    );
+  }
+
+  if (hair === 'hair_emo') {
+    return (
+      <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow">
+        <div className="w-9 h-3 rounded-t-md" style={{ backgroundColor: color }} />
+        <div className="w-4 h-5 rounded-br-2xl transform rotate-12 -mt-1 ml-1" style={{ backgroundColor: color }} />
+      </div>
+    );
+  }
+
+  if (hair === 'hair_celestial') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex gap-1 animate-pulse">
+        <div className="w-3 h-5 rounded-t-full bg-cyan-300 shadow-[0_0_8px_#67e8f9]" />
+        <div className="w-4 h-6 rounded-t-full -mt-1 bg-purple-300 shadow-[0_0_8px_#d8b4fe]" />
+        <div className="w-3 h-5 rounded-t-full bg-cyan-300 shadow-[0_0_8px_#67e8f9]" />
+      </div>
+    );
+  }
+
+  return null;
+}
+
+function RenderCustomShirtOverlay({ shirt, shirtColor }: { shirt?: string; shirtColor?: string }) {
+  if (!shirt || shirt === 'shirt_default') return null;
+
+  if (shirt === 'shirt_mcdonalds') {
+    return (
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow">
+        <div className="w-3 h-2.5 bg-red-600 rounded-xs flex items-center justify-center border border-black/40">
+          <span className="text-[6.5px] font-black text-amber-300">M</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_bp_suit') {
+    return (
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow">
+        <div className="w-3.5 h-3 bg-emerald-700 rounded-xs flex items-center justify-center border border-emerald-950">
+          <span className="text-[6px] font-bold text-yellow-300">🌻</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_tuxedo') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-2.5 h-2.5 bg-white border border-black/40 rotate-45 -mb-1" />
+        <div className="w-1.5 h-1.5 bg-red-600 rounded-xs" />
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_retro_roblox') {
+    return (
+      <div className="absolute top-10 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow">
+        <div className="w-4 h-2.5 bg-neutral-900 rounded-xs flex items-center justify-center border border-white/30">
+          <span className="text-[6px] font-mono font-black text-red-500">R</span>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }
 
 /* ==========================================================
@@ -304,11 +838,15 @@ function MinecraftAvatar({
   character,
   subtype,
   isWalking,
+  isSprinting = false,
+  isJumping = false,
   heldItem,
 }: {
   character: CharacterData;
   subtype: string;
   isWalking: boolean;
+  isSprinting?: boolean;
+  isJumping?: boolean;
   heldItem?: string;
 }) {
   const itemIcon = getHeldItemIcon(heldItem);
@@ -1254,11 +1792,15 @@ function MinecraftAvatar({
       </div>
 
       {/* ===================== TORSO & ARMS ===================== */}
-      <div className="relative flex items-start justify-center">
+      <div className={`relative flex items-start justify-center ${
+        isWalking ? (isSprinting ? 'animate-mc-body-bob-sprint' : 'animate-mc-body-bob') : ''
+      }`}>
         {/* Left Arm */}
         <div 
-          className={`w-3.5 h-12 border-y-2 border-l-2 border-black/40 flex flex-col transition-transform origin-top ${
-            isWalking ? 'rotate-16' : isZombie || isDrowned ? '-rotate-75' : ''
+          className={`w-[14px] h-12 border-y-2 border-l-2 border-black/40 flex flex-col origin-top ${
+            isWalking 
+              ? (isSprinting ? 'animate-mc-arm-left-sprint' : 'animate-mc-arm-left') 
+              : isZombie || isDrowned ? '-rotate-75' : ''
           }`}
           style={{ backgroundColor: skinColor }}
         >
@@ -1321,8 +1863,10 @@ function MinecraftAvatar({
 
         {/* Right Arm (Holding Weapon / Tool) */}
         <div 
-          className={`w-3.5 h-12 border-y-2 border-r-2 border-black/40 relative flex flex-col transition-transform origin-top ${
-            isWalking ? '-rotate-16' : isZombie || isDrowned ? '-rotate-75' : ''
+          className={`w-[14px] h-12 border-y-2 border-r-2 border-black/40 relative flex flex-col origin-top ${
+            isWalking 
+              ? (isSprinting ? 'animate-mc-arm-right-sprint' : 'animate-mc-arm-right') 
+              : isZombie || isDrowned ? '-rotate-75' : ''
           }`}
           style={{ backgroundColor: skinColor }}
         >
@@ -1361,8 +1905,10 @@ function MinecraftAvatar({
       <div className="flex justify-center -mt-0.5">
         {/* Left Leg */}
         <div 
-          className={`w-4.5 h-12 border-x-2 border-b-2 border-black/40 flex flex-col justify-between transition-transform origin-top ${
-            isWalking ? 'rotate-8' : ''
+          className={`w-[18px] h-12 border-x-2 border-b-2 border-black/40 flex flex-col justify-between origin-top ${
+            isWalking 
+              ? (isSprinting ? 'animate-mc-leg-left-sprint' : 'animate-mc-leg-left') 
+              : ''
           }`}
           style={{ backgroundColor: armorTier !== 'none' ? (armorTier === 'diamond' ? '#2ef5e4' : '#33313b') : pantsColor }}
         >
@@ -1375,12 +1921,13 @@ function MinecraftAvatar({
 
         {/* Right Leg */}
         <div 
-          className={`w-4.5 h-12 border-r-2 border-b-2 border-black/40 flex flex-col justify-between transition-transform origin-top ${
-            isWalking ? '-rotate-8' : ''
+          className={`w-[18px] h-12 border-r-2 border-b-2 border-black/40 flex flex-col justify-between origin-top ${
+            isWalking 
+              ? (isSprinting ? 'animate-mc-leg-right-sprint' : 'animate-mc-leg-right') 
+              : ''
           }`}
           style={{ backgroundColor: armorTier !== 'none' ? (armorTier === 'diamond' ? '#2ef5e4' : '#33313b') : pantsColor }}
         >
-          <div className="w-full h-1 bg-black/20 mt-4" />
           <div 
             className="w-full h-3 border-t-2 border-black/40"
             style={{ backgroundColor: armorTier === 'diamond' ? '#127a72' : armorTier === 'netherite' ? '#1c1a21' : '#383838' }}
@@ -1436,6 +1983,7 @@ function SprnukiAvatar({
   const isWendaNeko = sub === 'wenda_neko' || nameLower.includes('neko');
   const isBlackVoid = sub === 'black_void' || nameLower.includes('void');
   const isVerity = sub === 'verity' || nameLower.includes('verity');
+  const isVerityBox = sub === 'verity_box' || (nameLower.includes('verity') && (nameLower.includes('box') || sub.includes('box')));
 
   // Palette Setup
   let bodyColor = '#3b82f6';
@@ -2180,25 +2728,57 @@ function SprnukiAvatar({
         </div>
       </div>
 
-      {/* ================= LEGS & CARTOON SNEAKERS ================= */}
-      <div className="flex justify-center gap-1.5 -mt-1 z-0">
-        <div 
-          className={`w-4 h-5.5 rounded-b-lg border-2 border-neutral-950 flex flex-col justify-end shadow-md transition-transform ${
-            isWalking ? 'translate-y-0.5' : ''
-          }`}
-          style={{ backgroundColor: isHorror ? '#0c0a09' : bodyColor }}
-        >
-          <div className="w-full h-1.5 bg-white border-t border-neutral-900 rounded-b-sm" />
+      {/* ================= LEGS & CARTOON SNEAKERS / VERITY IN A BOX ================= */}
+      {isVerityBox ? (
+        /* The Verity Update: Jack-In-The-Box Morph */
+        <div className="flex flex-col items-center -mt-1.5 z-10 relative">
+          {/* Spring Coil with Wobble Animation */}
+          <div className="w-5 h-3 flex flex-col items-center justify-between pointer-events-none -mb-0.5">
+            <div className="w-3.5 h-1 border-t-2 border-stone-300 rounded-full animate-bounce" style={{ animationDuration: '0.6s' }} />
+            <div className="w-4 h-1 border-t-2 border-stone-400 rounded-full animate-bounce" style={{ animationDuration: '0.5s' }} />
+            <div className="w-3.5 h-1 border-t-2 border-stone-300 rounded-full animate-bounce" style={{ animationDuration: '0.7s' }} />
+          </div>
+
+          {/* Jack-In-The-Box Container */}
+          <div className={`w-12 h-10 rounded-md border-2 ${isHorror ? 'bg-purple-950 border-red-600 shadow-[0_0_12px_#ef4444]' : 'bg-gradient-to-b from-purple-800 to-indigo-950 border-amber-300 shadow-[0_0_15px_#c084fc]'} relative flex flex-col items-center justify-center overflow-visible`}>
+            {/* Open Box Lid Flaps */}
+            <div className="absolute -top-2 left-0 w-5.5 h-2.5 bg-purple-700 border border-amber-300 -rotate-25 rounded-t-xs" />
+            <div className="absolute -top-2 right-0 w-5.5 h-2.5 bg-purple-700 border border-amber-300 rotate-25 rounded-t-xs" />
+
+            {/* Front Star Embellishment */}
+            <div className={`w-5 h-5 rounded-full ${isHorror ? 'bg-red-900 border border-red-500' : 'bg-amber-400 border border-amber-200'} flex items-center justify-center shadow`}>
+              <span className="text-[10px] text-white font-black animate-pulse">{isHorror ? '👁️' : '★'}</span>
+            </div>
+
+            {/* Mechanical Crank Handle on Side */}
+            <div className="absolute -right-3.5 top-2 flex items-center pointer-events-none">
+              <div className="w-2 h-1 bg-amber-300 rounded-xs" />
+              <div className="w-1 h-3.5 bg-amber-400 rounded-xs flex flex-col justify-end items-center">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500 border border-amber-200 shadow-sm animate-spin" style={{ animationDuration: '2s' }} />
+              </div>
+            </div>
+          </div>
         </div>
-        <div 
-          className={`w-4 h-5.5 rounded-b-lg border-2 border-neutral-950 flex flex-col justify-end shadow-md transition-transform ${
-            isWalking ? '-translate-y-0.5' : ''
-          }`}
-          style={{ backgroundColor: isHorror ? '#0c0a09' : bodyColor }}
-        >
-          <div className="w-full h-1.5 bg-white border-t border-neutral-900 rounded-b-sm" />
+      ) : (
+        <div className="flex justify-center gap-1.5 -mt-1 z-0">
+          <div 
+            className={`w-4 h-5.5 rounded-b-lg border-2 border-neutral-950 flex flex-col justify-end shadow-md transition-transform ${
+              isWalking ? 'translate-y-0.5' : ''
+            }`}
+            style={{ backgroundColor: isHorror ? '#0c0a09' : bodyColor }}
+          >
+            <div className="w-full h-1.5 bg-white border-t border-neutral-900 rounded-b-sm" />
+          </div>
+          <div 
+            className={`w-4 h-5.5 rounded-b-lg border-2 border-neutral-950 flex flex-col justify-end shadow-md transition-transform ${
+              isWalking ? '-translate-y-0.5' : ''
+            }`}
+            style={{ backgroundColor: isHorror ? '#0c0a09' : bodyColor }}
+          >
+            <div className="w-full h-1.5 bg-white border-t border-neutral-900 rounded-b-sm" />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -3628,6 +4208,395 @@ function CountryballAvatar({
 
       {/* Ground Polish Shadow */}
       <div className="w-11 h-2 bg-black/45 rounded-full blur-[1px] mt-1" />
+    </div>
+  );
+}
+
+/* ==========================================================
+   ROBLOX BLOCKY R6 AVATAR SYSTEM
+   Authentic R6 blocky proportions, head stud, iconic faces,
+   classic hats, swinging limbs, and legendary gears!
+========================================================== */
+function RobloxAvatar({
+  character,
+  isWalking,
+  isSprinting = false,
+  isJumping = false,
+  heldItem,
+}: {
+  character: CharacterData;
+  isWalking: boolean;
+  isSprinting?: boolean;
+  isJumping?: boolean;
+  heldItem?: string;
+}) {
+  const subtype = (character.subtype || 'noob').toLowerCase();
+  const nameLower = character.name.toLowerCase();
+
+  const isBacon = subtype.includes('bacon') || nameLower.includes('bacon') || character.robloxHat === 'bacon';
+  const isBuilderman = subtype.includes('builder') || nameLower.includes('builder') || character.robloxHat === 'hardhat';
+  const isGuest = subtype.includes('guest') || nameLower.includes('guest') || character.robloxHat === 'beanie';
+  const isKorblox = subtype.includes('korblox') || nameLower.includes('korblox');
+  const isDominus = subtype.includes('dominus') || nameLower.includes('dominus') || character.robloxHat === 'dominus';
+  const isValkyrie = subtype.includes('valkyrie') || nameLower.includes('valkyrie') || character.robloxHat === 'valkyrie';
+
+  // Determine Body Colors
+  const headColor = character.robloxHeadColor || (
+    isGuest ? '#1c1917' :
+    isKorblox ? '#0ea5e9' :
+    isDominus ? '#09090b' :
+    (isBacon || isBuilderman) ? '#f5d0a9' :
+    '#facc15' // Classic Noob Bright Yellow
+  );
+
+  const torsoColor = character.robloxTorsoColor || (
+    isGuest ? '#0a0a0a' :
+    isKorblox ? '#0369a1' :
+    isDominus ? '#18181b' :
+    isBuilderman ? '#ea580c' :
+    isBacon ? '#1e3a8a' :
+    '#0055ff' // Classic Noob Royal Blue
+  );
+
+  const armColor = isGuest ? '#0f0f10' :
+    isKorblox ? '#0284c7' :
+    isDominus ? '#18181b' :
+    isBuilderman ? '#ea580c' :
+    isBacon ? '#1e3a8a' :
+    headColor; // Yellow for Noob
+
+  const legColor = character.robloxLegsColor || (
+    isGuest ? '#09090b' :
+    isKorblox ? '#075985' :
+    isDominus ? '#18181b' :
+    isBuilderman ? '#334155' :
+    isBacon ? '#451a03' :
+    '#16a34a' // Classic Noob Bright Green
+  );
+
+  const faceType = character.robloxFace || (
+    isGuest ? 'beast' :
+    isDominus ? 'void' :
+    isKorblox ? 'chill' :
+    isBacon ? 'winning' :
+    'smile'
+  );
+
+  const hatType = character.robloxHat || (
+    isBacon ? 'bacon' :
+    isBuilderman ? 'hardhat' :
+    isGuest ? 'beanie' :
+    isDominus ? 'dominus' :
+    isValkyrie ? 'valkyrie' :
+    'none'
+  );
+
+  const gearType = character.robloxGear || (
+    heldItem === 'sword' ? 'sword' :
+    heldItem === 'cola' ? 'cola' :
+    heldItem === 'coil' ? 'coil' :
+    heldItem === 'speed_coil' ? 'speed_coil' :
+    heldItem ? 'item' : 'none'
+  );
+
+  return (
+    <div className={`relative flex flex-col items-center select-none ${isJumping ? 'animate-mc-jump' : ''}`}>
+      {/* ================= HEAD & ACCESSORIES ================= */}
+      <div className="relative z-20 flex flex-col items-center">
+        {/* Top Cylinder Stud (Classic LEGO/Roblox Head Stud) */}
+        <div 
+          className="w-4 h-1.5 rounded-t-sm border-t border-x border-black/30 shadow-xs -mb-0.5"
+          style={{ backgroundColor: headColor }}
+        />
+
+        {/* Head Block */}
+        <div 
+          className="w-9 h-8.5 rounded-md border-2 border-black/50 relative shadow-md flex items-center justify-center overflow-visible"
+          style={{ backgroundColor: headColor }}
+        >
+          {/* Facial Expressions */}
+          {faceType === 'smile' && (
+            <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
+              <div className="flex gap-2.5 mt-0.5">
+                <div className="w-1.5 h-2 bg-black rounded-full" />
+                <div className="w-1.5 h-2 bg-black rounded-full" />
+              </div>
+              {/* Classic curved smile line */}
+              <div className="w-3.5 h-2 border-b-[2.5px] border-black rounded-b-full mt-0.5" />
+            </div>
+          )}
+
+          {faceType === 'chill' && (
+            <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
+              {/* Chill Sunglasses */}
+              <div className="flex items-center gap-0.5 mt-1 bg-black p-0.5 rounded-sm border border-black shadow">
+                <div className="w-2.5 h-1.5 bg-neutral-900 border-r border-neutral-700" />
+                <div className="w-1 h-0.5 bg-neutral-800" />
+                <div className="w-2.5 h-1.5 bg-neutral-900 border-l border-neutral-700" />
+              </div>
+              <div className="w-3 h-1 border-b-2 border-black rounded-full mt-1.5" />
+            </div>
+          )}
+
+          {faceType === 'winning' && (
+            <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
+              <div className="flex gap-2 mt-0.5">
+                <div className="w-1.5 h-2 bg-black rounded-full" />
+                <div className="w-1.5 h-2 bg-black rounded-full" />
+              </div>
+              {/* Wide toothy winning smile */}
+              <div className="w-4 h-2.5 bg-white border-2 border-black rounded-b-lg flex items-center justify-center overflow-hidden mt-0.5 shadow-xs">
+                <div className="w-full h-0.5 bg-black/40" />
+              </div>
+            </div>
+          )}
+
+          {faceType === 'epic' && (
+            <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
+              <div className="flex gap-1.5 mt-1">
+                <div className="w-2.5 h-1.5 bg-amber-500 border border-black rounded-sm" />
+                <div className="w-2.5 h-1.5 bg-amber-500 border border-black rounded-sm" />
+              </div>
+              <div className="w-3.5 h-1.5 border-b-2 border-black rounded-r-full transform rotate-6 mt-1" />
+            </div>
+          )}
+
+          {faceType === 'beast' && (
+            <div className="relative w-full h-full flex flex-col items-center justify-center pointer-events-none">
+              <div className="flex gap-2 mt-0.5">
+                <div className="w-2 h-2 bg-red-600 rounded-full animate-ping" />
+                <div className="w-2 h-2 bg-red-600 rounded-full" />
+              </div>
+              <div className="w-4 h-2 bg-black rounded-b-sm border-t-2 border-red-600 mt-1 flex justify-center gap-0.5">
+                <div className="w-0.5 h-1 bg-white" />
+                <div className="w-0.5 h-1 bg-white" />
+              </div>
+            </div>
+          )}
+
+          {faceType === 'void' && (
+            <div className="flex gap-2.5 items-center justify-center pointer-events-none">
+              <div className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_#ffffff]" />
+              <div className="w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_8px_#ffffff]" />
+            </div>
+          )}
+
+          {/* ================= HATS & HEAD ACCESSORIES ================= */}
+          {/* Bacon Hair / Pal Hair */}
+          {hatType === 'bacon' && (
+            <div className="absolute -top-3.5 inset-x-0 flex flex-col items-center pointer-events-none z-30">
+              <div className="w-10 h-3.5 bg-[#451a03] rounded-t-lg border border-black/40 shadow relative">
+                {/* Wavy swooped bangs */}
+                <div className="absolute -bottom-1.5 left-0.5 w-3.5 h-3 bg-[#5c2406] rounded-br-md transform rotate-12" />
+                <div className="absolute -bottom-1 left-3.5 w-3.5 h-2.5 bg-[#78350f] rounded-br-md" />
+                <div className="absolute -bottom-2 right-0.5 w-4 h-3.5 bg-[#451a03] rounded-bl-md transform -rotate-12" />
+              </div>
+            </div>
+          )}
+
+          {/* Builderman Hard Hat */}
+          {hatType === 'hardhat' && (
+            <div className="absolute -top-4 inset-x-0 flex flex-col items-center pointer-events-none z-30">
+              <div className="w-10 h-4 bg-amber-500 rounded-t-xl border-2 border-black/60 shadow-lg relative flex items-center justify-center">
+                <div className="absolute -bottom-1 w-11 h-1.5 bg-amber-600 rounded-full border border-black/50" />
+                {/* White work lamp */}
+                <div className="w-2.5 h-2.5 rounded-full bg-white border border-black/80 shadow-[0_0_6px_#ffffff] z-10" />
+              </div>
+            </div>
+          )}
+
+          {/* Guest 666 Beanie */}
+          {hatType === 'beanie' && (
+            <div className="absolute -top-3 inset-x-0 flex flex-col items-center pointer-events-none z-30">
+              <div className="w-9.5 h-3 bg-neutral-900 rounded-t-md border border-red-600/70 shadow flex items-center justify-center">
+                <span className="text-[7px] font-black font-mono text-red-500 leading-none">666</span>
+              </div>
+            </div>
+          )}
+
+          {/* Dominus Hood */}
+          {hatType === 'dominus' && (
+            <div className="absolute -top-3.5 -inset-x-1.5 bottom-0 pointer-events-none z-30">
+              <div className="w-full h-full bg-neutral-950 rounded-t-xl border-2 border-yellow-500/80 shadow-[0_0_12px_rgba(234,179,8,0.4)] relative">
+                {/* Golden wing studs on side */}
+                <div className="absolute -left-2 top-1 w-2.5 h-4 bg-yellow-500 rounded-l-md border border-black" />
+                <div className="absolute -right-2 top-1 w-2.5 h-4 bg-yellow-500 rounded-r-md border border-black" />
+              </div>
+            </div>
+          )}
+
+          {/* Valkyrie Winged Helm */}
+          {hatType === 'valkyrie' && (
+            <div className="absolute -top-4 inset-x-0 flex flex-col items-center pointer-events-none z-30">
+              <div className="w-10 h-3 bg-slate-300 rounded-t-lg border border-black relative flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 border border-black" />
+                {/* Silver Wings */}
+                <div className="absolute -left-3 -top-2 w-3 h-6 bg-slate-200 border border-black rounded-tl-full transform -rotate-12 shadow" />
+                <div className="absolute -right-3 -top-2 w-3 h-6 bg-slate-200 border border-black rounded-tr-full transform rotate-12 shadow" />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ================= TORSO & ARMS ================= */}
+      <div className={`relative flex items-start justify-center -mt-0.5 z-10 ${
+        isWalking ? (isSprinting ? 'animate-mc-body-bob-sprint' : 'animate-mc-body-bob') : ''
+      }`}>
+        {/* Left Arm */}
+        <div 
+          className={`w-4 h-12 rounded-sm border-2 border-black/45 shadow-sm relative flex flex-col justify-between overflow-hidden ${
+            isWalking ? (isSprinting ? 'animate-mc-arm-left-sprint' : 'animate-mc-arm-left') : ''
+          }`}
+          style={{ backgroundColor: armColor, transformOrigin: 'top center' }}
+        >
+          {isBacon && <div className="w-full h-8 bg-blue-900 border-b border-black/30" />}
+          {isBacon && <div className="w-full h-4 bg-[#f5d0a9]" />}
+        </div>
+
+        {/* Torso Box */}
+        <div 
+          className="w-14 h-12 rounded-sm border-2 border-black/50 shadow-md relative flex flex-col items-center justify-center overflow-hidden mx-0.5"
+          style={{ backgroundColor: torsoColor }}
+        >
+          {/* Classic Tilted Roblox "R" Decal */}
+          {!isGuest && !isBuilderman && !isKorblox && !isDominus && !isBacon && (
+            <div className="w-5 h-5 bg-white/90 rounded-sm transform rotate-12 border border-black/40 flex items-center justify-center shadow-inner">
+              <div className="w-2 h-2 bg-neutral-900 rounded-xs" />
+            </div>
+          )}
+
+          {/* Bacon Hair Denim Collar */}
+          {isBacon && (
+            <div className="w-full h-full flex flex-col items-center">
+              <div className="w-6 h-3 bg-red-600 rounded-b-md border-b border-black/40 flex items-center justify-center">
+                <div className="w-2 h-1 bg-[#f5d0a9] rounded-b-full" />
+              </div>
+              <div className="w-full h-0.5 bg-black/30 mt-2" />
+            </div>
+          )}
+
+          {/* Builderman Reflective Vest */}
+          {isBuilderman && (
+            <div className="w-full h-full flex flex-col items-center justify-between p-1">
+              <div className="w-full h-2 bg-yellow-300/90 border-y border-black/30 flex items-center justify-center">
+                <span className="text-[6px] font-mono font-bold text-black">BUILDER</span>
+              </div>
+              <div className="w-full h-1.5 bg-neutral-200/90 border-y border-black/30" />
+            </div>
+          )}
+
+          {/* Guest 666 Red Decal */}
+          {isGuest && (
+            <div className="flex flex-col items-center">
+              <span className="text-[8px] font-mono font-black text-red-500 tracking-tighter drop-shadow">GUEST</span>
+              <span className="text-[10px] font-mono font-black text-red-600 leading-none">666</span>
+            </div>
+          )}
+
+          {/* Korblox Ribcage */}
+          {isKorblox && (
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="w-8 h-1 bg-cyan-200/90 rounded-full shadow-[0_0_4px_#38bdf8]" />
+              <div className="w-6 h-1 bg-cyan-200/90 rounded-full" />
+              <div className="w-4 h-1 bg-cyan-200/90 rounded-full" />
+            </div>
+          )}
+
+          {/* Dominus Wings Badge */}
+          {isDominus && (
+            <div className="w-5 h-5 rounded-full border border-yellow-500/80 bg-black flex items-center justify-center">
+              <span className="text-[9px] text-yellow-400">👑</span>
+            </div>
+          )}
+        </div>
+
+        {/* Right Arm (Wielding Gear / Sword) */}
+        <div 
+          className={`w-4 h-12 rounded-sm border-2 border-black/45 shadow-sm relative flex flex-col justify-between overflow-visible ${
+            isWalking ? (isSprinting ? 'animate-mc-arm-right-sprint' : 'animate-mc-arm-right') : ''
+          }`}
+          style={{ backgroundColor: armColor, transformOrigin: 'top center' }}
+        >
+          {isBacon && <div className="w-full h-8 bg-blue-900 border-b border-black/30" />}
+          {isBacon && <div className="w-full h-4 bg-[#f5d0a9]" />}
+
+          {/* Handheld Gear */}
+          {gearType === 'sword' && (
+            <div className="absolute -bottom-5 -right-3 pointer-events-none z-30 transform rotate-12 filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              {/* Linked Sword */}
+              <div className="relative w-4 h-11 flex flex-col items-center">
+                <div className="w-2 h-7 bg-gradient-to-t from-slate-200 to-white border border-slate-600 rounded-t-xs" />
+                <div className="w-4 h-1 bg-cyan-500 rounded-xs border border-cyan-700 shadow-[0_0_6px_#06b6d4]" />
+                <div className="w-1.5 h-3 bg-neutral-900 rounded-b-xs" />
+              </div>
+            </div>
+          )}
+
+          {gearType === 'cola' && (
+            <div className="absolute -bottom-3 -right-3 pointer-events-none z-30 filter drop-shadow">
+              <div className="w-3.5 h-5 bg-red-600 rounded-xs border border-black flex flex-col items-center justify-center text-[6px] font-mono font-black text-white leading-none">
+                <span>BLX</span>
+              </div>
+            </div>
+          )}
+
+          {gearType === 'coil' && (
+            <div className="absolute -bottom-4 -right-3.5 pointer-events-none z-30 filter drop-shadow animate-pulse">
+              <div className="w-4 h-6 border-2 border-cyan-400 rounded-full flex flex-col items-center justify-around py-0.5 bg-cyan-950/40">
+                <div className="w-2.5 h-0.5 bg-cyan-300" />
+                <div className="w-2.5 h-0.5 bg-cyan-300" />
+              </div>
+            </div>
+          )}
+
+          {gearType === 'speed_coil' && (
+            <div className="absolute -bottom-4 -right-3.5 pointer-events-none z-30 filter drop-shadow animate-pulse">
+              <div className="w-4 h-6 border-2 border-red-500 rounded-full flex flex-col items-center justify-around py-0.5 bg-red-950/40">
+                <div className="w-2.5 h-0.5 bg-red-400" />
+                <div className="w-2.5 h-0.5 bg-red-400" />
+              </div>
+            </div>
+          )}
+
+          {gearType === 'item' && heldItem && (
+            <div className="absolute -bottom-3 -right-3 text-sm filter drop-shadow">
+              {getHeldItemIcon(heldItem)}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ================= LEGS ================= */}
+      <div className="relative flex items-center justify-center -mt-0.5 z-10 gap-0.5">
+        {/* Left Leg */}
+        <div 
+          className={`w-6 h-12 rounded-sm border-2 border-black/45 shadow-sm relative ${
+            isWalking ? (isSprinting ? 'animate-mc-leg-left-sprint' : 'animate-mc-leg-left') : ''
+          }`}
+          style={{ backgroundColor: legColor, transformOrigin: 'top center' }}
+        >
+          {/* Korblox Skeleton Leg variant */}
+          {isKorblox && (
+            <div className="w-full h-full flex flex-col items-center justify-around py-1 bg-transparent">
+              <div className="w-1.5 h-3 bg-cyan-200 shadow-[0_0_6px_#38bdf8] rounded-full" />
+              <div className="w-2 h-2 rounded-full border border-cyan-400" />
+              <div className="w-1.5 h-3 bg-cyan-200 shadow-[0_0_6px_#38bdf8] rounded-full" />
+            </div>
+          )}
+        </div>
+
+        {/* Right Leg */}
+        <div 
+          className={`w-6 h-12 rounded-sm border-2 border-black/45 shadow-sm relative ${
+            isWalking ? (isSprinting ? 'animate-mc-leg-right-sprint' : 'animate-mc-leg-right') : ''
+          }`}
+          style={{ backgroundColor: legColor, transformOrigin: 'top center' }}
+        />
+      </div>
+
+      {/* Ground Polish Shadow */}
+      <div className="w-14 h-2.5 bg-black/40 rounded-full blur-[1px] mt-1" />
     </div>
   );
 }

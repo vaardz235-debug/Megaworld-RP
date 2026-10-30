@@ -11,6 +11,8 @@ import CharacterGallery, { ALL_CHARACTERS } from './components/CharacterGallery'
 import FriendsList from './components/FriendsList';
 import CharacterAvatar from './components/CharacterAvatar';
 import MainMenu from './components/MainMenu';
+import RobloxApp from './components/RobloxApp';
+import Dashboard from './components/Dashboard';
 import { 
   Gamepad2, 
   UserCheck, 
@@ -20,27 +22,73 @@ import {
   Palette, 
   Home, 
   LayoutDashboard, 
-  HelpCircle 
+  HelpCircle,
+  Settings,
+  Cloud,
+  Mic
 } from 'lucide-react';
+import SettingsModal from './components/SettingsModal';
+import AvatarCreatorModal from './components/AvatarCreatorModal';
+import QuestAndEventsHub from './components/QuestAndEventsHub';
+import MarketplaceModal from './components/MarketplaceModal';
+import CosmeticStoreModal from './components/CosmeticStoreModal';
+import ProgressionModal from './components/ProgressionModal';
+import VoiceChatConsole from './components/VoiceChatConsole';
+import { avatarManager } from './utils/avatarManager';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   // Default to the iconic Minecraft 'menu'
-  const [activeView, setActiveView] = useState<'menu' | 'game' | 'gallery' | 'dashboard'>('menu');
+  const [activeView, setActiveView] = useState<'menu' | 'game' | 'gallery' | 'dashboard' | 'roblox'>('menu');
   // Default to Steve with his full Minecraft body
   const [selectedAvatar, setSelectedAvatar] = useState<any>(ALL_CHARACTERS[0]);
   // Game Mode State: 'survival' | 'creative'
   const [activeGameMode, setActiveGameMode] = useState<'survival' | 'creative'>('survival');
+  // Global Settings Modal State
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  // Custom Avatar Studio Modal State
+  const [isAvatarCreatorOpen, setIsAvatarCreatorOpen] = useState(false);
+  // Dynamic Quests & Scheduled Events Modal State
+  const [isQuestHubOpen, setIsQuestHubOpen] = useState(false);
+  // Cross-Brand Virtual Marketplace Modal State
+  const [isMarketplaceOpen, setIsMarketplaceOpen] = useState(false);
+  // Cross-Platform 10-Brand Cosmetic Store Modal State
+  const [isStoreOpen, setIsStoreOpen] = useState(false);
+  // Cross-Platform Cloud Progression Modal State
+  const [isProgressionOpen, setIsProgressionOpen] = useState(false);
+  // Integrated Proximity Voice Chat Modal State
+  const [isVoiceChatOpen, setIsVoiceChatOpen] = useState(false);
 
   useEffect(() => {
+    const syncAvatar = async (uid?: string) => {
+      const data = await avatarManager.loadFromCloud(uid || '');
+      const base = ALL_CHARACTERS.find((c) => c.id === data.baseCharacterId) || ALL_CHARACTERS[0];
+      setSelectedAvatar(avatarManager.applyToCharacter(base, data));
+    };
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
+        syncAvatar(firebaseUser.uid);
+      } else {
+        syncAvatar();
       }
       setLoading(false);
     });
-    return unsubscribe;
+
+    const handleAvatarUpdate = (e: any) => {
+      if (e.detail) {
+        const base = ALL_CHARACTERS.find((c) => c.id === e.detail.baseCharacterId) || ALL_CHARACTERS[0];
+        setSelectedAvatar(avatarManager.applyToCharacter(base, e.detail));
+      }
+    };
+    window.addEventListener('megaworld_avatar_updated', handleAvatarUpdate);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('megaworld_avatar_updated', handleAvatarUpdate);
+    };
   }, []);
 
   const [signingIn, setSigningIn] = useState(false);
@@ -113,19 +161,59 @@ export default function App() {
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           {/* Active Avatar Widget */}
           <button
-            onClick={() => setActiveView('gallery')}
-            className="flex items-center gap-2 bg-stone-800/90 hover:bg-stone-700/90 border border-stone-700 px-3 py-1.5 rounded-xl cursor-pointer transition shadow hover:border-emerald-400"
-            title="Click to change your avatar"
+            onClick={() => setIsAvatarCreatorOpen(true)}
+            className="flex items-center gap-2 bg-stone-800/90 hover:bg-stone-700/90 border border-stone-700 hover:border-amber-400 px-3 py-1.5 rounded-xl cursor-pointer transition shadow"
+            title="Open Avatar Creator Studio to customize skins, cosmetics & classes"
           >
             <div className="w-6 h-8 overflow-hidden flex items-center justify-center -my-1">
               <CharacterAvatar character={selectedAvatar} size="sm" />
             </div>
             <div className="text-left font-mono">
-              <div className="text-[9px] text-stone-400 uppercase">Skin</div>
-              <div className="text-xs font-bold text-emerald-300 leading-tight">
+              <div className="text-[9px] text-amber-400 uppercase font-bold">Studio</div>
+              <div className="text-xs font-bold text-emerald-300 leading-tight truncate max-w-[100px]">
                 {selectedAvatar?.name || 'Steve'}
               </div>
             </div>
+          </button>
+
+          {/* Avatar Studio Button */}
+          <button
+            onClick={() => setIsAvatarCreatorOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-amber-300 hover:text-white border border-stone-700 hover:border-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Avatar Creator: Countryballs, Xilam, Minecraft, Roblox & Cosmetics"
+          >
+            <span>🎨</span>
+            <span className="hidden sm:inline">Avatar Studio</span>
+          </button>
+
+          {/* Quests & Events Button */}
+          <button
+            onClick={() => setIsQuestHubOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-emerald-300 hover:text-white border border-stone-700 hover:border-emerald-400 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Dynamic Quests, Boss Raids & Custom Servers Hub"
+          >
+            <span>📜</span>
+            <span className="hidden sm:inline">Quests & Events</span>
+          </button>
+
+          {/* Marketplace Button */}
+          <button
+            onClick={() => setIsMarketplaceOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-yellow-300 hover:text-white border border-stone-700 hover:border-yellow-400 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Virtual Marketplace: Trade Minecraft, Roblox, Countryballs & Brand Items"
+          >
+            <span>⚖️</span>
+            <span className="hidden sm:inline">Market</span>
+          </button>
+
+          {/* 10-Brand Cosmetic Store Button */}
+          <button
+            onClick={() => setIsStoreOpen(true)}
+            className="bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 hover:text-white border border-amber-500/50 hover:border-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Cross-Platform 10-Brand Cosmetic Store (Skins, Emotes & Accessories)"
+          >
+            <span>🛍️</span>
+            <span className="hidden sm:inline">Store</span>
           </button>
 
           {/* Quick Mode Toggle in Navbar */}
@@ -190,16 +278,63 @@ export default function App() {
             </button>
           )}
 
-          {/* Dashboard Tab */}
-          {activeView !== 'dashboard' && (
-            <button
-              onClick={() => setActiveView('dashboard')}
-              className="bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-stone-200 border border-stone-700 px-2.5 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer font-mono"
-              title="View Community Dashboard"
-            >
-              <LayoutDashboard size={14} />
-            </button>
-          )}
+          {/* Roblox App Button */}
+          <button
+            onClick={() => setActiveView('roblox')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono ${
+              activeView === 'roblox'
+                ? 'bg-[#E2231A] text-white ring-2 ring-red-400'
+                : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 hover:border-red-500'
+            }`}
+            title="Open Roblox App (Obby, Tycoons, R6 Avatars, OOF Soundboard, Robux)"
+          >
+            <span className="w-3 h-3 bg-[#E2231A] rounded-xs inline-block rotate-12 flex-shrink-0 border border-white/60 shadow-xs" />
+            <span>Roblox</span>
+          </button>
+
+          {/* Community Social Feed & Dashboard Tab */}
+          <button
+            onClick={() => setActiveView('dashboard')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono ${
+              activeView === 'dashboard'
+                ? 'bg-amber-500 text-black shadow ring-2 ring-amber-400 font-black'
+                : 'bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 hover:border-amber-400'
+            }`}
+            title="View Community Dashboard & Social Feed"
+          >
+            <LayoutDashboard size={14} />
+            <span className="hidden sm:inline">Social Feed</span>
+          </button>
+
+          {/* Cloud Progression Shortcut */}
+          <button
+            onClick={() => setIsProgressionOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-sky-300 hover:text-white border border-stone-700 hover:border-sky-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Cloud Progression, Skills & Device Sync"
+          >
+            <Cloud size={14} className="text-sky-400" />
+            <span className="hidden md:inline">Progression</span>
+          </button>
+
+          {/* Voice Chat Shortcut */}
+          <button
+            onClick={() => setIsVoiceChatOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-emerald-300 hover:text-white border border-stone-700 hover:border-emerald-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Low-Latency Proximity Voice Chat & Radar"
+          >
+            <Mic size={14} className="text-emerald-400" />
+            <span className="hidden md:inline">Voice</span>
+          </button>
+
+          {/* Global Game Settings Button */}
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white border border-stone-700 px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono hover:border-yellow-400"
+            title="Open Game Options & Settings (Audio, Graphics, Controls, Gameplay)"
+          >
+            <Settings size={14} className="text-yellow-400" />
+            <span className="hidden sm:inline">Settings</span>
+          </button>
 
           {/* User Status / Login */}
           {!user ? (
@@ -243,6 +378,7 @@ export default function App() {
         <MainMenu
           onStartGame={(mode) => handleStartMode(mode)}
           onOpenGallery={() => setActiveView('gallery')}
+          onOpenRoblox={() => setActiveView('roblox')}
           selectedAvatar={selectedAvatar}
           activeGameMode={activeGameMode}
           onChangeGameMode={setActiveGameMode}
@@ -250,6 +386,14 @@ export default function App() {
           onSignIn={handleSignIn}
           onPlayGuest={handlePlayAsGuest}
           onSignOut={() => auth.signOut()}
+          onOpenSettings={() => setIsSettingsOpen(true)}
+          onOpenAvatarStudio={() => setIsAvatarCreatorOpen(true)}
+          onOpenQuests={() => setIsQuestHubOpen(true)}
+          onOpenMarketplace={() => setIsMarketplaceOpen(true)}
+          onOpenStore={() => setIsStoreOpen(true)}
+          onOpenProgression={() => setIsProgressionOpen(true)}
+          onOpenVoiceChat={() => setIsVoiceChatOpen(true)}
+          onOpenDashboard={() => setActiveView('dashboard')}
         />
       ) : activeView === 'game' ? (
         <GameWorld 
@@ -257,6 +401,9 @@ export default function App() {
           initialGameMode={activeGameMode}
           onChangeGameMode={setActiveGameMode}
           onQuitToMenu={() => setActiveView('menu')}
+          onOpenRoblox={() => setActiveView('roblox')}
+          onOpenProgression={() => setIsProgressionOpen(true)}
+          onOpenVoiceChat={() => setIsVoiceChatOpen(true)}
         />
       ) : activeView === 'gallery' ? (
         <CharacterGallery
@@ -265,97 +412,89 @@ export default function App() {
             setActiveView('game');
           }}
         />
+      ) : activeView === 'roblox' ? (
+        <RobloxApp
+          onSelectAvatar={(char) => setSelectedAvatar(char)}
+          onLaunchGame={() => setActiveView('game')}
+          currentAvatar={selectedAvatar}
+          onClose={() => setActiveView('menu')}
+        />
       ) : (
-        <main className="max-w-6xl mx-auto space-y-6">
-          <div className="bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 border border-stone-800 p-8 rounded-3xl shadow-2xl relative overflow-hidden">
-            <div className="relative z-10 max-w-2xl">
-              <h2 className="text-3xl font-black mb-2 text-white font-mono">
-                MegaWorld RP Sandbox Dashboard
-              </h2>
-              <p className="text-stone-300 text-sm leading-relaxed mb-6 font-mono">
-                Choose between hard-earned <strong>Survival Mode</strong> (hunger, health, mining, tool crafting) or infinite <strong>Creative Mode</strong> (unlimited blocks, instant breaking, flight, and invincibility)!
-              </p>
-              <div className="flex flex-wrap gap-3 font-mono">
-                <button
-                  onClick={() => handleStartMode('survival')}
-                  className="mc-btn mc-btn-primary font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer active:scale-95"
-                >
-                  <Swords size={18} className="text-yellow-400" /> Play Survival Mode
-                </button>
-                <button
-                  onClick={() => handleStartMode('creative')}
-                  className="mc-btn font-bold px-6 py-3 rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer active:scale-95"
-                >
-                  <Palette size={18} className="text-purple-400" /> Play Creative Mode
-                </button>
-                <button
-                  onClick={() => setActiveView('menu')}
-                  className="mc-btn font-bold px-5 py-3 rounded-xl transition flex items-center gap-2 cursor-pointer"
-                >
-                  <Home size={18} className="text-yellow-400" /> Title Menu
-                </button>
-              </div>
-            </div>
-            {/* Visual preview of Steve on right */}
-            <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center pointer-events-none opacity-90">
-              <CharacterAvatar character={selectedAvatar} size="xl" isWalking={true} heldItem="pickaxe" showName={true} />
-            </div>
-          </div>
-
-          {/* Game Modes Detail Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
-            {/* Survival Mode Card */}
-            <section className="bg-stone-900/90 border border-stone-800 hover:border-red-500/50 p-6 rounded-2xl flex flex-col justify-between shadow-xl transition">
-              <div>
-                <div className="w-10 h-10 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center justify-center text-xl mb-3 text-red-400">
-                  <Swords size={20} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                  <span>Survival Mode</span>
-                  <span className="text-[10px] uppercase bg-red-500/20 text-red-300 px-2 py-0.5 rounded-full border border-red-500/30">
-                    Hardcore
-                  </span>
-                </h3>
-                <p className="text-stone-400 text-xs mb-4 leading-relaxed">
-                  Depleting hunger and health, block mining, tool durability loss, resource consumption, farming wheat, and respawn upon death.
-                </p>
-              </div>
-              <button
-                onClick={() => handleStartMode('survival')}
-                className="mc-btn mc-btn-primary px-4 py-2.5 rounded-xl font-bold text-xs shadow transition cursor-pointer self-start"
-              >
-                Start Survival
-              </button>
-            </section>
-
-            {/* Creative Mode Card */}
-            <section className="bg-stone-900/90 border border-stone-800 hover:border-purple-500/50 p-6 rounded-2xl flex flex-col justify-between shadow-xl transition">
-              <div>
-                <div className="w-10 h-10 bg-purple-500/10 border border-purple-500/30 rounded-xl flex items-center justify-center text-xl mb-3 text-purple-400">
-                  <Palette size={20} />
-                </div>
-                <h3 className="text-lg font-bold text-white mb-1 flex items-center gap-2">
-                  <span>Creative Mode</span>
-                  <span className="text-[10px] uppercase bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full border border-purple-500/30">
-                    God Mode
-                  </span>
-                </h3>
-                <p className="text-stone-400 text-xs mb-4 leading-relaxed">
-                  Infinite supply (∞) of all blocks, instant block breaking, flight mode, invincibility, weather/time commands, and quick 3x3 builders.
-                </p>
-              </div>
-              <button
-                onClick={() => handleStartMode('creative')}
-                className="mc-btn px-4 py-2.5 rounded-xl font-bold text-xs shadow transition cursor-pointer self-start"
-              >
-                Start Creative
-              </button>
-            </section>
-
-            <FriendsList />
-          </div>
-        </main>
+        <Dashboard
+          user={user}
+          selectedAvatar={selectedAvatar}
+          activeGameMode={activeGameMode}
+          onStartMode={(mode) => handleStartMode(mode)}
+          onOpenAvatarStudio={() => setIsAvatarCreatorOpen(true)}
+          onOpenQuests={() => setIsQuestHubOpen(true)}
+          onOpenMarketplace={() => setIsMarketplaceOpen(true)}
+          onOpenStore={() => setIsStoreOpen(true)}
+          onOpenTitleMenu={() => setActiveView('menu')}
+          onImportBuild={(schematic) => {
+            setActiveView('game');
+          }}
+          onWarpToCoordinates={(x, y) => {
+            setActiveView('game');
+          }}
+        />
       )}
+
+      {/* Global Game Settings Modal */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        activeGameMode={activeGameMode}
+        onChangeGameMode={setActiveGameMode}
+      />
+
+      {/* Avatar Creator & Studio Modal */}
+      <AvatarCreatorModal
+        isOpen={isAvatarCreatorOpen}
+        onClose={() => setIsAvatarCreatorOpen(false)}
+        user={user}
+        onAvatarEquipped={(char) => setSelectedAvatar(char)}
+      />
+
+      {/* Dynamic Quests & Scheduled Events Hub Modal */}
+      <QuestAndEventsHub
+        isOpen={isQuestHubOpen}
+        onClose={() => setIsQuestHubOpen(false)}
+        user={user}
+        onJoinServer={(srv) => {
+          setActiveGameMode('survival');
+          setActiveView('game');
+        }}
+      />
+
+      {/* Virtual Marketplace Modal */}
+      <MarketplaceModal
+        isOpen={isMarketplaceOpen}
+        onClose={() => setIsMarketplaceOpen(false)}
+        user={user}
+      />
+
+      {/* Cross-Platform 10-Brand Cosmetic Store Modal */}
+      <CosmeticStoreModal
+        isOpen={isStoreOpen}
+        onClose={() => setIsStoreOpen(false)}
+        user={user}
+        currentAvatar={selectedAvatar}
+      />
+
+      {/* Cross-Platform Progression, Skills & Cloud Sync Modal */}
+      <ProgressionModal
+        isOpen={isProgressionOpen}
+        onClose={() => setIsProgressionOpen(false)}
+        user={user}
+      />
+
+      {/* Integrated Low-Latency Proximity Voice Chat & Radar Console */}
+      <VoiceChatConsole
+        isOpen={isVoiceChatOpen}
+        onClose={() => setIsVoiceChatOpen(false)}
+        user={user}
+        currentAvatarName={selectedAvatar?.name || 'Player'}
+      />
     </div>
   );
 }

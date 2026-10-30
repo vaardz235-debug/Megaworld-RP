@@ -43,7 +43,10 @@ export const ALL_CREATIVE_BLOCKS = [
   { id: 'netherite', name: 'Netherite Ingot', icon: '🔮', category: 'Ores' },
   { id: 'amethyst', name: 'Amethyst Shard', icon: '💜', category: 'Ores' },
 
-  // Decorative & Functional (Featuring Jukebox & 16 Music Discs)
+  // Decorative & Functional (Featuring Command Blocks, Jukebox & 16 Music Discs)
+  { id: 'command_block', name: 'Command Block (Impulse)', icon: '🟧', category: 'Functional' },
+  { id: 'chain_command_block', name: 'Chain Command Block', icon: '🟩', category: 'Functional' },
+  { id: 'repeating_command_block', name: 'Repeating Command Block', icon: '🟪', category: 'Functional' },
   { id: 'jukebox', name: 'Jukebox', icon: '📻', category: 'Functional' },
   { id: 'door', name: 'Wooden Door', icon: '🚪', category: 'Functional' },
   { id: 'torch', name: 'Torch', icon: '🕯️', category: 'Functional' },
@@ -66,8 +69,13 @@ export const ALL_CREATIVE_BLOCKS = [
   { id: 'disc_strad', name: 'Music Disc 14: Strad', icon: '⚪', category: 'Functional' },
   { id: 'disc_wait', name: 'Music Disc 15: Wait', icon: '🌅', category: 'Functional' },
   { id: 'disc_otherside', name: 'Music Disc 16: Otherside', icon: '🚀', category: 'Functional' },
+  { id: 'disc_verity', name: 'Music Disc 17: Verity Celestial Chime', icon: '🔮', category: 'Functional' },
 
-  // Tools & Food
+  // Tools, Celestial Gear & Food (The Verity Update)
+  { id: 'verity_musicbox', name: "Verity's Music Box", icon: '📦', category: 'Functional' },
+  { id: 'celestial_blade', name: 'Celestial Blade of Verity', icon: '🗡️', category: 'Equipment' },
+  { id: 'starlight_halo', name: 'Verity Starlight Halo', icon: '👑', category: 'Equipment' },
+  { id: 'verity_crystal', name: 'Truth Crystal Shard', icon: '🔮', category: 'Ores' },
   { id: 'pickaxe', name: 'Diamond Pickaxe', icon: '⛏️', category: 'Equipment' },
   { id: 'apple', name: 'Red Apple', icon: '🍎', category: 'Food' },
   { id: 'golden_apple', name: 'Golden Apple', icon: '🍏', category: 'Food' },
@@ -78,6 +86,10 @@ export const getItemIcon = (name: string) => {
   const match = ALL_CREATIVE_BLOCKS.find(b => b.id === name);
   if (match) return match.icon;
   switch (name) {
+    case 'verity_crystal': return '🔮';
+    case 'starlight_halo': return '👑';
+    case 'celestial_blade': return '🗡️';
+    case 'disc_verity': return '🔮';
     case 'door': return '🚪';
     case 'pickaxe': return '⛏️';
     case 'apple': return '🍎';
@@ -104,6 +116,9 @@ export const getItemIcon = (name: string) => {
     case 'flower': return '🌸';
     case 'torch': return '🕯️';
     case 'sandstone': return '🏛️';
+    case 'amethyst': return '💜';
+    case 'crying_obsidian': return '🌌';
+    case 'sculk': return '🔷';
     default: return '📦';
   }
 };

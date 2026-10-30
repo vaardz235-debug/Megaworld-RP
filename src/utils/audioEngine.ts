@@ -12,6 +12,8 @@ class ProceduralAudioEngine {
   private isPlaying: boolean = false;
   private volume: number = 0.6; // 0 to 1
   private isMuted: boolean = false;
+  private sfxVolume: number = 0.9;
+  private isSfxMuted: boolean = false;
   private isLooping: boolean = true;
   private isShuffle: boolean = false;
 
@@ -104,6 +106,22 @@ class ProceduralAudioEngine {
       );
     }
     return this.isMuted;
+  }
+
+  public getSfxVolume(): number {
+    return this.sfxVolume;
+  }
+
+  public setSfxVolume(vol: number) {
+    this.sfxVolume = Math.max(0, Math.min(1, vol));
+  }
+
+  public getIsSfxMuted(): boolean {
+    return this.isSfxMuted;
+  }
+
+  public setSfxMuted(muted: boolean) {
+    this.isSfxMuted = muted;
   }
 
   public playTrack(track: MusicTrack) {
@@ -413,7 +431,7 @@ class ProceduralAudioEngine {
   // ==========================================================
   public playMinecraftSound(rawNameOrType: string) {
     this.initContext();
-    if (!this.ctx || !this.masterGain) return;
+    if (!this.ctx || !this.masterGain || this.isSfxMuted || this.isMuted) return;
     const now = this.ctx.currentTime;
     const type = rawNameOrType.toLowerCase();
 
@@ -729,6 +747,53 @@ class ProceduralAudioEngine {
         osc.stop(now + idx * 0.04 + 0.65);
       });
     }
+    else if (type.includes('step') || type.includes('walk') || type.includes('footstep')) {
+      // Authentic crunchy Minecraft footstep sound
+      const isStone = type.includes('stone') || type.includes('ore') || type.includes('brick');
+      const isWood = type.includes('wood') || type.includes('plank');
+      const isSand = type.includes('sand');
+      const isSnow = type.includes('snow') || type.includes('ice');
+
+      const filterFreq = isStone ? 1900 : isWood ? 520 : isSand ? 750 : isSnow ? 2400 : 950;
+      const duration = isStone ? 0.045 : 0.065;
+
+      const bufferSize = Math.floor(this.ctx.sampleRate * duration);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = isStone ? 'bandpass' : 'lowpass';
+      filter.frequency.setValueAtTime(filterFreq + (Math.random() * 140 - 70), now);
+
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      noise.start(now);
+      noise.stop(now + duration + 0.01);
+
+      if (isStone || isWood) {
+        const thud = this.ctx.createOscillator();
+        const thudGain = this.ctx.createGain();
+        thud.type = 'sine';
+        thud.frequency.setValueAtTime(isWood ? 140 : 95, now);
+        thud.frequency.exponentialRampToValueAtTime(45, now + 0.05);
+        thudGain.gain.setValueAtTime(0.09, now);
+        thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        thud.connect(thudGain);
+        thudGain.connect(this.masterGain);
+        thud.start(now);
+        thud.stop(now + 0.055);
+      }
+    }
     else {
       // Default Minecraft Click / Wood Pop
       const osc = this.ctx.createOscillator();
@@ -746,11 +811,352 @@ class ProceduralAudioEngine {
   }
 
   // ==========================================================
+  // ROBLOX PROCEDURAL SOUND ENGINE (OOF, SWORD, COIL, COLA, ETC.)
+  // ==========================================================
+  public playRobloxSound(type: 'oof' | 'sword' | 'cheezburger' | 'cola' | 'coil' | 'speed' | 'rocket' | 'badge' | 'click' | 'step' | string) {
+    this.initContext();
+    if (!this.ctx || !this.masterGain || this.isSfxMuted || this.isMuted) return;
+    const now = this.ctx.currentTime;
+
+    if (type === 'oof') {
+      // The Legendary Roblox OOF sound - Tommy Tallarico vocal grunt formant
+      const osc = this.ctx.createOscillator();
+      const osc2 = this.ctx.createOscillator();
+      const filter = this.ctx.createBiquadFilter();
+      const gain = this.ctx.createGain();
+
+      osc.type = 'sawtooth';
+      osc2.type = 'triangle';
+
+      osc.frequency.setValueAtTime(270, now);
+      osc.frequency.linearRampToValueAtTime(295, now + 0.04);
+      osc.frequency.exponentialRampToValueAtTime(130, now + 0.22);
+
+      osc2.frequency.setValueAtTime(135, now);
+      osc2.frequency.linearRampToValueAtTime(147, now + 0.04);
+      osc2.frequency.exponentialRampToValueAtTime(65, now + 0.22);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(1100, now);
+      filter.frequency.exponentialRampToValueAtTime(450, now + 0.22);
+      filter.Q.setValueAtTime(4.5, now);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.45, now + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+
+      osc.connect(filter);
+      osc2.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc2.start(now);
+      osc.stop(now + 0.25);
+      osc2.stop(now + 0.25);
+    }
+    else if (type === 'sword') {
+      // Classic Roblox Linked Sword 'schwing' sound
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const filter = this.ctx.createBiquadFilter();
+
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(1200, now);
+      osc.frequency.exponentialRampToValueAtTime(3200, now + 0.06);
+      osc.frequency.exponentialRampToValueAtTime(800, now + 0.28);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(2200, now);
+      filter.Q.setValueAtTime(8, now);
+
+      gain.gain.setValueAtTime(0.01, now);
+      gain.gain.linearRampToValueAtTime(0.35, now + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.32);
+
+      const bufSize = Math.floor(this.ctx.sampleRate * 0.15);
+      const buf = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < bufSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buf;
+      const noiseFilter = this.ctx.createBiquadFilter();
+      noiseFilter.type = 'highpass';
+      noiseFilter.frequency.setValueAtTime(3500, now);
+      const noiseGain = this.ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.2, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+
+      noise.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(this.masterGain);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.masterGain);
+
+      osc.start(now);
+      osc.stop(now + 0.35);
+      noise.start(now);
+      noise.stop(now + 0.16);
+    }
+    else if (type === 'coil') {
+      // Gravity Coil spring boing wobble
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(240, now);
+      osc.frequency.linearRampToValueAtTime(680, now + 0.08);
+      osc.frequency.linearRampToValueAtTime(380, now + 0.16);
+      osc.frequency.linearRampToValueAtTime(540, now + 0.24);
+      osc.frequency.linearRampToValueAtTime(420, now + 0.35);
+
+      gain.gain.setValueAtTime(0.3, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.42);
+    }
+    else if (type === 'speed') {
+      // Speed Coil rev
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.exponentialRampToValueAtTime(950, now + 0.25);
+
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.32);
+    }
+    else if (type === 'cola') {
+      // Bloxy Cola fizz and slurp
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(400, now);
+      osc.frequency.linearRampToValueAtTime(900, now + 0.1);
+      osc.frequency.linearRampToValueAtTime(600, now + 0.2);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.3);
+    }
+    else if (type === 'cheezburger') {
+      // "Mmm... Cheezburger!" crunch
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(523.25, now);
+      osc.frequency.setValueAtTime(659.25, now + 0.08);
+      osc.frequency.setValueAtTime(783.99, now + 0.16);
+
+      gain.gain.setValueAtTime(0.25, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.38);
+    }
+    else if (type === 'rocket') {
+      // Rocket launcher boom
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(30, now + 0.4);
+
+      gain.gain.setValueAtTime(0.4, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.46);
+    }
+    else if (type === 'badge') {
+      // Roblox badge award jingle (C5 - E5 - G5 - C6)
+      const notes = [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((freq, i) => {
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.07);
+
+        gain.gain.setValueAtTime(0.22, now + i * 0.07);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.22);
+
+        osc.connect(gain);
+        gain.connect(this.masterGain!);
+        osc.start(now + i * 0.07);
+        osc.stop(now + i * 0.07 + 0.23);
+      });
+    }
+    else {
+      // Crisp Roblox UI click
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(900, now);
+      osc.frequency.exponentialRampToValueAtTime(400, now + 0.03);
+
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.04);
+    }
+  }
+
+  // ==========================================================
+  // THE VERITY UPDATE SOUND ENGINE (MUSIC BOX, CHIMES, POP, ORACLE)
+  // ==========================================================
+  public playVeritySound(type: 'chimes' | 'musicbox' | 'pop' | 'oracle' | 'eclipse' | 'wind') {
+    this.initContext();
+    if (!this.ctx || !this.masterGain || this.isSfxMuted || this.isMuted) return;
+    const now = this.ctx.currentTime;
+
+    if (type === 'wind') {
+      // Mechanical ratchet crank clicks
+      for (let i = 0; i < 3; i++) {
+        const t = now + i * 0.07;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(800 + i * 120, t);
+        osc.frequency.exponentialRampToValueAtTime(200, t + 0.03);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+        osc.start(t);
+        osc.stop(t + 0.04);
+      }
+    } else if (type === 'musicbox') {
+      // Celestial Music Box tinkling notes (E5 - G#5 - B5 - E6 - G#6)
+      const notes = [659.25, 830.61, 987.77, 1318.51, 1661.22];
+      notes.forEach((freq, idx) => {
+        const t = now + idx * 0.09;
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.22, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+        osc.connect(gain);
+        gain.connect(this.masterGain!);
+        osc.start(t);
+        osc.stop(t + 0.65);
+
+        // Subtle bell metallic overtone
+        const overtone = this.ctx!.createOscillator();
+        const oGain = this.ctx!.createGain();
+        overtone.type = 'triangle';
+        overtone.frequency.setValueAtTime(freq * 2.76, t);
+        oGain.gain.setValueAtTime(0.06, t);
+        oGain.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+        overtone.connect(oGain);
+        oGain.connect(this.masterGain!);
+        overtone.start(t);
+        overtone.stop(t + 0.22);
+      });
+    } else if (type === 'pop') {
+      // Spring pop + confetti blast for Verity in a Box!
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.linearRampToValueAtTime(880, now + 0.12);
+      osc.frequency.linearRampToValueAtTime(440, now + 0.22);
+      osc.frequency.linearRampToValueAtTime(660, now + 0.32);
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+      osc.connect(gain);
+      gain.connect(this.masterGain);
+      osc.start(now);
+      osc.stop(now + 0.42);
+
+      // Celestial fanfare blast
+      [1046.5, 1318.5, 1567.98, 2093].forEach((f, i) => {
+        const t = now + 0.08 + i * 0.04;
+        const o = this.ctx!.createOscillator();
+        const g = this.ctx!.createGain();
+        o.type = 'triangle';
+        o.frequency.setValueAtTime(f, t);
+        g.gain.setValueAtTime(0.18, t);
+        g.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+        o.connect(g);
+        g.connect(this.masterGain!);
+        o.start(t);
+        o.stop(t + 0.48);
+      });
+    } else if (type === 'oracle') {
+      // Harmonic Celestial Oracle Chord
+      [440, 554.37, 659.25, 880, 1108.73, 1318.51].forEach((f, i) => {
+        const o = this.ctx!.createOscillator();
+        const g = this.ctx!.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, now);
+        o.frequency.linearRampToValueAtTime(f * 1.008, now + 0.8);
+        g.gain.setValueAtTime(0.12, now + i * 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.95);
+        o.connect(g);
+        g.connect(this.masterGain!);
+        o.start(now + i * 0.02);
+        o.stop(now + 1.0);
+      });
+    } else if (type === 'eclipse') {
+      // Dark ominous minor glitch chord
+      [220, 261.63, 311.13, 440].forEach((f, i) => {
+        const o = this.ctx!.createOscillator();
+        const g = this.ctx!.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(f, now);
+        o.frequency.linearRampToValueAtTime(f * 0.97, now + 0.6);
+        g.gain.setValueAtTime(0.15, now + i * 0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+        o.connect(g);
+        g.connect(this.masterGain!);
+        o.start(now + i * 0.03);
+        o.stop(now + 0.75);
+      });
+    } else {
+      // Glass chimes
+      [987.77, 1318.51, 1567.98, 1975.53, 2637.02].forEach((freq, idx) => {
+        const t = now + idx * 0.06;
+        const osc = this.ctx!.createOscillator();
+        const gain = this.ctx!.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t);
+        gain.gain.setValueAtTime(0.2, t);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+        osc.connect(gain);
+        gain.connect(this.masterGain!);
+        osc.start(t);
+        osc.stop(t + 0.55);
+      });
+    }
+  }
+
+  // ==========================================================
   // SPRUNKI PROCEDURAL SOUNDS & INCREDIBOX BEATBOX SYNTHESIS
   // ==========================================================
   public playSprunkiSound(rawName: string, isHorror: boolean = false) {
     this.initContext();
-    if (!this.ctx || !this.masterGain) return;
+    if (!this.ctx || !this.masterGain || this.isSfxMuted || this.isMuted) return;
     const now = this.ctx.currentTime;
     const name = rawName.toLowerCase();
 
@@ -1262,9 +1668,13 @@ class ProceduralAudioEngine {
     const step = this.jamStep % 16;
     const now = this.ctx.currentTime;
 
+    // Check if any member has solo enabled
+    const hasSolo = this.jamCrew.some(m => (m as any).solo);
+
     // Trigger active unmuted crew members on their respective rhythmic grid steps
     this.jamCrew.forEach(member => {
       if (member.muted) return;
+      if (hasSolo && !(member as any).solo) return;
       const n = member.name.toLowerCase();
 
       // Oren: Kick on 0, 8; Snare on 4, 12; Hi-hats on evens
@@ -1303,6 +1713,12 @@ class ProceduralAudioEngine {
       else if (n.includes('garnold') || n.includes('tunner')) {
         if (step === 2 || step === 7 || step === 11) {
           this.playSprunkiSound(member.name, this.jamIsHorror);
+        }
+      }
+      // Simon: Whistling flute melody on 0, 8
+      else if (n.includes('simon')) {
+        if (step === 0 || step === 8) {
+          this.playSprunkiSound('simon', this.jamIsHorror);
         }
       }
       // Pinki / Wenda / Neko: Pop vocal stabs on 2, 8, 14

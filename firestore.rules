@@ -17,7 +17,7 @@ service cloud.firestore {
     }
 
     match /players/{uid} {
-      allow read: if isOwner(uid) || isAdmin();
+      allow read: if isSignedIn();
       allow write: if isOwner(uid);
     }
 
@@ -29,6 +29,61 @@ service cloud.firestore {
     match /achievements/{achievementId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
+    }
+
+    match /marketplace_listings/{listingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    match /game_servers/{serverId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    match /player_quests/{uid} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /ugc_creations/{creationId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    match /ugc_reviews/{reviewId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
+    }
+
+    match /player_progressions/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isOwner(uid) || isSignedIn();
+    }
+
+    match /voice_moderation/{reportId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isAdmin();
+    }
+
+    match /sync_codes/{codeId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    match /social_feed_posts/{postId} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn();
     }
   }
 }

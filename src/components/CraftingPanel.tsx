@@ -64,6 +64,34 @@ export default function CraftingPanel({ inventory, onCraft, isCreative = false }
       newInventory['stone'] = { count: newInventory['stone'].count - 1 };
       newInventory['jukebox'] = { count: (newInventory['jukebox']?.count || 0) + 1 };
       success = true;
+    } else if (type === 'celestial_blade' && (inventory['diamond']?.count || 0) >= 1 && ((inventory['amethyst']?.count || 0) >= 1 || (inventory['crying_obsidian']?.count || 0) >= 1)) {
+      newInventory['diamond'] = { count: newInventory['diamond'].count - 1 };
+      if ((inventory['amethyst']?.count || 0) >= 1) {
+        newInventory['amethyst'] = { count: newInventory['amethyst'].count - 1 };
+      } else {
+        newInventory['crying_obsidian'] = { count: newInventory['crying_obsidian'].count - 1 };
+      }
+      newInventory['celestial_blade'] = { count: (newInventory['celestial_blade']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'starlight_halo' && (inventory['gold']?.count || 0) >= 1 && (inventory['amethyst']?.count || 0) >= 1) {
+      newInventory['gold'] = { count: newInventory['gold'].count - 1 };
+      newInventory['amethyst'] = { count: newInventory['amethyst'].count - 1 };
+      newInventory['starlight_halo'] = { count: (newInventory['starlight_halo']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'golden_apple' && (inventory['apple']?.count || 0) >= 1 && (inventory['gold']?.count || 0) >= 1) {
+      newInventory['apple'] = { count: newInventory['apple'].count - 1 };
+      newInventory['gold'] = { count: newInventory['gold'].count - 1 };
+      newInventory['golden_apple'] = { count: (newInventory['golden_apple']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'diamond_sword' && (inventory['diamond']?.count || 0) >= 2 && ((inventory['wood']?.count || 0) >= 1 || (inventory['planks']?.count || 0) >= 1)) {
+      newInventory['diamond'] = { count: newInventory['diamond'].count - 2 };
+      if ((inventory['planks']?.count || 0) >= 1) {
+        newInventory['planks'] = { count: newInventory['planks'].count - 1 };
+      } else {
+        newInventory['wood'] = { count: newInventory['wood'].count - 1 };
+      }
+      newInventory['diamond_sword'] = { count: (newInventory['diamond_sword']?.count || 0) + 1 };
+      success = true;
     }
     
     if (success) {
@@ -72,6 +100,10 @@ export default function CraftingPanel({ inventory, onCraft, isCreative = false }
   };
 
   const recipes = [
+    { id: 'celestial_blade', name: 'Celestial Blade of Verity', cost: isCreative ? 'Free' : '1 Diamond + 1 Amethyst', icon: '🗡️', color: 'bg-purple-900 border border-purple-400' },
+    { id: 'starlight_halo', name: 'Verity Starlight Halo', cost: isCreative ? 'Free' : '1 Gold + 1 Amethyst', icon: '👑', color: 'bg-amber-900 border border-yellow-400' },
+    { id: 'golden_apple', name: 'Golden Apple', cost: isCreative ? 'Free' : '1 Apple + 1 Gold', icon: '🍏', color: 'bg-yellow-900 border border-amber-300' },
+    { id: 'diamond_sword', name: 'Diamond Sword', cost: isCreative ? 'Free' : '2 Diamonds + 1 Wood', icon: '⚔️', color: 'bg-cyan-950 border border-cyan-400' },
     { id: 'bricks', name: 'Bricks', cost: isCreative ? 'Free' : '1 Stone + 1 Coal', icon: '🧱', color: 'bg-red-800' },
     { id: 'pickaxe', name: 'Pickaxe', cost: isCreative ? 'Free' : '3 Stone + 2 Wood', icon: '⛏️', color: 'bg-blue-800' },
     { id: 'planks', name: '4x Planks', cost: isCreative ? 'Free' : '1 Wood', icon: '🪵', color: 'bg-amber-800' },

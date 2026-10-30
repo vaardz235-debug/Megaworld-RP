@@ -691,6 +691,55 @@ class SpeechEngine {
       ];
     }
 
+    // Roblox Characters Quotes
+    if (type === 'roblox' || key.includes('noob') || key.includes('bacon') || key.includes('builder') || key.includes('guest') || key.includes('korblox') || key.includes('dominus') || key.includes('valkyrie')) {
+      if (key.includes('noob')) {
+        return [
+          "OOF! Classic yellow skin and blue shirt, ready to conquer the obby!",
+          "Watch out for the red neon lava kill bricks! Jump with Space!",
+          "Equipping the classic 2006 Linked Sword! Schwing!",
+          "Can somebody donate me some Robux please? Just 5 R$!",
+        ];
+      }
+      if (key.includes('bacon')) {
+        return [
+          "Bacon Hair style never goes out of fashion! Fresh denim jacket ready!",
+          "Time for an ice cold can of Bloxy Cola! Slurp... ahhh!",
+          "Winning smile equipped! Let's speedrun this obstacle course!",
+        ];
+      }
+      if (key.includes('builder')) {
+        return [
+          "Welcome to Robloxia! I am Builderman, Chief Architect!",
+          "Hard hat fastened tight! The Gravity Coil will bounce us over any pit!",
+          "Keep building your dream places and tycoons!",
+        ];
+      }
+      if (key.includes('guest')) {
+        return [
+          "GUEST 666 HAS AWOKEN! The midnight void belongs to me!",
+          "Beware the unverified shadows! Crimson eyes are watching!",
+        ];
+      }
+      if (key.includes('korblox')) {
+        return [
+          "The frozen tundra bows before the Korblox Deathspeaker!",
+          "One toothpick skeleton leg, infinite speed with the Red Coil!",
+        ];
+      }
+      if (key.includes('dominus')) {
+        return [
+          "Behold the Dominus Aureus! Multimillion Robux prestige in full glory!",
+          "Golden feathered wings and glowing void eyes! True royalty!",
+        ];
+      }
+      return [
+        "Welcome to the Roblox App! Let's play the Obby or Tycoon!",
+        "OOF! Jumping over speed pads and dodging natural disasters!",
+        "Collecting daily Robux in MegaWorld RP!",
+      ];
+    }
+
     // Default Fallback
     return [
       `Hello adventurer! I am ${name}, ready for world exploration!`,

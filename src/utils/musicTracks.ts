@@ -655,5 +655,44 @@ export const SONGS_PLAYLIST: MusicTrack[] = [
         'K', 'S', 'S', 'H',
       ]
     }
+  },
+  {
+    id: 'disc_verity',
+    title: 'Celestial Verity (Truth Resonance)',
+    artist: 'Oracle Verity (The Verity Update)',
+    genre: 'Celestial Ambient Chimes & Glass Choir',
+    discName: 'Music Disc - Verity',
+    discColorPrimary: '#a855f7',
+    discColorSecondary: '#c084fc',
+    icon: '🔮',
+    bpm: 88,
+    durationSeconds: 155,
+    description: 'Ethereal crystalline harmonic chimes, ascending glass pads, and starlight truth resonance.',
+    patterns: {
+      lead: [
+        'E5', 'G5', 'B5', 'C6', 'B5', 'G5', 'E5', null,
+        'D5', 'F#5', 'A5', 'C6', 'B5', 'A5', 'F#5', null,
+        'C5', 'E5', 'G5', 'C6', 'B5', 'G5', 'E5', null,
+        'A4', 'C5', 'E5', 'A5', 'G5', 'E5', 'D5', null,
+      ],
+      chords: [
+        ['E3', 'G3', 'B3'], null, ['E3', 'G3', 'B3'], null,
+        ['D3', 'F#3', 'A3'], null, ['D3', 'F#3', 'A3'], null,
+        ['C3', 'E3', 'G3'], null, ['C3', 'E3', 'G3'], null,
+        ['A2', 'C3', 'E3'], null, ['A2', 'C3', 'E3'], null,
+      ],
+      bass: [
+        'E2', null, 'B2', null,
+        'D2', null, 'A2', null,
+        'C2', null, 'G2', null,
+        'A2', null, 'E2', null,
+      ],
+      drums: [
+        'H', 'H', 'H', 'H',
+        'K', 'H', 'S', 'H',
+        'H', 'H', 'H', 'H',
+        'K', 'H', 'S', 'H',
+      ]
+    }
   }
 ];

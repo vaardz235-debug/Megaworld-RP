@@ -596,6 +596,118 @@ export default function ThreeVoxelWorld({
         ctx.fillRect(22, 15, 2, 2);
         break;
 
+      case 'carved_pumpkin':
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(0, 0, 32, 32);
+        ctx.fillStyle = '#c2410c';
+        ctx.fillRect(7, 0, 2, 32);
+        ctx.fillRect(15, 0, 2, 32);
+        ctx.fillRect(23, 0, 2, 32);
+        if (face === 'side') {
+          ctx.fillStyle = '#1c1917';
+          ctx.beginPath();
+          ctx.moveTo(8, 14); ctx.lineTo(12, 8); ctx.lineTo(14, 14); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(18, 14); ctx.lineTo(20, 8); ctx.lineTo(24, 14); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(15, 18); ctx.lineTo(17, 18); ctx.lineTo(16, 16); ctx.fill();
+          ctx.fillRect(9, 21, 14, 4);
+          ctx.fillStyle = '#ea580c';
+          ctx.fillRect(11, 21, 2, 2);
+          ctx.fillRect(19, 21, 2, 2);
+        } else if (face === 'top') {
+          ctx.fillStyle = '#713f12';
+          ctx.fillRect(13, 13, 6, 6);
+        }
+        break;
+
+      case 'jack_o_lantern':
+        ctx.fillStyle = '#ea580c';
+        ctx.fillRect(0, 0, 32, 32);
+        ctx.fillStyle = '#c2410c';
+        ctx.fillRect(7, 0, 2, 32);
+        ctx.fillRect(15, 0, 2, 32);
+        ctx.fillRect(23, 0, 2, 32);
+        if (face === 'side') {
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.moveTo(8, 14); ctx.lineTo(12, 8); ctx.lineTo(14, 14); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(18, 14); ctx.lineTo(20, 8); ctx.lineTo(24, 14); ctx.fill();
+          ctx.beginPath();
+          ctx.moveTo(15, 18); ctx.lineTo(17, 18); ctx.lineTo(16, 16); ctx.fill();
+          ctx.fillRect(9, 21, 14, 4);
+          ctx.fillStyle = '#9a3412';
+          ctx.fillRect(11, 21, 2, 2);
+          ctx.fillRect(19, 21, 2, 2);
+        } else if (face === 'top') {
+          ctx.fillStyle = '#713f12';
+          ctx.fillRect(13, 13, 6, 6);
+        }
+        break;
+
+      case 'witch_cauldron':
+        ctx.fillStyle = '#18181b';
+        ctx.fillRect(0, 0, 32, 32);
+        if (face === 'top') {
+          ctx.fillStyle = '#10b981';
+          ctx.beginPath();
+          ctx.arc(16, 16, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#a7f3d0';
+          ctx.beginPath();
+          ctx.arc(14, 14, 3, 0, Math.PI * 2);
+          ctx.arc(20, 18, 2, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = '#27272a';
+          ctx.fillRect(2, 6, 28, 4);
+          ctx.fillStyle = '#09090b';
+          ctx.fillRect(6, 26, 4, 6);
+          ctx.fillRect(22, 26, 4, 6);
+        }
+        break;
+
+      case 'tombstone':
+        ctx.fillStyle = '#475569';
+        ctx.fillRect(0, 0, 32, 32);
+        ctx.fillStyle = '#334155';
+        ctx.fillRect(2, 2, 28, 2);
+        ctx.fillRect(2, 2, 2, 28);
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillRect(14, 8, 4, 14);
+        ctx.fillRect(10, 12, 12, 4);
+        break;
+
+      case 'spooky_cobweb':
+        ctx.fillStyle = 'rgba(255,255,255,0.05)';
+        ctx.fillRect(0, 0, 32, 32);
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, 0); ctx.lineTo(32, 32);
+        ctx.moveTo(32, 0); ctx.lineTo(0, 32);
+        ctx.moveTo(16, 0); ctx.lineTo(16, 32);
+        ctx.moveTo(0, 16); ctx.lineTo(32, 16);
+        ctx.stroke();
+        break;
+
+      case 'ghost_lantern':
+        ctx.fillStyle = '#3b0764';
+        ctx.fillRect(0, 0, 32, 32);
+        ctx.strokeStyle = '#a855f7';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(3, 3, 26, 26);
+        ctx.fillStyle = '#f3e8ff';
+        ctx.beginPath();
+        ctx.arc(16, 14, 6, 0, Math.PI * 2);
+        ctx.fillRect(10, 14, 12, 8);
+        ctx.fill();
+        ctx.fillStyle = '#581c87';
+        ctx.fillRect(13, 13, 2, 2);
+        ctx.fillRect(17, 13, 2, 2);
+        break;
+
       default:
         ctx.fillStyle = '#64748b';
         ctx.fillRect(0, 0, 32, 32);
@@ -1101,7 +1213,7 @@ export default function ThreeVoxelWorld({
       t.sunLight.position.y = Math.max(10, Math.sin(sunAngle) * 60 + 20);
       t.sunLight.position.z = Math.sin(sunAngle) * 40;
 
-      // Adjust sky and fog colors
+      // Dynamic Day/Night & Weather Lighting with Festive Christmas Shaders
       if (current.weather === 'bloodmoon') {
         t.scene.background = _color.set('#450a0a');
         (t.scene.fog as THREE.FogExp2).color.set('#450a0a');
@@ -1110,6 +1222,14 @@ export default function ThreeVoxelWorld({
         t.scene.background = _color.set('#042f2e');
         (t.scene.fog as THREE.FogExp2).color.set('#042f2e');
         t.sunLight.color.set('#34d399');
+      } else if (current.weather === 'snowy') {
+        // Festive Christmas Winter Sky & Warm Lantern Hearth Glow
+        t.scene.background = _color.set('#0f172a');
+        (t.scene.fog as THREE.FogExp2).color.set('#1e293b');
+        // Warm gold-red festive holiday rim lighting
+        t.sunLight.color.set('#fef08a');
+        t.hemiLight.color.set('#fca5a5');
+        t.hemiLight.groundColor.set('#065f46');
       } else if (current.weather === 'stormy') {
         t.scene.background = _color.set('#18181b');
         (t.scene.fog as THREE.FogExp2).color.set('#18181b');
@@ -1126,13 +1246,18 @@ export default function ThreeVoxelWorld({
         t.sunLight.color.set('#93c5fd');
       }
 
-      // Update Weather Particles
+      // Update Weather Particles (Falling Fluffy Christmas Snowflakes)
       const wPos = t.weatherSystem.geometry.attributes.position as THREE.BufferAttribute;
       const wArray = wPos.array as Float32Array;
-      const fallSpeed = current.weather === 'stormy' ? 38 : current.weather === 'rainy' ? 24 : 8;
+      const isSnow = current.weather === 'snowy';
+      const fallSpeed = current.weather === 'stormy' ? 38 : current.weather === 'rainy' ? 24 : 6;
 
       for (let i = 0; i < weatherParticleCount; i++) {
         wArray[i * 3 + 1] -= fallSpeed * delta;
+        // Christmas snow sway
+        if (isSnow) {
+          wArray[i * 3] += Math.sin(now * 0.002 + i) * delta * 2;
+        }
         if (wArray[i * 3 + 1] < targetWorldY - 15) {
           wArray[i * 3 + 1] = targetWorldY + 25;
           wArray[i * 3] = (Math.random() - 0.5) * 80 + targetWorldX;
@@ -1616,6 +1741,57 @@ export default function ThreeVoxelWorld({
                 <span>Beatbox</span>
               </button>
             )}
+          </div>
+
+          {/* 6-Directional 3D Movement Pad (Up, Down, Left, Right, Forward, Back) */}
+          <div className="flex items-center gap-1 bg-black/60 p-1 rounded-xl border border-stone-800">
+            <span className="text-[10px] text-stone-400 font-bold px-1">3D MOVE:</span>
+            <button
+              onClick={() => onPlayerMove(-1, 0)}
+              className="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 active:bg-emerald-600 text-stone-200 text-[10px] font-bold cursor-pointer transition shadow"
+              title="Move Left [A / Arrow Left]"
+            >
+              ◄ L
+            </button>
+            <button
+              onClick={() => onPlayerMove(1, 0)}
+              className="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 active:bg-emerald-600 text-stone-200 text-[10px] font-bold cursor-pointer transition shadow"
+              title="Move Right [D / Arrow Right]"
+            >
+              R ►
+            </button>
+            <button
+              onClick={() => onPlayerMove(0, -1)}
+              className="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 active:bg-emerald-600 text-stone-200 text-[10px] font-bold cursor-pointer transition shadow"
+              title="Move Up / Jump [W / Space]"
+            >
+              ▲ UP
+            </button>
+            <button
+              onClick={() => onPlayerMove(0, 1)}
+              className="px-2 py-1 rounded bg-stone-800 hover:bg-stone-700 active:bg-emerald-600 text-stone-200 text-[10px] font-bold cursor-pointer transition shadow"
+              title="Move Down / Descend [S / Shift]"
+            >
+              ▼ DWN
+            </button>
+            <button
+              onClick={() => {
+                orbitStateRef.current.distance = Math.max(5, orbitStateRef.current.distance - 3);
+              }}
+              className="px-2 py-1 rounded bg-indigo-950 hover:bg-indigo-900 active:bg-indigo-700 text-indigo-300 text-[10px] font-bold cursor-pointer transition shadow border border-indigo-700/60"
+              title="Move Forward / Zoom In"
+            >
+              FWD
+            </button>
+            <button
+              onClick={() => {
+                orbitStateRef.current.distance = Math.min(30, orbitStateRef.current.distance + 3);
+              }}
+              className="px-2 py-1 rounded bg-indigo-950 hover:bg-indigo-900 active:bg-indigo-700 text-indigo-300 text-[10px] font-bold cursor-pointer transition shadow border border-indigo-700/60"
+              title="Move Back / Zoom Out"
+            >
+              BCK
+            </button>
           </div>
 
           {/* Mouse Drag Help Hint */}

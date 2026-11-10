@@ -7,7 +7,11 @@ import {
 import { 
   marketplaceManager, 
   MarketItem, 
-  TransactionReceipt 
+  TransactionReceipt,
+  COMMODITY_RATES,
+  ONLINE_TRADE_PARTNERS,
+  CommodityRate,
+  P2PTradePartner
 } from '../utils/marketplaceManager';
 import { 
   ugcManager, 
@@ -28,10 +32,28 @@ export default function MarketplaceModal({
   onClose,
   user,
 }: MarketplaceModalProps) {
-  const [activeTab, setActiveTab] = useState<'browse' | 'ugc' | 'sell' | 'receipts'>('browse');
+  const [activeTab, setActiveTab] = useState<'browse' | 'commodities' | 'p2p' | 'ugc' | 'sell' | 'receipts'>('browse');
   const [items, setItems] = useState<MarketItem[]>(marketplaceManager.getLocalItems());
   const [receipts, setReceipts] = useState<TransactionReceipt[]>(marketplaceManager.getReceipts());
   const [customData, setCustomData] = useState<PlayerCustomizationData>(avatarManager.getLocalCustomization());
+
+  // Commodity Resource Exchange State
+  const [selectedCommodityKey, setSelectedCommodityKey] = useState<string>('wood');
+  const [commodityQty, setCommodityQty] = useState<number>(8);
+  const [sellingCommodity, setSellingCommodity] = useState<boolean>(false);
+
+  // P2P Escrow Trading State
+  const [selectedPartnerId, setSelectedPartnerId] = useState<string>('partner_steve');
+  const [p2pOfferedCoins, setP2pOfferedCoins] = useState<number>(50);
+  const [p2pOfferedRobux, setP2pOfferedRobux] = useState<number>(0);
+  const [p2pRequestedItem, setP2pRequestedItem] = useState<string>('Diamond Pickaxe');
+  const [p2pTradeLocked, setP2pTradeLocked] = useState<boolean>(false);
+  const [p2pCountdown, setP2pCountdown] = useState<number>(0);
+  const [p2pTrading, setP2pTrading] = useState<boolean>(false);
+
+  // Cloud Wallet Sync State
+  const [syncingCloud, setSyncingCloud] = useState<boolean>(false);
+  const [cloudSyncToken, setCloudSyncToken] = useState<string | null>(null);
 
   // UGC State
   const [ugcCreations, setUgcCreations] = useState<UgcCreation[]>(ugcManager.getLocalCreations());
@@ -138,6 +160,86 @@ export default function MarketplaceModal({
       showToast('error', e.message || 'Transaction failed in escrow.');
     } finally {
       setBuying(false);
+    }
+  };
+
+  const handleSellCommodityAction = async () => {
+    setSellingCommodity(true);
+    try {
+      const res = await marketplaceManager.sellCommodity(
+        selectedCommodityKey,
+        commodityQty,
+        user?.uid || 'guest-player'
+      );
+      audioEngine.playMinecraftSound('levelup');
+      setReceipts(marketplaceManager.getReceipts());
+      setCustomData(avatarManager.getLocalCustomization());
+      showToast('success', res.message);
+    } catch (e: any) {
+      audioEngine.playMinecraftSound('anvil');
+      showToast('error', e.message || 'Failed to sell commodity.');
+    } finally {
+      setSellingCommodity(false);
+    }
+  };
+
+  const handleStartP2PLockCountdown = () => {
+    if (p2pTradeLocked) {
+      setP2pTradeLocked(false);
+      setP2pCountdown(0);
+      return;
+    }
+    audioEngine.playMinecraftSound('click');
+    setP2pTradeLocked(true);
+    setP2pCountdown(3);
+    const interval = setInterval(() => {
+      setP2pCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          audioEngine.playMinecraftSound('orb');
+          return 0;
+        }
+        audioEngine.playMinecraftSound('click');
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleExecuteP2PTradeAction = async () => {
+    setP2pTrading(true);
+    try {
+      const res = await marketplaceManager.executeP2PExchange(
+        selectedPartnerId,
+        p2pOfferedCoins,
+        p2pOfferedRobux,
+        p2pRequestedItem,
+        user?.uid || 'guest-player',
+        user?.displayName || 'Steve Miner'
+      );
+      audioEngine.playMinecraftSound('levelup');
+      setReceipts(marketplaceManager.getReceipts());
+      setCustomData(avatarManager.getLocalCustomization());
+      setP2pTradeLocked(false);
+      showToast('success', res.message);
+    } catch (e: any) {
+      audioEngine.playMinecraftSound('anvil');
+      showToast('error', e.message || 'P2P trade failed.');
+    } finally {
+      setP2pTrading(false);
+    }
+  };
+
+  const handleSyncCloudWalletAction = async () => {
+    setSyncingCloud(true);
+    try {
+      const res = await marketplaceManager.syncCloudEconomyLedger(user?.uid);
+      audioEngine.playMinecraftSound('orb');
+      setCloudSyncToken(res.hash);
+      showToast('success', `Cloud Wallet & Ledger synchronized! Token: ${res.hash}`);
+    } catch (e: any) {
+      showToast('error', 'Cloud sync failed, using local offline ledger.');
+    } finally {
+      setSyncingCloud(false);
     }
   };
 
@@ -284,7 +386,7 @@ export default function MarketplaceModal({
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Wallet Balances */}
+            {/* Wallet Balances + Cloud Sync */}
             <div className="flex items-center gap-3 bg-stone-950/80 px-3 py-1.5 rounded-2xl border border-stone-800 font-mono text-xs">
               <div className="flex items-center gap-1.5 text-amber-300 font-bold">
                 <Coins size={14} className="text-amber-400" />
@@ -295,6 +397,14 @@ export default function MarketplaceModal({
                 <span className="w-2.5 h-2.5 bg-red-500 inline-block rotate-12 rounded-xs" />
                 <span>{customData.robux} Robux</span>
               </div>
+              <button
+                onClick={handleSyncCloudWalletAction}
+                disabled={syncingCloud}
+                className="ml-1 px-2.5 py-1 bg-stone-800 hover:bg-stone-700 text-[10.5px] text-emerald-400 border border-emerald-500/40 rounded-lg flex items-center gap-1 transition cursor-pointer"
+                title="Synchronize virtual wallet and cryptographic ledger to Firestore"
+              >
+                <span>{syncingCloud ? 'Syncing...' : '☁️ Cloud Sync'}</span>
+              </button>
             </div>
 
             <button
@@ -336,6 +446,36 @@ export default function MarketplaceModal({
           <button
             onClick={() => {
               audioEngine.playMinecraftSound('click');
+              setActiveTab('commodities');
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition cursor-pointer whitespace-nowrap ${
+              activeTab === 'commodities'
+                ? 'bg-amber-500 text-stone-950 shadow-md'
+                : 'text-stone-400 hover:text-white hover:bg-stone-800'
+            }`}
+          >
+            <span>⛏️</span>
+            <span>2. Resource Exchange (Sell Ores)</span>
+          </button>
+
+          <button
+            onClick={() => {
+              audioEngine.playMinecraftSound('click');
+              setActiveTab('p2p');
+            }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition cursor-pointer whitespace-nowrap ${
+              activeTab === 'p2p'
+                ? 'bg-amber-500 text-stone-950 shadow-md'
+                : 'text-stone-400 hover:text-white hover:bg-stone-800'
+            }`}
+          >
+            <span>🤝</span>
+            <span>3. P2P Escrow Trading Post</span>
+          </button>
+
+          <button
+            onClick={() => {
+              audioEngine.playMinecraftSound('click');
               setActiveTab('ugc');
             }}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold transition cursor-pointer whitespace-nowrap ${
@@ -345,7 +485,7 @@ export default function MarketplaceModal({
             }`}
           >
             <Sparkles size={14} className="text-yellow-400" />
-            <span>2. Community UGC & Creations ({filteredUgc.length})</span>
+            <span>4. Community UGC & Creations ({filteredUgc.length})</span>
           </button>
 
           <button
@@ -360,7 +500,7 @@ export default function MarketplaceModal({
             }`}
           >
             <Plus size={14} />
-            <span>3. Sell Items & Publish UGC</span>
+            <span>5. Sell Items & Publish UGC</span>
           </button>
 
           <button
@@ -375,7 +515,7 @@ export default function MarketplaceModal({
             }`}
           >
             <FileText size={14} />
-            <span>4. Receipts & Escrow ({receipts.length})</span>
+            <span>6. Receipts & Cloud Ledger ({receipts.length})</span>
           </button>
         </div>
 
@@ -546,6 +686,442 @@ export default function MarketplaceModal({
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* ================= TAB 2: RESOURCE EXCHANGE (COMMODITIES) ================= */}
+          {activeTab === 'commodities' && (
+            <div className="space-y-5">
+              {/* Economy Guide Banner */}
+              <div className="bg-gradient-to-r from-amber-950/60 via-stone-900 to-emerald-950/60 border border-amber-500/40 p-5 rounded-3xl shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-amber-500/20 border border-amber-500/50 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                    ⛏️
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-white flex items-center gap-2">
+                      MegaWorld Commodity Exchange
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                        Primary Coin Engine
+                      </span>
+                    </h3>
+                    <p className="text-xs text-stone-300 font-mono mt-0.5">
+                      Earn <strong className="text-amber-400">MegaCoins (🪙)</strong> by selling raw mined ores, lumber, and harvested farm crops at dynamic server exchange rates.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 bg-stone-950/80 px-4 py-2 rounded-2xl border border-stone-800 shrink-0">
+                  <div className="text-right">
+                    <div className="text-[10px] text-stone-400 uppercase font-mono">Current Wallet</div>
+                    <div className="text-sm font-black text-amber-400 flex items-center gap-1 font-mono">
+                      <Coins size={14} /> {customData.coins} Coins
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Commodity Exchange Grid & Trade Terminal */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                {/* Available Commodities List */}
+                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {COMMODITY_RATES.map((item) => {
+                    const isSelected = selectedCommodityKey === item.key;
+                    return (
+                      <div
+                        key={item.key}
+                        onClick={() => {
+                          audioEngine.playMinecraftSound('click');
+                          setSelectedCommodityKey(item.key);
+                        }}
+                        className={`p-4 rounded-2xl border transition cursor-pointer flex flex-col justify-between ${
+                          isSelected
+                            ? 'bg-amber-950/40 border-amber-500 ring-2 ring-amber-500/30 shadow-lg'
+                            : 'bg-stone-950/60 border-stone-800 hover:border-stone-700 hover:bg-stone-900/60'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2.5">
+                            <span className="text-2xl">{item.icon}</span>
+                            <div>
+                              <div className="text-xs font-bold text-white">{item.name}</div>
+                              <span className="text-[9.5px] uppercase text-stone-400 font-mono">
+                                {item.category.replace('_', ' ')}
+                              </span>
+                            </div>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            item.marketTrend === 'up'
+                              ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                              : 'bg-stone-800 text-stone-300 border-stone-700'
+                          }`}>
+                            {item.marketTrend === 'up' ? '📈 +5%' : '➖ Stable'}
+                          </span>
+                        </div>
+
+                        <p className="text-[11px] text-stone-400 mb-3 leading-relaxed">
+                          {item.description}
+                        </p>
+
+                        <div className="flex items-center justify-between pt-2 border-t border-stone-800/80 font-mono text-xs">
+                          <span className="text-stone-400 text-[10.5px]">Unit Exchange Rate</span>
+                          <span className="text-amber-400 font-bold flex items-center gap-1">
+                            <Coins size={12} /> {item.sellPriceCoins} 🪙 / block
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Sell / Liquidation Terminal Panel */}
+                {(() => {
+                  const activeCommodity = COMMODITY_RATES.find((c) => c.key === selectedCommodityKey) || COMMODITY_RATES[0];
+                  const totalPayout = activeCommodity.sellPriceCoins * commodityQty;
+
+                  return (
+                    <div className="bg-stone-950/90 border-2 border-amber-500/50 p-5 rounded-3xl flex flex-col justify-between shadow-2xl h-fit sticky top-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-2xl">{activeCommodity.icon}</span>
+                          <div>
+                            <h4 className="text-sm font-bold text-white">{activeCommodity.name}</h4>
+                            <span className="text-[10px] text-stone-400 font-mono">Exchange Liquidation Desk</span>
+                          </div>
+                        </div>
+
+                        <div className="bg-stone-900/80 p-3 rounded-2xl border border-stone-800 mb-4 space-y-2 text-xs">
+                          <div className="flex justify-between text-stone-300">
+                            <span>Base Commodity Rate:</span>
+                            <span className="text-amber-400 font-bold font-mono">{activeCommodity.sellPriceCoins} MegaCoins each</span>
+                          </div>
+                          <div className="flex justify-between text-stone-300">
+                            <span>Platform Escrow Fee:</span>
+                            <span className="text-emerald-400 font-bold font-mono">0% (Subsidized)</span>
+                          </div>
+                          <div className="flex justify-between text-stone-300">
+                            <span>Settlement Speed:</span>
+                            <span className="text-cyan-400 font-bold font-mono">Instant Atomic Transfer</span>
+                          </div>
+                        </div>
+
+                        {/* Quantity Controls */}
+                        <div className="space-y-2 mb-4">
+                          <div className="flex justify-between text-xs font-mono">
+                            <span className="text-stone-400">Sell Quantity:</span>
+                            <span className="text-white font-bold">{commodityQty} units</span>
+                          </div>
+
+                          <input
+                            type="range"
+                            min="1"
+                            max="64"
+                            value={commodityQty}
+                            onChange={(e) => setCommodityQty(Number(e.target.value))}
+                            className="w-full accent-amber-500 cursor-pointer"
+                          />
+
+                          <div className="flex items-center gap-1.5 pt-1">
+                            {[1, 8, 16, 32, 64].map((amt) => (
+                              <button
+                                key={amt}
+                                type="button"
+                                onClick={() => {
+                                  audioEngine.playMinecraftSound('click');
+                                  setCommodityQty(amt);
+                                }}
+                                className={`flex-1 py-1 text-[10px] font-bold rounded-lg border transition cursor-pointer font-mono ${
+                                  commodityQty === amt
+                                    ? 'bg-amber-500 text-stone-950 border-amber-400 font-black'
+                                    : 'bg-stone-900 text-stone-400 border-stone-800 hover:text-white'
+                                }`}
+                              >
+                                {amt === 64 ? 'Stack' : amt}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Total Revenue Box */}
+                        <div className="bg-amber-950/40 border border-amber-500/40 p-3.5 rounded-2xl mb-4 font-mono">
+                          <div className="text-[10px] text-stone-400 uppercase">Total MegaCoins Payout</div>
+                          <div className="text-2xl font-black text-amber-300 flex items-center gap-1.5 mt-0.5">
+                            <Coins size={20} className="text-amber-400" />
+                            <span>+{totalPayout} MegaCoins (🪙)</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={handleSellCommodityAction}
+                        disabled={sellingCommodity}
+                        className="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-stone-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-lg flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                      >
+                        <Coins size={16} />
+                        <span>{sellingCommodity ? 'Liquidating to Wallet...' : `Sell ${commodityQty}x & Claim +${totalPayout} 🪙`}</span>
+                      </button>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* ================= TAB 3: P2P ESCROW TRADING POST ================= */}
+          {activeTab === 'p2p' && (
+            <div className="space-y-5">
+              {/* P2P Header Banner */}
+              <div className="bg-gradient-to-r from-blue-950/60 via-stone-900 to-purple-950/60 border border-blue-500/40 p-5 rounded-3xl shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-blue-500/20 border border-blue-500/50 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
+                    🤝
+                  </div>
+                  <div>
+                    <h3 className="text-base font-black text-white flex items-center gap-2">
+                      Cross-Platform P2P Escrow Trading Post
+                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                        Live Escrow
+                      </span>
+                    </h3>
+                    <p className="text-xs text-stone-300 font-mono mt-0.5">
+                      Stage items, MegaCoins, and Robux with online multiplayer traders. Protected with a 3-second safety countdown lock and atomic ledger verification.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="text-right text-xs font-mono shrink-0">
+                  <span className="text-stone-400 text-[10px] uppercase">Trader Security Rating</span>
+                  <div className="text-emerald-400 font-bold flex items-center justify-end gap-1">
+                    <ShieldCheck size={14} /> Verified Escrow (100% Non-Bait)
+                  </div>
+                </div>
+              </div>
+
+              {/* Trader Partner Selector */}
+              <div className="space-y-2">
+                <div className="text-xs font-bold text-stone-300 font-mono flex items-center justify-between">
+                  <span>Select Active Online Trading Partner:</span>
+                  <span className="text-[11px] text-stone-400">{ONLINE_TRADE_PARTNERS.length} Traders Available</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {ONLINE_TRADE_PARTNERS.map((partner) => {
+                    const isSelected = selectedPartnerId === partner.id;
+                    return (
+                      <div
+                        key={partner.id}
+                        onClick={() => {
+                          audioEngine.playMinecraftSound('click');
+                          setSelectedPartnerId(partner.id);
+                          setP2pRequestedItem(partner.availableItems[0]?.name || 'Rare Gear');
+                          setP2pTradeLocked(false);
+                          setP2pCountdown(0);
+                        }}
+                        className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center gap-3 ${
+                          isSelected
+                            ? 'bg-blue-950/40 border-blue-500 ring-2 ring-blue-500/30 shadow-md'
+                            : 'bg-stone-950/60 border-stone-800 hover:border-stone-700'
+                        }`}
+                      >
+                        <span className="text-3xl">{partner.avatar}</span>
+                        <div className="overflow-hidden">
+                          <div className="text-xs font-bold text-white truncate">{partner.name}</div>
+                          <div className="text-[10px] text-amber-300 flex items-center gap-1">
+                            <Star size={11} fill="currentColor" /> {partner.rating.toFixed(1)} • {partner.badge}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Dual Escrow Staging Window */}
+              {(() => {
+                const partner = ONLINE_TRADE_PARTNERS.find((p) => p.id === selectedPartnerId) || ONLINE_TRADE_PARTNERS[0];
+
+                return (
+                  <div className="bg-stone-950/90 border border-stone-800 p-5 rounded-3xl space-y-5 shadow-2xl">
+                    <div className="flex items-center justify-between border-b border-stone-800 pb-3">
+                      <div className="text-xs font-bold text-stone-200 font-mono flex items-center gap-2">
+                        <span>🤝 Live Trade Escrow Session with:</span>
+                        <span className="text-blue-400">{partner.name}</span>
+                      </div>
+                      <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full border font-mono ${
+                        p2pTradeLocked
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/50 animate-pulse'
+                          : 'bg-stone-800 text-stone-400 border-stone-700'
+                      }`}>
+                        {p2pTradeLocked ? '🔒 Offers Locked (Inspecting)' : '📝 Stage Your Offer Below'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      {/* Left Side: YOUR OFFER */}
+                      <div className="bg-stone-900/80 p-4 rounded-2xl border border-stone-800 space-y-4">
+                        <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                          <div className="text-xs font-black text-amber-400 uppercase font-mono flex items-center gap-1.5">
+                            <span>👤</span>
+                            <span>Your Offer ({customData.customName || 'Player'})</span>
+                          </div>
+                          <span className="text-[10px] text-stone-400 font-mono">
+                            Balance: {customData.coins}🪙 | {customData.robux}💎
+                          </span>
+                        </div>
+
+                        {/* Staged Currency Inputs */}
+                        <div className="space-y-3 font-mono">
+                          <div>
+                            <div className="flex justify-between text-xs text-stone-300 mb-1">
+                              <span>Offer MegaCoins:</span>
+                              <span className="text-amber-400 font-bold">{p2pOfferedCoins} 🪙</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max={Math.min(customData.coins, 500)}
+                              step="10"
+                              value={p2pOfferedCoins}
+                              disabled={p2pTradeLocked}
+                              onChange={(e) => setP2pOfferedCoins(Number(e.target.value))}
+                              className="w-full accent-amber-500 cursor-pointer disabled:opacity-50"
+                            />
+                          </div>
+
+                          <div>
+                            <div className="flex justify-between text-xs text-stone-300 mb-1">
+                              <span>Offer Robux Gems:</span>
+                              <span className="text-red-400 font-bold">{p2pOfferedRobux} 💎</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max={Math.min(customData.robux, 100)}
+                              step="5"
+                              value={p2pOfferedRobux}
+                              disabled={p2pTradeLocked}
+                              onChange={(e) => setP2pOfferedRobux(Number(e.target.value))}
+                              className="w-full accent-red-500 cursor-pointer disabled:opacity-50"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="bg-stone-950 p-3 rounded-xl border border-stone-800 text-xs text-stone-300 font-mono">
+                          <div className="text-[10px] text-stone-400 uppercase mb-1">Items Staged from Bag:</div>
+                          <div className="flex items-center gap-2 text-stone-200">
+                            <span>📦</span>
+                            <span>Standard Adventurer Trade Certificate (Verified)</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right Side: PARTNER'S OFFER */}
+                      <div className="bg-stone-900/80 p-4 rounded-2xl border border-stone-800 space-y-4">
+                        <div className="flex items-center justify-between border-b border-stone-800 pb-2">
+                          <div className="text-xs font-black text-blue-400 uppercase font-mono flex items-center gap-1.5">
+                            <span>{partner.avatar}</span>
+                            <span>{partner.name}'s Offer</span>
+                          </div>
+                          <span className="text-[10px] text-emerald-400 font-mono">
+                            Offering: +{partner.offerCoins}🪙 {partner.offerRobux > 0 ? `+${partner.offerRobux}💎` : ''}
+                          </span>
+                        </div>
+
+                        {/* Select which item to request from partner */}
+                        <div className="space-y-2 font-mono">
+                          <div className="text-xs text-stone-300">Choose Desired Partner Item:</div>
+                          <div className="space-y-1.5">
+                            {partner.availableItems.map((item, idx) => {
+                              const isChosen = p2pRequestedItem === item.name;
+                              return (
+                                <div
+                                  key={idx}
+                                  onClick={() => {
+                                    if (p2pTradeLocked) return;
+                                    audioEngine.playMinecraftSound('click');
+                                    setP2pRequestedItem(item.name);
+                                  }}
+                                  className={`p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between text-xs ${
+                                    isChosen
+                                      ? 'bg-blue-950/60 border-blue-400 text-white font-bold'
+                                      : 'bg-stone-950/60 border-stone-800 text-stone-300 hover:border-stone-700'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">{item.icon}</span>
+                                    <span>{item.name}</span>
+                                  </div>
+                                  <span className="text-amber-400 font-mono">Value: ~{item.valueCoins} 🪙</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="bg-blue-950/40 p-3 rounded-xl border border-blue-500/30 text-xs text-blue-200 font-mono">
+                          <div className="text-[10px] text-blue-300 uppercase mb-0.5">Bonus Currency in Escrow:</div>
+                          <div className="font-bold flex items-center gap-2">
+                            <span>🪙 +{partner.offerCoins} MegaCoins</span>
+                            {partner.offerRobux > 0 && <span>💎 +{partner.offerRobux} Robux</span>}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Escrow Lock & Final Execution Controls */}
+                    <div className="bg-stone-900 p-4 rounded-2xl border border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono">
+                      <div>
+                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <ShieldCheck size={15} className="text-emerald-400" />
+                          <span>Escrow Security Protection Active</span>
+                        </div>
+                        <p className="text-[11px] text-stone-400 mt-0.5">
+                          {p2pTradeLocked
+                            ? p2pCountdown > 0
+                              ? `Reviewing counter-offer... Safety lock expires in ${p2pCountdown}s.`
+                              : 'Both offers verified & locked! Ready to finalize atomic exchange.'
+                            : 'Click "Lock In Offer" to verify terms and enable final trade confirmation.'}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-3 shrink-0">
+                        <button
+                          type="button"
+                          onClick={handleStartP2PLockCountdown}
+                          disabled={p2pTrading}
+                          className={`px-4 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer flex items-center gap-1.5 ${
+                            p2pTradeLocked
+                              ? 'bg-stone-800 text-amber-300 border border-stone-700 hover:bg-stone-700'
+                              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md'
+                          }`}
+                        >
+                          {p2pTradeLocked ? '🔓 Modify Offer' : '🔒 Lock In Offer'}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleExecuteP2PTradeAction}
+                          disabled={!p2pTradeLocked || p2pCountdown > 0 || p2pTrading}
+                          className={`px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition shadow-lg flex items-center gap-2 cursor-pointer ${
+                            p2pTradeLocked && p2pCountdown === 0
+                              ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-stone-950 shadow-emerald-500/20'
+                              : 'bg-stone-800 text-stone-500 border border-stone-700 cursor-not-allowed opacity-60'
+                          }`}
+                        >
+                          <CheckCircle2 size={16} />
+                          <span>
+                            {p2pTrading
+                              ? 'Executing Escrow...'
+                              : p2pCountdown > 0
+                              ? `Safety Lock (${p2pCountdown}s)`
+                              : 'Execute P2P Trade'}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 

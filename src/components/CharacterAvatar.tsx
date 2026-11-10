@@ -4,8 +4,9 @@ import XilamAvatar from './XilamAvatar';
 export interface CharacterData {
   id: number;
   name: string;
-  type: 'minecraft' | 'sprnuki' | 'train' | 'countryball' | 'roblox' | 'xilam';
+  type: 'minecraft' | 'sprnuki' | 'train' | 'countryball' | 'roblox' | 'xilam' | 'custom';
   subtype?: string;
+  classArchetype?: string;
   color?: string;
   flag?: string;
   description?: string;
@@ -28,6 +29,7 @@ export interface CharacterData {
   customAura?: string;
   customEmblem?: string;
   customClass?: string;
+  customFaction?: string;
   customTitle?: string;
   bodyType?: string;
   hairStyle?: string;
@@ -37,6 +39,13 @@ export interface CharacterData {
   pantsStyle?: string;
   pantsColor?: string;
   skinColor?: string;
+  isHalloween?: boolean;
+  halloweenCostume?: 'vampire' | 'witch' | 'pumpkin' | 'skeleton' | 'ghost' | 'frankenstein' | 'werewolf' | 'reaper' | 'mummy' | 'headless';
+  isChristmas?: boolean;
+  christmasCostume?: 'santa' | 'elf' | 'reindeer' | 'snow_golem' | 'gingerbread' | 'nutcracker' | 'tree';
+  countryballTrait?: 'diplomatic' | 'clay_hungry' | 'industrious' | 'jovial' | 'stoic' | 'space_dreamer';
+  countryballGlasses?: 'none' | 'aviators' | 'monocle' | 'glasses_3d' | 'nerd_specs' | 'snow_goggles' | 'cyber_visor' | 'pirate_patch';
+  countryballHat?: string;
 }
 
 interface CharacterAvatarProps {
@@ -66,6 +75,14 @@ const getHeldItemIcon = (item?: string) => {
     case 'emerald': return '❇️';
     case 'flower': return '🌸';
     case 'door': return '🚪';
+    case 'carved_pumpkin': return '🎃';
+    case 'jack_o_lantern': return '🏮';
+    case 'candy_corn': return '🍬';
+    case 'reaper_scythe': return '🗡️';
+    case 'witch_cauldron': return '🧙';
+    case 'ghost_lantern': return '👻';
+    case 'tombstone': return '🪦';
+    case 'trick_or_treat_bag': return '🛍️';
     default: return '📦';
   }
 };
@@ -201,6 +218,123 @@ export default function CharacterAvatar({
       <RenderCustomHat hat={character.customHat} />
       <RenderCustomFace face={character.customFace} />
       <RenderCustomEmblem emblem={character.customEmblem} />
+
+      {/* Holiday / Christmas Thematic Costume Overlay */}
+      {(character.isChristmas || character.christmasCostume) && (
+        <RenderHolidayChristmasCostume costume={character.christmasCostume || 'santa'} />
+      )}
+    </div>
+  );
+}
+
+/* ==========================================================
+   CHRISTMAS HOLIDAY THEMATIC COSTUMES & VISUALS
+========================================================== */
+function RenderHolidayChristmasCostume({ costume }: { costume: 'santa' | 'elf' | 'reindeer' | 'snow_golem' | 'gingerbread' | 'nutcracker' | 'tree' }) {
+  if (costume === 'santa') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center">
+        {/* Santa Hat with fluffy white trim & pom-pom */}
+        <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex flex-col items-center drop-shadow-md">
+          <div className="relative">
+            <div className="w-0 h-0 border-l-[13px] border-l-transparent border-r-[13px] border-r-transparent border-b-[20px] border-b-red-600 transform -rotate-12" />
+            <div className="w-3.5 h-3.5 bg-white rounded-full absolute -top-1 -right-2 shadow-sm border border-stone-200" />
+          </div>
+          <div className="w-11 h-2.5 bg-white border border-stone-200 rounded-full -mt-1 shadow-sm" />
+        </div>
+        {/* Santa White Beard */}
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 flex flex-col items-center">
+          <div className="w-6 h-3 bg-white border border-stone-200 rounded-b-full shadow-xs" />
+        </div>
+        {/* Golden Belt Buckle */}
+        <div className="absolute top-8 left-1/2 -translate-x-1/2 w-4 h-2 border-2 border-yellow-300 bg-neutral-900 rounded-xs shadow-xs" />
+      </div>
+    );
+  }
+
+  if (costume === 'elf') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center">
+        {/* Jolly Green Elf Cap with Jingle Bell */}
+        <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex flex-col items-center drop-shadow-md">
+          <div className="relative">
+            <div className="w-0 h-0 border-l-[11px] border-l-transparent border-r-[11px] border-r-transparent border-b-[18px] border-b-emerald-600 transform rotate-12" />
+            <div className="w-3 h-3 bg-amber-400 rounded-full absolute -top-1 -left-2 shadow-xs border border-amber-600 flex items-center justify-center text-[5px]">🔔</div>
+          </div>
+          <div className="w-10 h-2 bg-red-600 border border-red-700 -mt-0.5 rounded-xs" />
+        </div>
+        {/* Elf Collar Points */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex gap-1">
+          <span className="w-2 h-2 bg-emerald-500 transform rotate-45" />
+          <span className="w-2 h-2 bg-red-500 transform rotate-45" />
+          <span className="w-2 h-2 bg-emerald-500 transform rotate-45" />
+        </div>
+      </div>
+    );
+  }
+
+  if (costume === 'reindeer') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center">
+        {/* Reindeer Antlers & Glowing Rudolph Red Nose */}
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 flex items-start justify-between w-14">
+          <div className="w-2 h-6 bg-amber-800 border-l border-amber-950 rounded-tl-full transform -rotate-25 flex flex-col items-start">
+            <div className="w-2.5 h-1 bg-amber-800 -mt-0.5 rounded-l-xs" />
+          </div>
+          <div className="w-2.5 h-2.5 bg-red-600 rounded-full shadow-[0_0_8px_#ef4444] animate-pulse mt-4" />
+          <div className="w-2 h-6 bg-amber-800 border-r border-amber-950 rounded-tr-full transform rotate-25 flex flex-col items-end">
+            <div className="w-2.5 h-1 bg-amber-800 -mt-0.5 rounded-r-xs" />
+          </div>
+        </div>
+        {/* Little Jingle Bell Collar */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 flex items-center justify-center">
+          <span className="w-3 h-3 bg-amber-400 rounded-full border border-amber-600 flex items-center justify-center text-[6px] shadow">🔔</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (costume === 'snow_golem') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center">
+        {/* Frost Tophat & Carrot Nose */}
+        <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center">
+          <div className="w-4 h-4 bg-stone-900 border border-stone-700 rounded-t-xs" />
+          <div className="w-7 h-1 bg-stone-900 rounded-full -mt-0.5" />
+        </div>
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 w-0 h-0 border-t-[3px] border-t-transparent border-b-[3px] border-b-transparent border-l-[7px] border-l-orange-500" />
+        {/* Coal buttons */}
+        <div className="absolute top-7 left-1/2 -translate-x-1/2 flex flex-col gap-1 items-center">
+          <span className="w-1 h-1 bg-stone-900 rounded-full" />
+          <span className="w-1 h-1 bg-stone-900 rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (costume === 'gingerbread') {
+    return (
+      <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center">
+        {/* Sugar Icing Smile & Frosting Wave */}
+        <div className="absolute top-5 left-1/2 -translate-x-1/2 w-5 h-1 bg-white rounded-full shadow-xs" />
+        <div className="absolute top-7 left-1/2 -translate-x-1/2 flex gap-1">
+          <span className="w-1.5 h-1.5 bg-red-500 rounded-full shadow-xs" />
+          <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-xs" />
+        </div>
+      </div>
+    );
+  }
+
+  // Default Holiday Pine Tree costume
+  return (
+    <div className="absolute inset-0 pointer-events-none z-30 flex flex-col items-center">
+      {/* Golden Tree Star Topper */}
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 text-sm text-yellow-300 animate-spin" style={{ animationDuration: '6s' }}>⭐</div>
+      {/* Pine Garlands */}
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 w-8 h-2 bg-red-600/60 rounded-full border border-yellow-300/60 flex items-center justify-around px-1">
+        <span className="w-1 h-1 bg-yellow-300 rounded-full animate-ping" />
+        <span className="w-1 h-1 bg-cyan-300 rounded-full animate-ping" style={{ animationDelay: '0.2s' }} />
+      </div>
     </div>
   );
 }
@@ -267,6 +401,123 @@ function RenderCustomWings({ wings }: { wings?: string }) {
     return (
       <div className="absolute top-5 left-1/2 -translate-x-1/2 -z-10 w-12 h-16 bg-neutral-950 border-2 border-neutral-700 rounded-b-xl shadow-xl flex flex-col items-center justify-center pointer-events-none">
         <span className="text-xs text-white">🌿</span>
+      </div>
+    );
+  }
+  if (wings === 'back_bat_wings') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 -z-10 flex items-center justify-between w-20 pointer-events-none drop-shadow-md">
+        <span className="text-xl -rotate-12 animate-pulse">🦇</span>
+        <span className="text-xl rotate-12 animate-pulse">🦇</span>
+      </div>
+    );
+  }
+  if (wings === 'back_reaper_scythe') {
+    return (
+      <div className="absolute top-2 left-1/2 -translate-x-1/2 -z-10 flex items-center justify-center pointer-events-none drop-shadow-lg">
+        <span className="text-2xl rotate-45 text-purple-400">🗡️</span>
+      </div>
+    );
+  }
+  if (wings === 'back_ghost_float') {
+    return (
+      <div className="absolute -top-3 -right-5 -z-10 flex items-center justify-center pointer-events-none drop-shadow-lg animate-bounce">
+        <span className="text-xl">👻</span>
+      </div>
+    );
+  }
+  if (wings === 'back_santa_sack') {
+    return (
+      <div className="absolute top-4 -right-3 -z-10 w-9 h-12 bg-red-700 border-2 border-red-950 rounded-b-2xl shadow-xl flex flex-col items-center justify-start pt-1 pointer-events-none transform rotate-12">
+        <span className="text-xs">🍬</span>
+        <div className="w-5 h-1.5 bg-amber-400 rounded-full mt-1 border border-amber-600" />
+      </div>
+    );
+  }
+  if (wings === 'back_snow_globe') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 -z-10 w-11 h-11 rounded-full bg-cyan-200/30 border-2 border-cyan-300 shadow-[0_0_12px_#67e8f9] flex items-center justify-center pointer-events-none backdrop-blur-xs animate-pulse">
+        <span className="text-xs animate-spin" style={{ animationDuration: '6s' }}>❄️</span>
+      </div>
+    );
+  }
+  if (wings === 'back_festive_wreath') {
+    return (
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 -z-10 w-12 h-12 rounded-full border-4 border-emerald-700 bg-emerald-950/40 shadow-lg flex items-center justify-center pointer-events-none">
+        <div className="w-3 h-2 bg-red-600 rounded-xs -mt-6 border border-red-800" />
+        <span className="text-[10px]">🔔</span>
+      </div>
+    );
+  }
+  if (wings === 'back_gingerbread_shield') {
+    return (
+      <div className="absolute top-5 -right-3 -z-10 w-9 h-11 bg-amber-700 border-2 border-amber-900 rounded-xl shadow-md flex flex-col items-center justify-around py-0.5 pointer-events-none">
+        <div className="w-1.5 h-1.5 bg-white rounded-full" />
+        <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+      </div>
+    );
+  }
+  if (wings === 'back_reindeer_sleigh') {
+    return (
+      <div className="absolute top-4 -right-4 -z-10 w-11 h-8 bg-red-700 border border-amber-400 rounded-lg shadow-lg flex items-center justify-around px-1 pointer-events-none transform rotate-12">
+        <span className="text-[10px]">🛷</span>
+        <span className="text-[8px] animate-pulse">🎁</span>
+      </div>
+    );
+  }
+  if (wings === 'back_icicle_spikes') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 -z-10 flex gap-5 pointer-events-none drop-shadow">
+        <div className="w-2 h-12 bg-cyan-200 border border-cyan-400 rounded-t-full transform -rotate-30 shadow-[0_0_8px_#38bdf8]" />
+        <div className="w-2 h-14 bg-cyan-100 border border-cyan-300 rounded-t-full shadow-[0_0_10px_#7dd3fc]" />
+        <div className="w-2 h-12 bg-cyan-200 border border-cyan-400 rounded-t-full transform rotate-30 shadow-[0_0_8px_#38bdf8]" />
+      </div>
+    );
+  }
+  if (wings === 'back_candy_cane_swords') {
+    return (
+      <div className="absolute top-2 left-1/2 -translate-x-1/2 -z-10 w-12 h-12 pointer-events-none drop-shadow">
+        <span className="text-xl rotate-45 absolute -left-1">🦯</span>
+        <span className="text-xl -rotate-45 absolute -right-1">🦯</span>
+      </div>
+    );
+  }
+  if (wings === 'back_bp_solar_panel') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 -z-10 flex gap-6 pointer-events-none">
+        <div className="w-6 h-10 bg-emerald-700 border-2 border-yellow-400 rounded-tl-lg shadow-[0_0_8px_#10b981] transform -rotate-20 flex items-center justify-center text-[7px] text-white">⚡</div>
+        <div className="w-6 h-10 bg-emerald-700 border-2 border-yellow-400 rounded-tr-lg shadow-[0_0_8px_#10b981] transform rotate-20 flex items-center justify-center text-[7px] text-white">⚡</div>
+      </div>
+    );
+  }
+  if (wings === 'back_tarragower_scroll') {
+    return (
+      <div className="absolute top-4 -right-3 -z-10 w-4 h-12 bg-amber-100 border border-amber-800 rounded-sm shadow-md flex flex-col items-center justify-around py-1 pointer-events-none rotate-12">
+        <div className="w-2.5 h-1 bg-amber-700" />
+        <span className="text-[7px]">📜</span>
+        <div className="w-2.5 h-1 bg-amber-700" />
+      </div>
+    );
+  }
+  if (wings === 'back_xilam_mallet') {
+    return (
+      <div className="absolute top-1 left-1/2 -translate-x-1/2 -z-10 flex items-center justify-center pointer-events-none drop-shadow-lg">
+        <span className="text-3xl rotate-45">🔨</span>
+      </div>
+    );
+  }
+  if (wings === 'back_yt_play_shield') {
+    return (
+      <div className="absolute top-5 -right-3 -z-10 w-10 h-10 bg-gradient-to-br from-cyan-300 via-sky-400 to-indigo-500 border-2 border-white rounded-lg shadow-lg flex items-center justify-center pointer-events-none">
+        <span className="text-xs text-white">▶️</span>
+      </div>
+    );
+  }
+  if (wings === 'back_newworld_warhammer') {
+    return (
+      <div className="absolute top-2 left-1/2 -translate-x-1/2 -z-10 flex items-center justify-center pointer-events-none drop-shadow-xl">
+        <span className="text-3xl -rotate-45">🪓</span>
       </div>
     );
   }
@@ -338,6 +589,87 @@ function RenderCustomAura({ aura }: { aura?: string }) {
       <div className="absolute -inset-4 pointer-events-none rounded-full -z-20 border border-indigo-400/60 shadow-[0_0_18px_#818cf8] blur-[1px] flex items-center justify-around">
         <span className="text-[9px] animate-spin">📐</span>
       </div>
+    );
+  }
+  if (aura === 'aura_halloween_spooky') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-orange-600/20 border-2 border-orange-500/60 shadow-[0_0_24px_#f97316] blur-[2px] flex items-center justify-between px-1">
+        <span className="text-xs animate-bounce">🎃</span>
+        <span className="text-xs animate-pulse">👻</span>
+        <span className="text-xs animate-bounce" style={{ animationDelay: '0.3s' }}>🍬</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_blood_mist') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-red-950/40 border-2 border-red-600/70 shadow-[0_0_24px_#dc2626] blur-[2px] flex items-center justify-around">
+        <span className="text-[10px] animate-ping">🦇</span>
+        <span className="text-xs animate-pulse">🩸</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_snowfall') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-sky-300/15 border border-cyan-300/40 shadow-[0_0_20px_#7dd3fc] blur-[1px] flex items-center justify-between px-1">
+        <span className="text-xs animate-bounce" style={{ animationDuration: '2s' }}>❄️</span>
+        <span className="text-xs animate-pulse">✨</span>
+        <span className="text-xs animate-bounce" style={{ animationDelay: '0.5s', animationDuration: '2.5s' }}>❄️</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_christmas_lights') {
+    return (
+      <div className="absolute -inset-6 pointer-events-none rounded-full -z-20 border-2 border-amber-300/50 shadow-[0_0_24px_rgba(251,191,36,0.6)] flex items-center justify-around">
+        <span className="text-[10px] animate-ping text-red-500">🔴</span>
+        <span className="text-[10px] animate-pulse text-emerald-400">🟢</span>
+        <span className="text-[10px] animate-ping text-yellow-300" style={{ animationDelay: '0.3s' }}>🟡</span>
+        <span className="text-[10px] animate-pulse text-blue-400">🔵</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_blizzard') {
+    return (
+      <div className="absolute -inset-6 pointer-events-none rounded-full -z-20 bg-cyan-900/30 border-2 border-cyan-200/80 shadow-[0_0_30px_#38bdf8] blur-[2px] flex items-center justify-around">
+        <span className="text-sm animate-spin" style={{ animationDuration: '3s' }}>💨</span>
+        <span className="text-xs animate-spin" style={{ animationDuration: '4s' }}>❄️</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_jingle_bells') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-amber-500/20 border border-amber-400/60 shadow-[0_0_22px_#f59e0b] blur-[1px] flex items-center justify-around">
+        <span className="text-xs animate-bounce">🔔</span>
+        <span className="text-xs animate-pulse">🎶</span>
+        <span className="text-xs animate-bounce" style={{ animationDelay: '0.4s' }}>🔔</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_aurora_borealis') {
+    return (
+      <div className="absolute -inset-6 pointer-events-none rounded-full -z-20 bg-gradient-to-t from-emerald-400/25 via-cyan-400/20 to-purple-500/30 blur-[3px] shadow-[0_0_28px_#10b981] animate-pulse flex items-center justify-around">
+        <span className="text-xs animate-spin" style={{ animationDuration: '8s' }}>🌌</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_golden_tinsel') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 bg-amber-400/20 border border-amber-300/60 shadow-[0_0_20px_#facc15] blur-[1px] flex items-center justify-around">
+        <span className="text-xs animate-spin text-yellow-300" style={{ animationDuration: '4s' }}>✨</span>
+        <span className="text-xs animate-bounce text-amber-200">⭐</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_tarragower_runes') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 border-2 border-indigo-400/60 shadow-[0_0_20px_#6366f1] blur-[1px] flex items-center justify-around">
+        <span className="text-[10px] animate-spin">📐</span>
+        <span className="text-[10px] animate-pulse">💡</span>
+      </div>
+    );
+  }
+  if (aura === 'aura_bp_photon_wave') {
+    return (
+      <div className="absolute -inset-5 pointer-events-none rounded-full -z-20 border-2 border-emerald-400/70 shadow-[0_0_22px_#059669] blur-[2px] animate-ping" />
     );
   }
   return null;
@@ -458,6 +790,230 @@ function RenderCustomHat({ hat }: { hat?: string }) {
       </div>
     );
   }
+  if (hat === 'hat_witch') {
+    return (
+      <div className="absolute -top-10 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-0 h-0 border-l-[11px] border-l-transparent border-r-[11px] border-r-transparent border-b-[20px] border-b-neutral-900" />
+        <div className="w-8 h-2 bg-purple-700 border-x border-purple-950 flex items-center justify-center -mt-0.5">
+          <div className="w-2.5 h-1.5 border border-yellow-400 bg-yellow-500 rounded-xs" />
+        </div>
+        <div className="w-13 h-2 bg-neutral-900 border border-neutral-950 rounded-full -mt-0.5" />
+      </div>
+    );
+  }
+  if (hat === 'hat_pumpkin') {
+    return (
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow-lg flex flex-col items-center">
+        <div className="w-1.5 h-2 bg-amber-900 rounded-t-sm" />
+        <div className="w-9 h-7 bg-orange-600 border border-orange-800 rounded-lg flex flex-col items-center justify-around p-0.5 shadow-[0_0_10px_rgba(249,115,22,0.9)]">
+          <div className="flex justify-between w-6 px-0.5">
+            <div className="w-1.5 h-1.5 bg-yellow-300 rotate-45" />
+            <div className="w-1.5 h-1.5 bg-yellow-300 rotate-45" />
+          </div>
+          <div className="w-4 h-1.5 bg-yellow-300 rounded-b-xs" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_frankenstein') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-9 h-3 bg-neutral-900 border-b border-neutral-950 rounded-t-xs" />
+        <div className="w-9 h-4 bg-emerald-700 border border-emerald-950 flex items-center justify-between px-1">
+          <span className="text-[7px] text-stone-900 font-bold">✖</span>
+          <span className="text-[7px] text-stone-900 font-bold">✖</span>
+        </div>
+        <div className="flex justify-between w-12 -mt-2">
+          <div className="w-1.5 h-1.5 bg-stone-300 border border-stone-600 rounded-xs" />
+          <div className="w-1.5 h-1.5 bg-stone-300 border border-stone-600 rounded-xs" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_vampire') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-9 h-4 bg-neutral-950 border border-neutral-800 rounded-t-md relative flex justify-center shadow">
+          <div className="w-2 h-2 bg-neutral-950 rotate-45 absolute -bottom-1" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_skeleton_skull') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-9 h-6 bg-stone-200 border border-stone-400 rounded-t-lg flex flex-col justify-around p-0.5 shadow">
+          <div className="flex justify-between px-1.5">
+            <div className="w-2 h-2 bg-neutral-900 rounded-full" />
+            <div className="w-2 h-2 bg-neutral-900 rounded-full" />
+          </div>
+          <div className="w-3.5 h-1 bg-neutral-900 rounded-xs mx-auto" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_santa') {
+    return (
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="relative">
+          <div className="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-b-[22px] border-b-red-600 transform -rotate-12" />
+          <div className="w-3.5 h-3.5 bg-white rounded-full absolute -top-1 -right-2 shadow-sm border border-stone-200" />
+        </div>
+        <div className="w-12 h-3 bg-white border border-stone-300 rounded-full -mt-1 shadow-sm flex items-center justify-around px-1" />
+      </div>
+    );
+  }
+  if (hat === 'hat_reindeer_antlers') {
+    return (
+      <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex items-start justify-between w-14">
+        <div className="w-2 h-7 bg-amber-800 border-l border-amber-950 rounded-tl-full transform -rotate-25 flex flex-col items-start">
+          <div className="w-3 h-1 bg-amber-800 -mt-1 rounded-l-sm" />
+        </div>
+        <div className="w-2.5 h-2.5 bg-red-600 rounded-full shadow-[0_0_6px_#ef4444] animate-pulse mt-4" />
+        <div className="w-2 h-7 bg-amber-800 border-r border-amber-950 rounded-tr-full transform rotate-25 flex flex-col items-end">
+          <div className="w-3 h-1 bg-amber-800 -mt-1 rounded-r-sm" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_elf_hat') {
+    return (
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="relative">
+          <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[20px] border-b-emerald-600 transform rotate-12" />
+          <div className="w-3 h-3 bg-amber-400 rounded-full absolute -top-1 -left-2 shadow-sm border border-amber-600 flex items-center justify-center text-[6px]">🔔</div>
+        </div>
+        <div className="w-11 h-2.5 bg-red-600 border border-red-800 -mt-0.5 rounded-sm flex justify-around px-0.5">
+          <div className="w-1.5 h-1.5 bg-yellow-300 rounded-full mt-0.5" />
+          <div className="w-1.5 h-1.5 bg-yellow-300 rounded-full mt-0.5" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_christmas_tree') {
+    return (
+      <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <span className="text-[10px] text-yellow-300 animate-spin -mb-1" style={{ animationDuration: '4s' }}>⭐</span>
+        <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-b-[10px] border-b-emerald-600" />
+        <div className="w-0 h-0 border-l-[11px] border-l-transparent border-r-[11px] border-r-transparent border-b-[12px] border-b-emerald-700 -mt-1.5" />
+        <div className="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-b-[14px] border-b-emerald-800 -mt-2" />
+        <div className="w-4 h-1.5 bg-amber-900 -mt-0.5" />
+      </div>
+    );
+  }
+  if (hat === 'hat_winter_earmuffs') {
+    return (
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center justify-between w-13">
+        <div className="w-3.5 h-4 bg-red-600 border-2 border-white rounded-full shadow-md" />
+        <div className="flex-1 h-1 bg-stone-800 border-t border-stone-600 rounded-t-full -mt-2" />
+        <div className="w-3.5 h-4 bg-red-600 border-2 border-white rounded-full shadow-md" />
+      </div>
+    );
+  }
+  if (hat === 'hat_snow_beanie') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-3 h-3 bg-white rounded-full -mb-1 border border-stone-300" />
+        <div className="w-10 h-6 bg-cyan-700 border border-cyan-900 rounded-t-xl flex flex-col justify-end">
+          <div className="w-full h-2 bg-stone-100 flex justify-around items-center px-0.5">
+            <span className="text-[6px] text-cyan-800 font-bold">❄</span>
+            <span className="text-[6px] text-cyan-800 font-bold">❄</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_nutcracker') {
+    return (
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-8 h-8 bg-neutral-900 border-2 border-amber-400 rounded-t-xs flex flex-col items-center justify-between py-0.5">
+          <div className="w-2.5 h-2 bg-amber-400 rounded-xs flex items-center justify-center text-[7px] text-neutral-950 font-bold">👑</div>
+          <div className="w-full h-1 bg-red-600" />
+        </div>
+        <div className="w-10 h-1.5 bg-neutral-950 rounded-b-sm border-t border-amber-400" />
+      </div>
+    );
+  }
+  if (hat === 'hat_polar_bear_hood') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="flex justify-between w-9 -mb-1 px-0.5">
+          <div className="w-2.5 h-2.5 bg-stone-100 border border-stone-300 rounded-full" />
+          <div className="w-2.5 h-2.5 bg-stone-100 border border-stone-300 rounded-full" />
+        </div>
+        <div className="w-10 h-6 bg-stone-100 border-2 border-stone-300 rounded-t-xl flex items-center justify-center shadow" />
+      </div>
+    );
+  }
+  if (hat === 'hat_gingerbread_chef') {
+    return (
+      <div className="absolute -top-9 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-9 h-7 bg-white border border-stone-300 rounded-t-2xl shadow flex items-center justify-center">
+          <span className="text-[9px]">🍪</span>
+        </div>
+        <div className="w-8 h-2 bg-red-600 border border-red-800 -mt-0.5 flex items-center justify-center">
+          <div className="w-full h-0.5 bg-white" />
+        </div>
+      </div>
+    );
+  }
+  if (hat === 'hat_holly_beret') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-10 h-3.5 bg-emerald-800 border border-emerald-950 rounded-t-xl shadow flex items-center justify-end pr-1">
+          <span className="text-[9px] -mt-2">🌿</span>
+        </div>
+        <div className="w-11 h-1.5 bg-emerald-900 rounded-b-md" />
+      </div>
+    );
+  }
+  if (hat === 'hat_ice_crown') {
+    return (
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex items-end justify-center">
+        <div className="w-2 h-5 bg-cyan-200 border border-cyan-400 rounded-t-sm shadow-[0_0_6px_#38bdf8]" />
+        <div className="w-2.5 h-7 bg-cyan-100 border border-cyan-300 rounded-t-sm mx-0.5 shadow-[0_0_8px_#7dd3fc]" />
+        <div className="w-2 h-5 bg-cyan-200 border border-cyan-400 rounded-t-sm shadow-[0_0_6px_#38bdf8]" />
+      </div>
+    );
+  }
+  if (hat === 'hat_bp_solar_snowcap') {
+    return (
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-9 h-5 bg-emerald-700 border border-yellow-400 rounded-t-lg shadow flex items-center justify-center">
+          <span className="text-[8px] text-yellow-300 font-bold">⚡</span>
+        </div>
+        <div className="w-11 h-1.5 bg-emerald-900 rounded-b-sm border-t border-yellow-400" />
+      </div>
+    );
+  }
+  if (hat === 'hat_tarragower_mortarboard') {
+    return (
+      <div className="absolute -top-7 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-11 h-2 bg-indigo-900 border border-indigo-700 rounded-xs rotate-6 shadow flex items-center justify-end pr-0.5">
+          <div className="w-1 h-3 bg-amber-400 rounded-b-sm" />
+        </div>
+        <div className="w-6 h-3 bg-indigo-950 border-x border-b border-indigo-800 -mt-0.5 rounded-b-sm" />
+      </div>
+    );
+  }
+  if (hat === 'hat_xilam_mallet_beanie') {
+    return (
+      <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <span className="text-[10px] -mb-1 animate-bounce">🔨</span>
+        <div className="w-9 h-5 bg-amber-500 border border-amber-700 rounded-t-lg shadow" />
+        <div className="w-10 h-1.5 bg-amber-600 rounded-b-sm" />
+      </div>
+    );
+  }
+  if (hat === 'hat_yt_streamer_headset') {
+    return (
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center justify-between w-13">
+        <div className="w-3.5 h-4 bg-red-600 border border-white rounded-md shadow-[0_0_6px_#ef4444]" />
+        <div className="flex-1 h-1.5 bg-neutral-900 border-t border-stone-600 rounded-t-full -mt-2" />
+        <div className="w-3.5 h-4 bg-red-600 border border-white rounded-md shadow-[0_0_6px_#ef4444]" />
+      </div>
+    );
+  }
   return null;
 }
 
@@ -520,6 +1076,85 @@ function RenderCustomFace({ face }: { face?: string }) {
       </div>
     );
   }
+  if (face === 'face_santa_beard') {
+    return (
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-9 h-2 bg-white rounded-full border border-stone-200" />
+        <div className="w-10 h-7 bg-white rounded-b-2xl border-x border-b border-stone-300 shadow-md flex items-end justify-center pb-1">
+          <div className="w-3 h-1 bg-rose-200 rounded-full" />
+        </div>
+      </div>
+    );
+  }
+  if (face === 'face_frosty_blush') {
+    return (
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center justify-center w-10">
+        <div className="w-2 h-1.5 bg-rose-400/60 rounded-full blur-[0.5px]" />
+        <div className="w-2.5 h-2.5 bg-red-600 rounded-full mx-1 shadow-[0_0_6px_#ef4444] animate-pulse" />
+        <div className="w-2 h-1.5 bg-rose-400/60 rounded-full blur-[0.5px]" />
+      </div>
+    );
+  }
+  if (face === 'face_elf_ears') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex items-center justify-between w-13">
+        <div className="w-2.5 h-3 bg-emerald-100 border border-emerald-600 rounded-tl-full transform -rotate-45" />
+        <div className="w-2.5 h-3 bg-emerald-100 border border-emerald-600 rounded-tr-full transform rotate-45" />
+      </div>
+    );
+  }
+  if (face === 'face_frost_spectacles') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow flex gap-1 items-center">
+        <div className="w-3.5 h-3 border-2 border-cyan-300 bg-cyan-100/40 rounded-full shadow-[0_0_4px_#38bdf8]" />
+        <div className="w-1 h-0.5 bg-cyan-400" />
+        <div className="w-3.5 h-3 border-2 border-cyan-300 bg-cyan-100/40 rounded-full shadow-[0_0_4px_#38bdf8]" />
+      </div>
+    );
+  }
+  if (face === 'face_peppermint_monocle') {
+    return (
+      <div className="absolute top-4 right-1 z-30 pointer-events-none drop-shadow">
+        <div className="w-4 h-4 border-2 border-red-500 bg-red-100/50 rounded-full shadow flex items-center justify-center">
+          <div className="w-1.5 h-1.5 border border-white rounded-full bg-red-500" />
+        </div>
+      </div>
+    );
+  }
+  if (face === 'face_xilam_cat_whiskers') {
+    return (
+      <div className="absolute top-5 left-1/2 -translate-x-1/2 z-30 pointer-events-none flex flex-col items-center">
+        <div className="w-2 h-1.5 bg-pink-500 rounded-full mb-0.5 shadow-sm" />
+        <div className="flex justify-between w-10 text-[7px] text-stone-800 font-bold">
+          <span>==</span>
+          <span>==</span>
+        </div>
+      </div>
+    );
+  }
+  if (face === 'face_bp_energy_visor') {
+    return (
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 pointer-events-none drop-shadow">
+        <div className="w-9 h-2.5 bg-emerald-500/80 border border-yellow-300 rounded-xs shadow-[0_0_6px_#10b981] flex items-center justify-around">
+          <div className="w-1 h-1 bg-yellow-300 rounded-full animate-ping" />
+        </div>
+      </div>
+    );
+  }
+  if (face === 'face_yt_streamer_mic') {
+    return (
+      <div className="absolute top-6 left-1 z-30 pointer-events-none flex items-center">
+        <span className="text-[10px] -rotate-12">🎙️</span>
+      </div>
+    );
+  }
+  if (face === 'face_tarragower_magnifier') {
+    return (
+      <div className="absolute top-4 right-0 z-30 pointer-events-none">
+        <span className="text-[10px] text-amber-300">🔍</span>
+      </div>
+    );
+  }
   return null;
 }
 
@@ -536,6 +1171,17 @@ function RenderCustomEmblem({ emblem }: { emblem?: string }) {
     emblem_youtube: '💎',
     emblem_tarragower: '🏛️',
     emblem_newworld: '🧭',
+    emblem_snowflake: '❄️',
+    emblem_candy_cane: '🦯',
+    emblem_christmas_star: '⭐',
+    emblem_gingerbread_man: '🍪',
+    emblem_gift_box: '🎁',
+    emblem_tarragower_shield: '🦅',
+    emblem_bp_sunburst: '🌻',
+    emblem_polar_star: '⭐',
+    emblem_xilam_paw: '🐾',
+    emblem_yt_gold: '▶️',
+    emblem_mc_nether_star: '❇️',
   };
   const icon = iconMap[emblem];
   if (!icon) return null;
@@ -662,6 +1308,155 @@ function RenderCustomShirtOverlay({ shirt, shirtColor }: { shirt?: string; shirt
       <div className="absolute top-10 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow">
         <div className="w-4 h-2.5 bg-neutral-900 rounded-xs flex items-center justify-center border border-white/30">
           <span className="text-[6px] font-mono font-black text-red-500">R</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_santa_suit') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-6 h-1.5 bg-white rounded-full border border-stone-200" />
+        <div className="w-5 h-2 bg-neutral-950 flex items-center justify-center border border-amber-400 mt-1">
+          <div className="w-2 h-1 bg-amber-400" />
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_holiday_sweater') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-4 bg-emerald-800 border border-emerald-950 rounded-sm flex flex-col items-center justify-around py-0.5">
+          <span className="text-[6px]">🦌</span>
+          <div className="w-full h-0.5 bg-red-500" />
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_elf_tunic') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-6 h-2 bg-red-600 rounded-b-md flex justify-around px-0.5">
+          <div className="w-1 h-1 bg-amber-400 rounded-full" />
+          <div className="w-1 h-1 bg-amber-400 rounded-full" />
+        </div>
+        <div className="w-5 h-1.5 bg-amber-900 mt-1" />
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_tarragower_blazer') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-6 h-2.5 bg-indigo-950 border border-indigo-700 flex items-center justify-between px-1">
+          <span className="text-[5px] text-amber-300 font-bold">🏛️</span>
+          <div className="w-1 h-2 bg-amber-400" />
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_newworld_armor') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-6 h-3 bg-slate-700 border border-cyan-400 rounded-xs flex items-center justify-center shadow-[0_0_4px_#22d3ee]">
+          <div className="w-2 h-2 bg-cyan-400 rotate-45" />
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_youtube_creator') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-6 h-3 bg-neutral-900 border border-red-600 rounded-xs flex items-center justify-center">
+          <span className="text-[7px] text-red-500 font-black">▶</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_polar_parka') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-2 bg-stone-200 rounded-full border border-stone-400" />
+        <div className="w-6 h-3 bg-cyan-900 border border-cyan-700 flex items-center justify-around">
+          <div className="w-1 h-2 bg-stone-200" />
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_nutcracker_jacket') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-1.5 bg-amber-400 rounded-xs" />
+        <div className="w-6 h-4 bg-red-700 border border-amber-400 flex flex-col items-center justify-around py-0.5">
+          <div className="w-4 h-0.5 bg-amber-400" />
+          <div className="w-4 h-0.5 bg-amber-400" />
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_gingerbread_frosting') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-4 bg-amber-800 border border-amber-950 rounded-xs flex flex-col items-center justify-around py-0.5">
+          <div className="w-1.5 h-1.5 bg-white rounded-full" />
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_tarragower_winter_cape') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-2 bg-indigo-900 rounded-t-md border border-indigo-700" />
+        <div className="w-1.5 h-1.5 bg-amber-400 rounded-full -mt-0.5" />
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_bp_arctic_hazmat') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-4 bg-emerald-700 border-2 border-yellow-400 rounded-xs flex items-center justify-center">
+          <span className="text-[7px] text-yellow-300 font-bold">⚡</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_mcdonalds_holiday') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-4 bg-red-700 border border-amber-400 rounded-xs flex items-center justify-center">
+          <span className="text-[7px] font-black text-amber-300">M</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_newworld_gleamite') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-4 bg-cyan-950 border-2 border-cyan-400 rounded-xs shadow-[0_0_6px_#38bdf8] flex items-center justify-center">
+          <span className="text-[7px] text-cyan-300">💠</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (shirt === 'shirt_xilam_cartoon_vest') {
+    return (
+      <div className="absolute top-9 left-1/2 -translate-x-1/2 z-25 pointer-events-none drop-shadow flex flex-col items-center">
+        <div className="w-7 h-4 bg-red-600 border border-black rounded-xs flex items-center justify-around px-0.5">
+          <div className="w-1 h-1 bg-white rounded-full" />
+          <div className="w-1 h-1 bg-white rounded-full" />
         </div>
       </div>
     );
@@ -879,14 +1674,23 @@ function MinecraftAvatar({
   const isDiamondSteve = sub === 'diamond_steve' || nameLower.includes('diamond');
   const isNetheriteSteve = sub === 'netherite_steve' || nameLower.includes('netherite');
   const isAlex = sub === 'alex' || nameLower.includes('alex');
-  const isSteve = !isCreeper && !isEnderman && !isIronGolem && !isSnowGolem && !isCopperGolem && !isMooshroom && !isEvoker && !isAllay && !isWarden && !isBlaze && !isPig && !isPiglin && !isWolf && !isAxolotl && !isBee && !isWitch && !isWitherSkeleton && !isDrowned && !isSkeleton && !isZombie && !isVillager && !isHerobrine && !isDiamondSteve && !isNetheriteSteve && !isAlex;
+  const isBreeze = sub === 'breeze' || nameLower.includes('breeze');
+  const isSniffer = sub === 'sniffer' || nameLower.includes('sniffer');
+  const isArmadillo = sub === 'armadillo' || nameLower.includes('armadillo');
+  const isFrog = sub === 'frog' || nameLower.includes('frog');
+  const isCamel = sub === 'camel' || nameLower.includes('camel');
+  const isGhast = sub === 'ghast' || nameLower.includes('ghast');
+  const isBogged = sub === 'bogged' || nameLower.includes('bogged');
+  const isGoldRonald = sub === 'gold_ronald' || nameLower.includes('gold ronald') || nameLower.includes('ronald');
+
+  const isSteve = !isCreeper && !isEnderman && !isIronGolem && !isSnowGolem && !isCopperGolem && !isMooshroom && !isEvoker && !isAllay && !isWarden && !isBlaze && !isPig && !isPiglin && !isWolf && !isAxolotl && !isBee && !isWitch && !isWitherSkeleton && !isDrowned && !isSkeleton && !isZombie && !isVillager && !isHerobrine && !isDiamondSteve && !isNetheriteSteve && !isAlex && !isBreeze && !isSniffer && !isArmadillo && !isFrog && !isCamel && !isGhast && !isBogged && !isGoldRonald;
 
   // Determine Weapon
   const activeWeapon = character.heldWeapon || 
     (isDiamondSteve ? 'diamond_sword' :
      isNetheriteSteve ? 'diamond_sword' :
      isDrowned ? 'trident' :
-     isSkeleton ? 'bow' :
+     isSkeleton || isBogged ? 'bow' :
      isWitherSkeleton ? 'stone_sword' :
      isPiglin ? 'gold_sword' :
      isIronGolem ? 'poppy' :
@@ -1575,8 +2379,348 @@ function MinecraftAvatar({
     );
   }
 
+  // ==========================================
+  // 15. BREEZE (WIND VORTEX TRIAL MOB)
+  // ==========================================
+  if (isBreeze) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-2xl animate-bounce" style={{ animationDuration: '1.4s' }}>
+        {/* Floating Breeze Eyebrows Rods */}
+        <div className="flex justify-between w-12 px-1 -mb-1 z-20">
+          <div className="w-3.5 h-1.5 bg-cyan-300 border border-cyan-500 rounded-sm shadow-[0_0_8px_#67e8f9] animate-pulse" />
+          <div className="w-3.5 h-1.5 bg-cyan-300 border border-cyan-500 rounded-sm shadow-[0_0_8px_#67e8f9] animate-pulse" />
+        </div>
+
+        {/* Breeze Head Chassis */}
+        <div className="w-11 h-10 bg-gradient-to-b from-[#6366f1] to-[#4338ca] border-2 border-[#312e81] rounded-lg shadow-xl relative flex flex-col items-center justify-center">
+          {/* Cyan Glow Eyes */}
+          <div className="w-full flex justify-between px-2">
+            <div className="w-2 h-1 bg-cyan-200 shadow-[0_0_6px_#22d3ee]" />
+            <div className="w-2 h-1 bg-cyan-200 shadow-[0_0_6px_#22d3ee]" />
+          </div>
+        </div>
+
+        {/* Orbiting Breeze Rods */}
+        <div className="absolute top-5 flex justify-between w-16 pointer-events-none z-30">
+          <div className="w-1.5 h-4 bg-indigo-300 border border-indigo-400 rounded-full animate-spin" style={{ animationDuration: '1s' }} />
+          <div className="w-1.5 h-4 bg-indigo-300 border border-indigo-400 rounded-full animate-spin" style={{ animationDuration: '1s', animationDelay: '0.5s' }} />
+        </div>
+
+        {/* Swirling Tornado Wind Coils */}
+        <div className="flex flex-col items-center -mt-1 z-10">
+          <div className="w-12 h-3 bg-indigo-200/80 border border-indigo-400/60 rounded-full shadow-[0_0_12px_#818cf8] animate-pulse" />
+          <div className="w-10 h-3 bg-indigo-300/80 border border-indigo-400/60 rounded-full shadow-md -mt-1" />
+          <div className="w-7 h-3 bg-indigo-400/80 border border-indigo-500/60 rounded-full shadow-md -mt-1" />
+          <div className="w-4 h-2.5 bg-indigo-500/80 border border-indigo-600/60 rounded-full shadow-md -mt-0.5" />
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 16. SNIFFER (ANCIENT MOSSY PREHISTORIC GIANT)
+  // ==========================================
+  if (isSniffer) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-2xl">
+        {/* Giant Snout with Nostrils */}
+        <div className="flex items-center -mb-2 z-20">
+          <div className="w-14 h-7 bg-[#7f1d1d] border-2 border-[#450a0a] rounded-t-lg flex flex-col items-center justify-end pb-1 shadow-md">
+            {/* Dark Nostrils that Sniff */}
+            <div className="w-8 flex justify-between px-1">
+              <div className="w-2 h-2 bg-black rounded-xs animate-pulse" />
+              <div className="w-2 h-2 bg-black rounded-xs animate-pulse" />
+            </div>
+            {/* Floppy Yellow/Beige Ears */}
+            <div className="absolute -left-2 top-1 w-2.5 h-6 bg-[#b91c1c] border border-black rounded-l-xs rotate-12" />
+            <div className="absolute -right-2 top-1 w-2.5 h-6 bg-[#b91c1c] border border-black rounded-r-xs -rotate-12" />
+          </div>
+        </div>
+
+        {/* Giant Mossy Back with Ancient Spores */}
+        <div className="w-18 h-12 bg-[#15803d] border-2 border-[#14532d] rounded-2xl relative shadow-xl flex flex-col justify-around p-1 overflow-hidden">
+          {/* Yellow Torchflower Spore Pixel Highlights */}
+          <div className="flex justify-around">
+            <div className="w-1.5 h-1.5 bg-yellow-400 rounded-xs" />
+            <div className="w-2 h-1.5 bg-amber-400 rounded-xs" />
+            <div className="w-1.5 h-1.5 bg-yellow-300 rounded-xs" />
+          </div>
+          <div className="w-full h-2 bg-[#166534] border-t border-[#14532d]" />
+        </div>
+
+        {/* 6 Sturdy Prehistoric Legs */}
+        <div className="flex justify-between w-16 -mt-1">
+          <div className={`w-3 h-5 bg-[#7f1d1d] border border-black ${isWalking ? 'translate-y-0.5' : ''}`} />
+          <div className={`w-3 h-5 bg-[#7f1d1d] border border-black ${isWalking ? '-translate-y-0.5' : ''}`} />
+          <div className={`w-3 h-5 bg-[#7f1d1d] border border-black ${isWalking ? 'translate-y-0.5' : ''}`} />
+          <div className={`w-3 h-5 bg-[#7f1d1d] border border-black ${isWalking ? '-translate-y-0.5' : ''}`} />
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 17. ARMADILLO (SAVANNAH SHELL ROLLER)
+  // ==========================================
+  if (isArmadillo) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-xl">
+        {/* Folded Cute Ears */}
+        <div className="flex justify-between w-10 px-1 -mb-1 z-10">
+          <div className="w-2 h-3 bg-[#a16207] border border-black rounded-t-sm -rotate-12" />
+          <div className="w-2 h-3 bg-[#a16207] border border-black rounded-t-sm rotate-12" />
+        </div>
+
+        {/* Armadillo Terracotta Banded Shell */}
+        <div className="w-14 h-11 bg-[#b45309] border-2 border-[#78350f] rounded-2xl relative shadow-lg flex flex-col justify-between p-0.5 overflow-hidden">
+          {/* Shell Segmented Ridges */}
+          <div className="w-full h-1 bg-[#d97706]" />
+          <div className="w-full h-1.5 bg-[#78350f]" />
+          <div className="w-full h-1 bg-[#d97706]" />
+          {/* Snout & Eyes */}
+          <div className="flex items-center justify-between px-2">
+            <div className="w-1.5 h-1.5 bg-black rounded-full" />
+            <div className="w-2.5 h-1.5 bg-[#451a03] rounded-xs" />
+            <div className="w-1.5 h-1.5 bg-black rounded-full" />
+          </div>
+        </div>
+
+        {/* 4 Tiny Claws */}
+        <div className="flex justify-between w-11 -mt-0.5">
+          <div className="w-2 h-2.5 bg-[#78350f] rounded-b-xs" />
+          <div className="w-2 h-2.5 bg-[#78350f] rounded-b-xs" />
+          <div className="w-2 h-2.5 bg-[#78350f] rounded-b-xs" />
+          <div className="w-2 h-2.5 bg-[#78350f] rounded-b-xs" />
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 18. FROG (MANGROVE SWAMP FROGLIGHT LEAPER)
+  // ==========================================
+  if (isFrog) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-xl animate-bounce" style={{ animationDuration: '2s' }}>
+        {/* Bulging Big Eyes with Horizontal Slit Pupils */}
+        <div className="flex justify-between w-11 px-1 -mb-1.5 z-10">
+          <div className="w-4 h-4 bg-[#65a30d] border-2 border-[#365314] rounded-full flex items-center justify-center shadow-xs">
+            <div className="w-2.5 h-1 bg-black" />
+          </div>
+          <div className="w-4 h-4 bg-[#65a30d] border-2 border-[#365314] rounded-full flex items-center justify-center shadow-xs">
+            <div className="w-2.5 h-1 bg-black" />
+          </div>
+        </div>
+
+        {/* Chubby Frog Body */}
+        <div className="w-13 h-9 bg-[#4d7c0f] border-2 border-[#365314] rounded-xl relative shadow-md flex flex-col items-center justify-between p-0.5">
+          {/* Warm Glowing Ochre Froglight Belly */}
+          <div className="w-7 h-4 bg-amber-300 border border-amber-500 rounded-full shadow-[0_0_10px_#fde047] flex items-center justify-center mt-1">
+            <span className="text-[8px] text-amber-900 font-bold">✨</span>
+          </div>
+        </div>
+
+        {/* Webbed Leaping Feet */}
+        <div className="flex justify-between w-13 -mt-1">
+          <div className={`w-4 h-2.5 bg-[#365314] rounded-full ${isWalking ? 'translate-y-0.5' : ''}`} />
+          <div className={`w-4 h-2.5 bg-[#365314] rounded-full ${isWalking ? '-translate-y-0.5' : ''}`} />
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 19. CAMEL (DESERT DUNE DASH MOUNT)
+  // ==========================================
+  if (isCamel) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-2xl">
+        {/* Camel Snout & Floppy Ears */}
+        <div className="flex items-center -mb-1 z-20">
+          <div className="w-11 h-7 bg-[#d97706] border-2 border-[#78350f] rounded-t-lg relative flex flex-col items-center justify-between p-0.5 shadow-md">
+            <div className="w-full flex justify-between px-1">
+              <div className="w-1.5 h-1.5 bg-black rounded-xs" />
+              <div className="w-1.5 h-1.5 bg-black rounded-xs" />
+            </div>
+            {/* Bridle Reins */}
+            <div className="w-full h-1 bg-red-700 border-t border-black" />
+            {/* Floppy Camel Ears */}
+            <div className="absolute -left-2 top-0.5 w-2 h-4 bg-[#b45309] border border-black rounded-l-xs -rotate-20" />
+            <div className="absolute -right-2 top-0.5 w-2 h-4 bg-[#b45309] border border-black rounded-r-xs rotate-20" />
+          </div>
+        </div>
+
+        {/* Tall Neck & Body with Hump */}
+        <div className="w-14 h-12 bg-[#b45309] border-2 border-[#78350f] rounded-2xl relative shadow-xl flex flex-col items-center justify-start p-1">
+          {/* Desert Hump & Blanket */}
+          <div className="w-8 h-4 bg-[#d97706] border border-[#78350f] rounded-t-full shadow-inner -mt-3" />
+          <div className="w-10 h-2.5 bg-gradient-to-r from-red-600 via-yellow-400 to-emerald-600 border border-black rounded-sm shadow-xs mt-1" />
+        </div>
+
+        {/* Long Sturdy Desert Legs */}
+        <div className="flex justify-between w-12 -mt-0.5">
+          <div className={`w-2.5 h-8 bg-[#d97706] border border-[#78350f] ${isWalking ? 'translate-y-1' : ''}`} />
+          <div className={`w-2.5 h-8 bg-[#d97706] border border-[#78350f] ${isWalking ? '-translate-y-1' : ''}`} />
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 20. GHAST (NETHER FIREBALL PHANTOM)
+  // ==========================================
+  if (isGhast) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-2xl animate-bounce" style={{ animationDuration: '2.5s' }}>
+        {/* Floating White Ghast Cube */}
+        <div className="w-14 h-14 bg-slate-100 border-2 border-slate-400 shadow-2xl relative flex flex-col items-center justify-between p-1.5">
+          {/* Weeping Red Ruby Tears */}
+          <div className="w-full flex justify-between px-1 pt-1">
+            <div className="flex flex-col items-center">
+              <div className="w-2.5 h-1.5 bg-stone-700 rounded-xs" />
+              <div className="w-1 h-4 bg-red-600 rounded-b-xs shadow-[0_0_6px_#dc2626]" />
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="w-2.5 h-1.5 bg-stone-700 rounded-xs" />
+              <div className="w-1 h-4 bg-red-600 rounded-b-xs shadow-[0_0_6px_#dc2626]" />
+            </div>
+          </div>
+
+          {/* Gaping O-shaped Mouth with Fire Charge ready */}
+          <div className="w-4 h-4 bg-neutral-900 border border-red-700 rounded-xs flex items-center justify-center">
+            <div className="w-2 h-2 bg-amber-500 rounded-full animate-ping" />
+          </div>
+        </div>
+
+        {/* 9 Dangling Swaying Tentacles */}
+        <div className="flex justify-between w-13 -mt-0.5">
+          <div className="w-1 h-7 bg-slate-300 border-x border-slate-400" />
+          <div className="w-1 h-8 bg-slate-200 border-x border-slate-400" />
+          <div className="w-1 h-6 bg-slate-300 border-x border-slate-400" />
+          <div className="w-1 h-9 bg-slate-200 border-x border-slate-400" />
+          <div className="w-1 h-7 bg-slate-300 border-x border-slate-400" />
+          <div className="w-1 h-8 bg-slate-200 border-x border-slate-400" />
+          <div className="w-1 h-6 bg-slate-300 border-x border-slate-400" />
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 21. BOGGED (MOSSY POISON SKELETON)
+  // ==========================================
+  if (isBogged) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-xl">
+        {/* Red Toadstool Mushrooms Sprouting on Skull */}
+        <div className="flex justify-between w-11 px-1 -mb-1.5 z-20">
+          <div className="flex flex-col items-center">
+            <div className="w-3.5 h-2 bg-red-600 rounded-t-full border border-black flex justify-around px-0.5">
+              <div className="w-0.5 h-0.5 bg-white rounded-full" />
+              <div className="w-0.5 h-0.5 bg-white rounded-full" />
+            </div>
+            <div className="w-1 h-1.5 bg-stone-200" />
+          </div>
+          <div className="flex flex-col items-center">
+            <div className="w-3 h-2 bg-amber-800 rounded-t-full border border-black" />
+            <div className="w-1 h-1 bg-stone-200" />
+          </div>
+        </div>
+
+        {/* Mossy Green Bone Skull */}
+        <div className="w-12 h-11 bg-[#78716c] border-2 border-[#44403c] relative shadow-md flex flex-col items-center justify-between p-1">
+          {/* Moss Overlay */}
+          <div className="absolute top-0 right-1 w-3 h-4 bg-emerald-700/60" />
+          {/* Glowing Poison Yellow Eyes */}
+          <div className="w-full flex justify-between px-1.5 mt-1">
+            <div className="w-2 h-2 bg-lime-400 shadow-[0_0_6px_#a3e635]" />
+            <div className="w-2 h-2 bg-lime-400 shadow-[0_0_6px_#a3e635]" />
+          </div>
+          {/* Skeleton Teeth */}
+          <div className="w-5 h-2 bg-stone-900 border border-stone-600 flex justify-around">
+            <div className="w-0.5 h-full bg-stone-300" />
+            <div className="w-0.5 h-full bg-stone-300" />
+          </div>
+        </div>
+
+        {/* Vine-Wrapped Ribcage */}
+        <div className="w-9 h-11 bg-[#57534e] border-x border-[#292524] relative flex flex-col justify-around p-0.5">
+          <div className="w-full h-1 bg-stone-900" />
+          <div className="w-full h-1 bg-emerald-700" />
+          <div className="w-full h-1 bg-stone-900" />
+        </div>
+
+        {/* Wooden Bow in Hand */}
+        <div className="absolute top-10 -right-4 pointer-events-none z-20">
+          <div className="w-3 h-10 border-r-2 border-t-2 border-b-2 border-amber-900 rounded-r-lg" />
+        </div>
+
+        {/* Rattling Bone Legs */}
+        <div className="flex justify-between w-7 -mt-0.5">
+          <div className={`w-2 h-9 bg-[#78716c] border border-black ${isWalking ? 'translate-y-1' : ''}`} />
+          <div className={`w-2 h-9 bg-[#78716c] border border-black ${isWalking ? '-translate-y-1' : ''}`} />
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================
+  // 22. GOLD RONALD MCDONALD (GOLDEN ARCHES MASTER)
+  // ==========================================
+  if (isGoldRonald) {
+    return (
+      <div className="relative flex flex-col items-center drop-shadow-2xl">
+        {/* Enchanted Gold Aura */}
+        <div className="absolute -inset-2 bg-amber-400/30 rounded-2xl blur-md pointer-events-none shadow-[0_0_20px_#facc15] animate-pulse" />
+
+        {/* Red Fluffy Clown Hair */}
+        <div className="w-14 h-5 bg-red-600 border-2 border-red-800 rounded-t-xl -mb-1 z-10 flex justify-around px-1">
+          <div className="w-3 h-2 bg-red-500 rounded-full -mt-1" />
+          <div className="w-3 h-2 bg-red-500 rounded-full -mt-1" />
+          <div className="w-3 h-2 bg-red-500 rounded-full -mt-1" />
+        </div>
+
+        {/* White Painted Face with Big Red Smile */}
+        <div className="w-12 h-11 bg-white border-2 border-stone-300 relative shadow-md flex flex-col items-center justify-between p-1">
+          <div className="w-full flex justify-between px-2 pt-1">
+            <div className="w-1.5 h-2 bg-black rounded-full" />
+            <div className="w-1.5 h-2 bg-black rounded-full" />
+          </div>
+          {/* Red Clown Nose */}
+          <div className="w-2.5 h-2.5 bg-red-600 rounded-full shadow-xs" />
+          {/* Big Curved Red Smile */}
+          <div className="w-7 h-2.5 border-b-3 border-red-600 rounded-b-full mb-0.5" />
+        </div>
+
+        {/* Golden Silk Jumpsuit with Red Striped Sleeves */}
+        <div className="w-13 h-12 bg-amber-400 border-2 border-amber-600 relative shadow-lg flex flex-col items-center justify-between p-1">
+          {/* Red Arches Crest */}
+          <div className="w-5 h-4 flex items-center justify-center">
+            <span className="text-red-600 font-black text-xs leading-none">M</span>
+          </div>
+          {/* Red/White Striped Trim */}
+          <div className="w-full h-1.5 bg-red-600 flex justify-around">
+            <div className="w-1 h-full bg-white" />
+            <div className="w-1 h-full bg-white" />
+          </div>
+        </div>
+
+        {/* Holding Sparkling Big Mac Box */}
+        <div className="absolute top-12 -right-3 pointer-events-none z-20 text-sm filter drop-shadow">
+          🍔
+        </div>
+
+        {/* Oversized Clown Boots */}
+        <div className="flex gap-1.5 -mt-0.5">
+          <div className={`w-5 h-6 bg-red-600 border-2 border-red-800 rounded-b-md ${isWalking ? 'translate-y-1' : ''}`} />
+          <div className={`w-5 h-6 bg-red-600 border-2 border-red-800 rounded-b-md ${isWalking ? '-translate-y-1' : ''}`} />
+        </div>
+      </div>
+    );
+  }
+
   // ==========================================================
-  // 15. HUMANOID BODIES (STEVE, ALEX, DIAMOND, NETHERITE,
+  // 23. HUMANOID BODIES (STEVE, ALEX, DIAMOND, NETHERITE,
   //     HEROBRINE, ZOMBIE, DROWNED, WITCH, PIGLIN, SKELETON,
   //     WITHER SKELETON, VILLAGER)
   // ==========================================================
@@ -1984,6 +3128,8 @@ function SprnukiAvatar({
   const isBlackVoid = sub === 'black_void' || nameLower.includes('void');
   const isVerity = sub === 'verity' || nameLower.includes('verity');
   const isVerityBox = sub === 'verity_box' || (nameLower.includes('verity') && (nameLower.includes('box') || sub.includes('box')));
+  const isPiper = sub.includes('piper') || nameLower.includes('piper');
+  const isSupernova = sub.includes('supernova') || nameLower.includes('supernova');
 
   // Palette Setup
   let bodyColor = '#3b82f6';
@@ -1991,7 +3137,17 @@ function SprnukiAvatar({
   let accentColor = '#60a5fa';
   let noteColor = 'text-blue-400';
 
-  if (isHorror || isBlack || isBlackVoid) {
+  if (isPiper) {
+    bodyColor = '#065f46';
+    headwearColor = '#047857';
+    accentColor = '#facc15';
+    noteColor = 'text-emerald-300';
+  } else if (isSupernova) {
+    bodyColor = '#7c3aed';
+    headwearColor = '#6d28d9';
+    accentColor = '#fde047';
+    noteColor = 'text-yellow-300';
+  } else if (isHorror || isBlack || isBlackVoid) {
     bodyColor = isBlackVoid ? '#030712' : '#0c0a09';
     headwearColor = '#1c1917';
     accentColor = '#ef4444';
@@ -2397,6 +3553,33 @@ function SprnukiAvatar({
             <div className={`w-11 h-2 rounded-full ${isHorror ? 'bg-neutral-950 border border-red-800' : 'bg-purple-900 border border-purple-400 shadow'} -mt-1`} />
           </div>
         )}
+
+        {/* TARRAGOWER PIPER: Scottish Glengarry Beret with Red Pom and Tartan Ribbon */}
+        {isPiper && (
+          <div className="flex flex-col items-center -mb-2 z-30">
+            <div className="w-2.5 h-2.5 bg-red-600 rounded-full shadow -mb-1 z-10" />
+            <div className="w-12 h-5 bg-emerald-900 border-2 border-emerald-950 rounded-t-lg relative flex items-center justify-center overflow-hidden">
+              <div className="w-full h-1.5 bg-red-700 border-y border-yellow-400" />
+            </div>
+            <div className="w-14 h-1.5 bg-emerald-950 rounded-full shadow -mt-0.5" />
+          </div>
+        )}
+
+        {/* COSMIC SUPERNOVA VERITY: Dual Stellar Halos & Starbursts */}
+        {isSupernova && (
+          <div className="flex flex-col items-center -mb-3 z-30 animate-pulse">
+            <div className="flex items-center gap-2 text-yellow-300">
+              <span className="text-sm animate-spin">✨</span>
+              <div className="w-5 h-5 rounded-full bg-gradient-to-r from-purple-400 via-pink-400 to-amber-300 p-0.5 shadow-[0_0_15px_#facc15]">
+                <div className="w-full h-full bg-indigo-950 rounded-full flex items-center justify-center">
+                  <span className="text-[10px] text-amber-200">⭐</span>
+                </div>
+              </div>
+              <span className="text-sm animate-spin">✨</span>
+            </div>
+            <div className="w-14 h-2.5 rounded-full border-2 border-amber-300 bg-purple-950/60 shadow-[0_0_12px_#c084fc] -mt-1" />
+          </div>
+        )}
       </div>
 
       {/* ================= HEAD & ANIMATED DJ HEADPHONES ================= */}
@@ -2784,6 +3967,130 @@ function SprnukiAvatar({
 }
 
 /* ==========================================================
+   JEREMY THE JET PLANE (STEREMY) SODOR AIRPORT AVATAR
+========================================================== */
+function JeremyJetAvatar({
+  character,
+  isWalking,
+}: {
+  character: CharacterData;
+  isWalking: boolean;
+}) {
+  const isXmas = character.isChristmas || 
+    (character.name || '').toLowerCase().includes('xmas') || 
+    (character.name || '').toLowerCase().includes('holiday') ||
+    !!character.christmasCostume;
+
+  return (
+    <div className={`relative flex flex-col items-center drop-shadow-2xl ${isWalking ? 'animate-bounce' : ''}`}>
+      {/* Contrail Jet Stream Puffs behind aircraft when flying/moving */}
+      {isWalking && (
+        <>
+          <div className="absolute -top-7 -left-6 w-4 h-4 bg-white/70 rounded-full blur-[1px] animate-ping pointer-events-none" />
+          <div className="absolute -top-9 -right-6 w-4 h-4 bg-white/70 rounded-full blur-[1px] animate-ping pointer-events-none" style={{ animationDelay: '0.15s' }} />
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-6 h-6 bg-cyan-200/40 rounded-full blur-[2px] animate-pulse pointer-events-none" />
+        </>
+      )}
+
+      {/* Vertical Tail Stabilizer / Fin with Sodor Airport livery */}
+      <div className="relative z-10 flex flex-col items-center -mb-2">
+        <div className={`w-4 h-7 ${isXmas ? 'bg-rose-600 border-rose-300' : 'bg-slate-100 border-sky-400'} border-2 rounded-t-lg shadow-md transform -skew-x-12 flex flex-col items-center justify-start pt-1`}>
+          <div className="w-2.5 h-1.5 bg-yellow-400 rounded-xs shadow-xs" />
+          <span className="text-[6px] font-black text-sky-900 leading-none mt-0.5">✈️</span>
+        </div>
+        {/* Horizontal Tailplanes */}
+        <div className={`w-14 h-1.5 ${isXmas ? 'bg-rose-500' : 'bg-slate-200'} rounded-full shadow border border-slate-400/50 -mt-1`} />
+      </div>
+
+      {/* Main Swept Wings & Twin Turbines Container */}
+      <div className="relative z-15 flex items-center justify-center">
+        {/* Left Jet Turbine Engine */}
+        <div className="absolute -left-7 top-1 flex flex-col items-center">
+          <div className={`w-4 h-7 ${isXmas ? 'bg-rose-700 border-amber-300' : 'bg-neutral-800 border-sky-400'} border rounded-full shadow-lg flex flex-col items-center justify-between py-0.5 overflow-hidden`}>
+            {/* Turbine Intake Fan */}
+            <div className="w-3 h-2 bg-neutral-900 rounded-t-full border border-sky-300 flex items-center justify-center">
+              <div className="w-1.5 h-1.5 bg-cyan-300 rounded-full animate-spin" />
+            </div>
+            {/* Turbine Exhaust Thrust */}
+            <div className={`w-2.5 h-1.5 ${isWalking ? 'bg-cyan-400 animate-ping' : 'bg-amber-500'} rounded-b-full shadow-sm`} />
+          </div>
+        </div>
+
+        {/* Swept Main Wings */}
+        <div className={`w-24 h-4.5 ${isXmas ? 'bg-rose-600 border-rose-300' : 'bg-slate-100 border-slate-300'} border-2 rounded-xl shadow-xl flex items-center justify-between px-2`}>
+          {/* Wing Tip Nav Lights */}
+          <div className="w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_6px_red] animate-pulse" />
+          {/* Wing Striping */}
+          <div className="flex gap-1">
+            <div className="w-6 h-1 bg-yellow-400 rounded-full" />
+            <div className="w-6 h-1 bg-sky-500 rounded-full" />
+          </div>
+          <div className="w-1.5 h-1.5 bg-emerald-400 rounded-full shadow-[0_0_6px_lime] animate-pulse" />
+        </div>
+
+        {/* Right Jet Turbine Engine */}
+        <div className="absolute -right-7 top-1 flex flex-col items-center">
+          <div className={`w-4 h-7 ${isXmas ? 'bg-rose-700 border-amber-300' : 'bg-neutral-800 border-sky-400'} border rounded-full shadow-lg flex flex-col items-center justify-between py-0.5 overflow-hidden`}>
+            {/* Turbine Intake Fan */}
+            <div className="w-3 h-2 bg-neutral-900 rounded-t-full border border-sky-300 flex items-center justify-center">
+              <div className="w-1.5 h-1.5 bg-cyan-300 rounded-full animate-spin" />
+            </div>
+            {/* Turbine Exhaust Thrust */}
+            <div className={`w-2.5 h-1.5 ${isWalking ? 'bg-cyan-400 animate-ping' : 'bg-amber-500'} rounded-b-full shadow-sm`} />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Streamlined Fuselage & Cockpit Face */}
+      <div className={`relative z-20 w-16 h-14 ${isXmas ? 'bg-gradient-to-b from-white to-rose-100' : 'bg-gradient-to-b from-white to-slate-200'} border-2 border-slate-300 rounded-3xl shadow-2xl flex flex-col items-center justify-between p-1 -mt-2 overflow-hidden`}>
+        {/* Cockpit Windshield & Eyes (Jeremy's Iconic Face) */}
+        <div className="w-12 h-6 bg-sky-200/90 border border-sky-400 rounded-t-xl flex items-center justify-around px-1 shadow-inner relative">
+          {/* Eyebrows */}
+          <div className="absolute -top-0.5 left-2 w-3 h-0.5 bg-stone-700 rounded-full transform -rotate-6" />
+          <div className="absolute -top-0.5 right-2 w-3 h-0.5 bg-stone-700 rounded-full transform rotate-6" />
+
+          {/* Left Eye */}
+          <div className="w-3.5 h-3.5 bg-white border border-stone-400 rounded-full flex items-center justify-center shadow-xs">
+            <div className="w-2 h-2 bg-sky-900 rounded-full flex items-center justify-center">
+              <div className="w-0.5 h-0.5 bg-white rounded-full translate-x-0.5 -translate-y-0.5" />
+            </div>
+          </div>
+
+          {/* Nose Bridge / Radar Dome */}
+          <div className="w-2 h-2 bg-slate-300 border border-slate-400 rounded-full shadow-xs" />
+
+          {/* Right Eye */}
+          <div className="w-3.5 h-3.5 bg-white border border-stone-400 rounded-full flex items-center justify-center shadow-xs">
+            <div className="w-2 h-2 bg-sky-900 rounded-full flex items-center justify-center">
+              <div className="w-0.5 h-0.5 bg-white rounded-full translate-x-0.5 -translate-y-0.5" />
+            </div>
+          </div>
+        </div>
+
+        {/* Fuselage Livery Cheatline */}
+        <div className="w-full h-1.5 bg-gradient-to-r from-yellow-400 via-sky-500 to-yellow-400 shadow-xs" />
+
+        {/* Jeremy's Cheerful Aircraft Smile */}
+        <div className="flex flex-col items-center pb-0.5">
+          <div className="w-5 h-2 border-b-2 border-stone-800 rounded-b-full shadow-xs" />
+          <span className="text-[6.5px] font-black uppercase text-sky-800 tracking-wider">SODOR</span>
+        </div>
+      </div>
+
+      {/* Retractable Landing Gear Wheels */}
+      <div className="relative z-10 flex justify-between w-12 px-1 -mt-0.5">
+        <div className="w-2.5 h-3 bg-neutral-900 border border-neutral-600 rounded-full shadow-md flex items-center justify-center">
+          <div className="w-1 h-1 bg-slate-300 rounded-full" />
+        </div>
+        <div className="w-2.5 h-3 bg-neutral-900 border border-neutral-600 rounded-full shadow-md flex items-center justify-center">
+          <div className="w-1 h-1 bg-slate-300 rounded-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ==========================================================
    TRAIN AVATAR (THOMAS & FRIENDS LOCOMOTIVE BODY)
 ========================================================== */
 function TrainAvatar({
@@ -2795,6 +4102,12 @@ function TrainAvatar({
 }) {
   const trainColor = character.color || 'bg-blue-600';
   const nameLower = (character.name || '').toLowerCase();
+
+  // Jeremy the Jet Plane (Steremy) check
+  const isJeremy = nameLower.includes('jeremy') || nameLower.includes('steremy');
+  if (isJeremy) {
+    return <JeremyJetAvatar character={character} isWalking={isWalking} />;
+  }
 
   // Engine Identification
   const isToby = nameLower.includes('toby');
@@ -2821,8 +4134,11 @@ function TrainAvatar({
   const isSkarloey = nameLower.includes('skarloey');
   const isRusty = nameLower.includes('rusty');
   const isFlynn = nameLower.includes('flynn');
+  const isMurdoch = nameLower.includes('murdoch');
+  const isDaisy = nameLower.includes('daisy');
+  const isBoco = nameLower.includes('boco');
 
-  const isCombustion = isDiesel || isSalty || isDiesel10 || isMavis || isRusty;
+  const isCombustion = isDiesel || isSalty || isDiesel10 || isMavis || isRusty || isDaisy || isBoco;
 
   // Engine Number or Letter
   const engineNumber = 
@@ -2850,6 +4166,9 @@ function TrainAvatar({
     isSkarloey ? '1' :
     isRusty ? '5' :
     isFlynn ? 'F' :
+    isMurdoch ? '9F' :
+    isDaisy ? 'D1' :
+    isBoco ? 'D5702' :
     nameLower.includes('donald') ? '9' :
     nameLower.includes('douglas') ? '10' : '1';
 
@@ -4166,6 +5485,40 @@ function CountryballAvatar({
           </div>
         </div>
 
+        {/* Custom Countryball Eyewear / Glasses Overlay */}
+        {character.countryballGlasses && character.countryballGlasses !== 'none' && (
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+            {character.countryballGlasses === 'aviators' && (
+              <span className="text-2xl filter drop-shadow">🕶️</span>
+            )}
+            {character.countryballGlasses === 'monocle' && (
+              <div className="absolute top-3.5 right-2 w-4 h-4 border-2 border-amber-400 rounded-full shadow-sm">
+                <div className="w-1.5 h-3 border-r-2 border-amber-400 absolute -bottom-2 right-0" />
+              </div>
+            )}
+            {character.countryballGlasses === 'glasses_3d' && (
+              <div className="flex gap-1 items-center">
+                <div className="w-4 h-3 bg-red-600/80 border border-white rounded-xs" />
+                <div className="w-4 h-3 bg-cyan-500/80 border border-white rounded-xs" />
+              </div>
+            )}
+            {character.countryballGlasses === 'nerd_specs' && (
+              <span className="text-xl filter drop-shadow">👓</span>
+            )}
+            {character.countryballGlasses === 'snow_goggles' && (
+              <span className="text-xl filter drop-shadow">🥽</span>
+            )}
+            {character.countryballGlasses === 'cyber_visor' && (
+              <div className="w-11 h-2 bg-cyan-400 border border-white rounded-full shadow-lg shadow-cyan-400/80 animate-pulse" />
+            )}
+            {character.countryballGlasses === 'pirate_patch' && (
+              <div className="absolute top-3.5 right-2.5 w-4 h-4 bg-black border border-stone-800 rounded-full flex items-center justify-center text-[8px] text-white font-bold">
+                ☠️
+              </div>
+            )}
+          </div>
+        )}
+
         {/* France or Mexico: Curled Cartoon Mustache */}
         {(isFrance || isMexico) && (
           <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-0.5 z-10 pointer-events-none">
@@ -4174,6 +5527,21 @@ function CountryballAvatar({
           </div>
         )}
       </div>
+
+      {/* Countryball Personality Trait Aura Badge */}
+      {character.countryballTrait && (
+        <div 
+          className="absolute -top-1.5 -right-2 z-30 w-5 h-5 rounded-full bg-stone-900 border border-stone-700 shadow-md flex items-center justify-center text-[10px]"
+          title={`Personality Trait: ${character.countryballTrait}`}
+        >
+          {character.countryballTrait === 'diplomatic' && '🕊️'}
+          {character.countryballTrait === 'clay_hungry' && '⚔️'}
+          {character.countryballTrait === 'industrious' && '⚙️'}
+          {character.countryballTrait === 'jovial' && '🎉'}
+          {character.countryballTrait === 'stoic' && '🛡️'}
+          {character.countryballTrait === 'space_dreamer' && '🚀'}
+        </div>
+      )}
 
       {/* ================= HELD MINECRAFT TOOL / WEAPON ================= */}
       {itemIcon && (
@@ -4555,6 +5923,14 @@ function RobloxAvatar({
               <div className="w-4 h-6 border-2 border-red-500 rounded-full flex flex-col items-center justify-around py-0.5 bg-red-950/40">
                 <div className="w-2.5 h-0.5 bg-red-400" />
                 <div className="w-2.5 h-0.5 bg-red-400" />
+              </div>
+            </div>
+          )}
+
+          {gearType === 'subspace' && (
+            <div className="absolute -bottom-4 -right-3.5 pointer-events-none z-30 filter drop-shadow animate-pulse">
+              <div className="w-4.5 h-4.5 bg-fuchsia-600 border-2 border-fuchsia-300 rotate-45 flex items-center justify-center shadow-[0_0_10px_#d946ef]">
+                <div className="w-1.5 h-1.5 bg-yellow-300 rounded-full" />
               </div>
             </div>
           )}

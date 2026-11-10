@@ -659,7 +659,7 @@ export const SONGS_PLAYLIST: MusicTrack[] = [
   {
     id: 'disc_verity',
     title: 'Celestial Verity (Truth Resonance)',
-    artist: 'Oracle Verity (The Verity Update)',
+    artist: 'Oracle Verity',
     genre: 'Celestial Ambient Chimes & Glass Choir',
     discName: 'Music Disc - Verity',
     discColorPrimary: '#a855f7',

@@ -71,6 +71,18 @@ interface MainMenuProps {
   onOpenProgression?: () => void;
   onOpenVoiceChat?: () => void;
   onOpenDashboard?: () => void;
+  onOpenEditor?: () => void;
+  onOpenVideos?: () => void;
+  onOpenGuilds?: () => void;
+  onOpenDailyMissions?: () => void;
+  onOpenLoreCodex?: () => void;
+  onOpenWorldMap?: () => void;
+  onOpenLegoWebsite?: () => void;
+  onOpenCountryballCreator?: () => void;
+  onOpenCommunityHubs?: () => void;
+  onOpenMiniGames?: () => void;
+  onOpenChristmasMegaModal?: () => void;
+  onOpenBrandHubs?: () => void;
 }
 
 export default function MainMenu({
@@ -92,6 +104,18 @@ export default function MainMenu({
   onOpenProgression,
   onOpenVoiceChat,
   onOpenDashboard,
+  onOpenEditor,
+  onOpenVideos,
+  onOpenGuilds,
+  onOpenDailyMissions,
+  onOpenLoreCodex,
+  onOpenWorldMap,
+  onOpenLegoWebsite,
+  onOpenCountryballCreator,
+  onOpenCommunityHubs,
+  onOpenMiniGames,
+  onOpenChristmasMegaModal,
+  onOpenBrandHubs,
 }: MainMenuProps) {
   const [splashIndex, setSplashIndex] = useState(0);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
@@ -133,10 +157,12 @@ export default function MainMenu({
 
       {/* Top Header Strip with User Profile & Quick Status */}
       <div className="relative z-10 w-full max-w-4xl flex items-center justify-between gap-4 px-2">
-        <div className="flex items-center gap-2 bg-stone-900/90 border-2 border-stone-700/80 px-3.5 py-1.5 rounded-xl shadow-lg backdrop-blur-md">
-          <div className="w-2.5 h-2.5 rounded-full bg-purple-400 animate-pulse" />
-          <span className="text-xs font-mono font-bold text-stone-300 uppercase tracking-wider">
-            MegaWorld 2D • The Verity Update (v1.7)
+        <div className="flex items-center gap-2 bg-stone-900/90 border-2 border-emerald-500/80 px-3.5 py-1.5 rounded-xl shadow-lg backdrop-blur-md">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+          <span className="text-xs font-mono font-bold text-red-200 uppercase tracking-wider flex items-center gap-1.5">
+            <span>🎅</span>
+            <span>MegaWorld 2D • Christmas Holiday Update</span>
+            <span>🎄</span>
           </span>
         </div>
 
@@ -201,18 +227,21 @@ export default function MainMenu({
           
           {/* Subtitle Bar */}
           <div className="mt-1 flex items-center justify-center gap-3">
-            <span className="h-0.5 w-12 bg-stone-600 inline-block" />
-            <span className="text-xs sm:text-sm font-mono tracking-widest text-emerald-400 uppercase font-black px-2 py-0.5 bg-stone-900 border border-emerald-500/30 rounded">
-              2D SANDBOX EDITION
+            <span className="h-0.5 w-12 bg-red-600 inline-block" />
+            <span className="text-xs sm:text-sm font-mono tracking-widest text-emerald-400 uppercase font-black px-2 py-0.5 bg-stone-900 border border-emerald-500/30 rounded flex items-center gap-1.5">
+              <span>❄️</span>
+              <span>CHRISTMAS HOLIDAY EDITION</span>
+              <span>❄️</span>
             </span>
-            <span className="h-0.5 w-12 bg-stone-600 inline-block" />
+            <span className="h-0.5 w-12 bg-emerald-600 inline-block" />
           </div>
 
-          {/* The Verity Update Active Badge */}
+          {/* Official Christmas Holiday Update Active Badge */}
           <div className="mt-2.5 flex items-center justify-center gap-2">
-            <span className="text-[10px] sm:text-xs font-mono font-bold tracking-wider text-purple-200 uppercase px-3.5 py-1 bg-gradient-to-r from-purple-950/90 via-indigo-900/90 to-purple-950/90 border border-purple-500/60 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.4)] flex items-center gap-1.5 animate-pulse">
-              <Sparkles size={12} className="text-amber-300" />
-              <span>THE VERITY UPDATE • Celestial Truth Shrine & Starlight Halo</span>
+            <span className="text-[10px] sm:text-xs font-mono font-bold tracking-wider text-red-200 uppercase px-3.5 py-1 bg-gradient-to-r from-red-950/90 via-emerald-950/90 to-red-950/90 border border-red-500/60 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.4)] flex items-center gap-1.5 animate-pulse">
+              <span className="text-amber-300">🎅</span>
+              <span>CHRISTMAS UPDATE • Santa Toy Workshop, Frost Aurora, Gifts & Festive Boss Raids!</span>
+              <span className="text-emerald-400">🎄</span>
             </span>
           </div>
 
@@ -314,6 +343,74 @@ export default function MainMenu({
             </span>
           </button>
 
+          {/* Button: World & Level Editor */}
+          {onOpenEditor && (
+            <button
+              onClick={onOpenEditor}
+              className="mc-btn w-full py-3.5 px-4 rounded text-base sm:text-lg font-bold flex items-center justify-between cursor-pointer group shadow-lg hover:border-amber-400 bg-amber-950/40 border border-amber-500/60 text-amber-200 hover:text-white transition"
+              title="Open World & Level Editor: Design, Paint, Playtest & Publish Custom Multiverse Levels"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🛠️</span>
+                <span className="text-left font-mono">World & Level Editor</span>
+              </div>
+              <span className="text-[11px] font-mono uppercase bg-amber-500/20 px-2.5 py-0.5 rounded text-amber-300 border border-amber-400/40 font-bold">
+                Custom Levels & Prefabs
+              </span>
+            </button>
+          )}
+
+          {/* 1,000 Christmas Mega Edition Button */}
+          {onOpenChristmasMegaModal && (
+            <button
+              onClick={onOpenChristmasMegaModal}
+              className="mc-btn w-full py-3.5 px-4 rounded text-base sm:text-lg font-black flex items-center justify-between cursor-pointer group shadow-xl hover:border-red-400 bg-gradient-to-r from-red-950/90 via-emerald-950/80 to-red-950/90 border-2 border-red-500 text-red-100 hover:text-white transition"
+              title="Open 1,000 Christmas Characters, Items, and Settings Master Catalog"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl animate-bounce">🎅</span>
+                <span className="text-left font-mono">1,000 Christmas Mega Edition</span>
+              </div>
+              <span className="text-[11px] font-mono uppercase bg-red-600 px-2.5 py-1 rounded text-white border border-red-300 font-extrabold shadow-sm">
+                1,000 Chars • Items • Settings 🎄
+              </span>
+            </button>
+          )}
+
+          {/* Multiverse Brand Hubs & Outposts Button */}
+          {onOpenBrandHubs && (
+            <button
+              onClick={onOpenBrandHubs}
+              className="mc-btn w-full py-3 px-4 rounded text-base font-bold flex items-center justify-between cursor-pointer group shadow-lg hover:border-amber-400 bg-stone-900 border border-amber-500/70 text-amber-200 hover:text-white transition"
+              title="Open Multiverse Brand Hubs (McDonald's, Roblox, Xilam, Tarragower, BP, New World, YouTube)"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl">🏢</span>
+                <span className="text-left font-mono">Multiverse Brand Hubs & Outposts</span>
+              </div>
+              <span className="text-[11px] font-mono uppercase bg-amber-500/20 text-yellow-300 px-2.5 py-0.5 rounded border border-amber-400/40 font-bold">
+                7 Brands • Activities & Quests
+              </span>
+            </button>
+          )}
+
+          {/* Daily Missions & Bounties Banner Button */}
+          {onOpenDailyMissions && (
+            <button
+              onClick={onOpenDailyMissions}
+              className="mc-btn w-full py-3 px-4 rounded text-base font-bold flex items-center justify-between cursor-pointer group shadow-lg hover:border-amber-400 bg-gradient-to-r from-amber-950/60 via-stone-900 to-amber-950/60 border-2 border-amber-500/70 text-amber-100 hover:text-white transition"
+              title="Daily Missions: Mine Diamonds, Slay Zombies, Earn Coins & Robux + 7-Day Login Streak"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xl animate-bounce">🎯</span>
+                <span className="text-left font-mono">Daily Missions & Bounties</span>
+              </div>
+              <span className="text-[11px] font-mono uppercase bg-amber-500/30 px-2.5 py-1 rounded text-amber-200 border border-amber-400/50 font-bold shadow-sm">
+                4 Tasks • Coins, Robux & XP
+              </span>
+            </button>
+          )}
+
           {/* 4 Brand Systems Row: Avatar Creator, Quests & Events, Marketplace, Cosmetic Store */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
             <button
@@ -370,6 +467,26 @@ export default function MainMenu({
             </button>
           </div>
 
+          {/* MegaWorld RP Videos & Guilds / Factions Row */}
+          <div className="grid grid-cols-2 gap-2.5 w-full">
+            <button
+              onClick={onOpenVideos}
+              className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow hover:border-red-400 bg-red-950/40 border border-red-500/50 text-red-200 hover:text-white transition group"
+              title="Watch MegaWorld RP Cinema Episodes, Seasons & Video Vault"
+            >
+              <span className="text-base animate-pulse">🎬</span>
+              <span className="truncate font-mono">MegaWorld RP Videos</span>
+            </button>
+            <button
+              onClick={onOpenGuilds}
+              className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-center gap-2 cursor-pointer shadow hover:border-indigo-400 bg-indigo-950/40 border border-indigo-500/50 text-indigo-200 hover:text-white transition group"
+              title="Join or Create Guilds, Pledge Allegiance to Factions & Organize Boss Raids"
+            >
+              <span className="text-base">🛡️</span>
+              <span className="truncate font-mono">Guilds & Factions</span>
+            </button>
+          </div>
+
           {/* Community Social Feed & Dashboard Button */}
           {onOpenDashboard && (
             <button
@@ -386,6 +503,109 @@ export default function MainMenu({
               </span>
             </button>
           )}
+
+          {/* The Multiverse Lore Codex Button */}
+          {onOpenLoreCodex && (
+            <button
+              onClick={onOpenLoreCodex}
+              className="mc-btn w-full py-2.5 px-3.5 rounded text-xs font-bold flex items-center justify-between cursor-pointer shadow hover:border-amber-400 bg-amber-950/40 border border-amber-500/50 text-amber-200 hover:text-white transition group"
+              title="Open The Multiverse Lore Codex (Epochs, 10 Factions, Legends & Quest Hooks)"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">📜</span>
+                <span className="font-mono">The Multiverse Lore Codex & Chronicles</span>
+              </div>
+              <span className="text-[10px] uppercase bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-500/30 font-mono">
+                Canon Lore
+              </span>
+            </button>
+          )}
+
+          {/* Multiverse Interactive World Map Button */}
+          {onOpenWorldMap && (
+            <button
+              onClick={onOpenWorldMap}
+              className="mc-btn w-full py-2.5 px-3.5 rounded text-xs font-bold flex items-center justify-between cursor-pointer shadow hover:border-emerald-400 bg-emerald-950/40 border border-emerald-500/50 text-emerald-200 hover:text-white transition group"
+              title="Open Interactive Multiverse World Map (13 Zones, Fast Travel, Dynamic Routes) [Hotkey: M]"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="text-base">🗺️</span>
+                <span className="font-mono">Multiverse Interactive World Map</span>
+              </div>
+              <span className="text-[10px] uppercase bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30 font-mono">
+                13 Zones [M]
+              </span>
+            </button>
+          )}
+
+          {/* New Features: LEGO Portal, Countryball Creator, Community Hubs, Mini-Games Arcade */}
+          <div className="grid grid-cols-2 gap-2.5 w-full">
+            {onOpenLegoWebsite && (
+              <button
+                onClick={onOpenLegoWebsite}
+                className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-between cursor-pointer shadow hover:border-yellow-400 bg-red-950/50 border border-red-500/60 text-yellow-300 hover:text-white transition group"
+                title="Open Official LEGO.com Builder Portal & Minifigure Customizer"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🧱</span>
+                  <span className="truncate font-mono">LEGO.com Portal</span>
+                </div>
+                <span className="text-[10px] uppercase bg-yellow-500/20 text-yellow-300 px-1.5 py-0.5 rounded border border-yellow-400/40 font-mono">
+                  Sets & MOC
+                </span>
+              </button>
+            )}
+
+            {onOpenCountryballCreator && (
+              <button
+                onClick={onOpenCountryballCreator}
+                className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-between cursor-pointer shadow hover:border-blue-400 bg-blue-950/50 border border-blue-500/60 text-blue-200 hover:text-white transition group"
+                title="Open Sovereign Countryball Creator (Flags, Polish Eyes, Stereotype Hats & Emotes)"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🌐</span>
+                  <span className="truncate font-mono">CB Creator Studio</span>
+                </div>
+                <span className="text-[10px] uppercase bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded border border-blue-400/40 font-mono">
+                  48+ Nations
+                </span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-2.5 w-full">
+            {onOpenCommunityHubs && (
+              <button
+                onClick={onOpenCommunityHubs}
+                className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-between cursor-pointer shadow hover:border-teal-400 bg-teal-950/50 border border-teal-500/60 text-teal-200 hover:text-white transition group"
+                title="Open Persistent Community Event Hubs & Spatial Voice Radio"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🏛️</span>
+                  <span className="truncate font-mono">Community Hubs</span>
+                </div>
+                <span className="text-[10px] uppercase bg-teal-500/20 text-teal-300 px-1.5 py-0.5 rounded border border-teal-400/40 font-mono">
+                  7 Persistent
+                </span>
+              </button>
+            )}
+
+            {onOpenMiniGames && (
+              <button
+                onClick={onOpenMiniGames}
+                className="mc-btn py-2.5 px-3 rounded text-xs font-bold flex items-center justify-between cursor-pointer shadow hover:border-purple-400 bg-purple-950/50 border border-purple-500/60 text-purple-200 hover:text-white transition group"
+                title="Open Cross-Platform Mini-Games Arcade (Scavenger Hunt, Trivia, Resource Race)"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🎮</span>
+                  <span className="truncate font-mono">Mini-Games Arcade</span>
+                </div>
+                <span className="text-[10px] uppercase bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded border border-purple-400/40 font-mono">
+                  Play & Win
+                </span>
+              </button>
+            )}
+          </div>
 
           {/* Button: Open Roblox App */}
           {onOpenRoblox && (

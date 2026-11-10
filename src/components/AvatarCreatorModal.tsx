@@ -19,7 +19,11 @@ import {
   CosmeticItem, 
   CharacterClass,
   ORIGIN_EMOTES_CATALOG,
-  OriginEmote
+  OriginEmote,
+  BRAND_FACTIONS,
+  BrandFaction,
+  SPECIES_INFO,
+  SpeciesInfo
 } from '../utils/avatarManager';
 import { audioEngine } from '../utils/audioEngine';
 import { speechEngine } from '../utils/speechEngine';
@@ -37,9 +41,9 @@ export default function AvatarCreatorModal({
   user,
   onAvatarEquipped,
 }: AvatarCreatorModalProps) {
+  const [activeTab, setActiveTab] = useState<'base' | 'body' | 'hair' | 'clothing' | 'colors' | 'cosmetics' | 'class' | 'faction' | 'emotes' | 'identity' | 'presets'>('base');
   const [customData, setCustomData] = useState<PlayerCustomizationData>(avatarManager.getLocalCustomization());
-  const [activeTab, setActiveTab] = useState<'base' | 'body' | 'hair' | 'clothing' | 'colors' | 'cosmetics' | 'class' | 'emotes' | 'identity' | 'presets'>('base');
-  const [baseCategory, setBaseCategory] = useState<'all' | 'minecraft' | 'roblox' | 'countryball' | 'xilam' | 'sprnuki' | 'thomas'>('all');
+  const [baseCategory, setBaseCategory] = useState<'all' | 'minecraft' | 'roblox' | 'countryball' | 'xilam' | 'sprnuki' | 'thomas' | 'nz' | 'tarragower' | 'bp' | 'mcdonalds' | 'youtube' | 'newworld'>('all');
   const [emoteOriginFilter, setEmoteOriginFilter] = useState<'all' | 'Sprunki' | 'Thomas & Friends' | 'Minecraft' | 'Roblox' | 'Countryballs' | 'Xilam' | 'NZ' | 'McDonald\'s' | 'BP' | 'YouTube' | 'Tarragower' | 'New World'>('all');
   const [activeEmotePlaying, setActiveEmotePlaying] = useState<string | null>(null);
   const [cosmeticSlot, setCosmeticSlot] = useState<'hat' | 'face' | 'back' | 'aura' | 'emblem'>('hat');
@@ -102,9 +106,23 @@ export default function AvatarCreatorModal({
 
   // Filter base characters
   const filteredBases = ALL_CHARACTERS.filter((char) => {
+    const nameLower = char.name.toLowerCase();
+    const subLower = (char.subtype || '').toLowerCase();
+    const descLower = (char.description || '').toLowerCase();
+
     let matchesCat = false;
     if (baseCategory === 'all') matchesCat = true;
     else if (baseCategory === 'thomas') matchesCat = char.type === 'train' || (char.type as string) === 'thomas';
+    else if (baseCategory === 'nz') matchesCat = nameLower.includes('nz') || nameLower.includes('kiwi') || nameLower.includes('rangatira') || nameLower.includes('maui') || nameLower.includes('new zealand') || char.flag === 'nz';
+    else if (baseCategory === 'tarragower') matchesCat = nameLower.includes('tarragower') || descLower.includes('tarragower');
+    else if (baseCategory === 'bp') matchesCat = nameLower.includes('bp') || descLower.includes('bp helios') || subLower.includes('bp');
+    else if (baseCategory === 'mcdonalds') matchesCat = nameLower.includes('ronald') || nameLower.includes('mcdonald') || nameLower.includes('grimace') || descLower.includes('mcdonald');
+    else if (baseCategory === 'youtube') matchesCat = nameLower.includes('youtube') || descLower.includes('youtube') || subLower.includes('youtube');
+    else if (baseCategory === 'newworld') matchesCat = nameLower.includes('new world') || nameLower.includes('aeternum') || nameLower.includes('azoth') || descLower.includes('aeternum');
+    else if (baseCategory === 'minecraft') matchesCat = char.type === 'minecraft' && !nameLower.includes('tarragower') && !nameLower.includes('bp') && !nameLower.includes('ronald') && !nameLower.includes('grimace') && !nameLower.includes('newworld') && !nameLower.includes('azoth');
+    else if (baseCategory === 'roblox') matchesCat = char.type === 'roblox' && !nameLower.includes('youtube');
+    else if (baseCategory === 'countryball') matchesCat = char.type === 'countryball' && !nameLower.includes('nz');
+    else if (baseCategory === 'sprnuki') matchesCat = char.type === 'sprnuki' && !nameLower.includes('tarragower');
     else matchesCat = char.type === baseCategory;
 
     const matchesSearch = char.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -368,6 +386,16 @@ export default function AvatarCreatorModal({
                   </span>
                 </div>
               )}
+
+              {/* Equipped Faction Badge */}
+              {customData.selectedFaction && (
+                <div className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] text-emerald-300 bg-emerald-950/70 border border-emerald-500/40 px-2.5 py-0.5 rounded-full inline-flex">
+                  <span>{BRAND_FACTIONS.find((f) => f.id === customData.selectedFaction)?.bannerEmoji || '⭐'}</span>
+                  <span className="truncate max-w-[190px]">
+                    {BRAND_FACTIONS.find((f) => f.id === customData.selectedFaction)?.name || 'Independent Guild'}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Character Viewport */}
@@ -418,6 +446,21 @@ export default function AvatarCreatorModal({
                   {selectedClassObj.statBonus}
                 </div>
               </div>
+
+              {/* Test Voice & Ability Audio Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  audioEngine.playMinecraftSound('levelup');
+                  speechEngine.speak(customizedChar, selectedClassObj.startingAbility.voiceLine);
+                  setPurchaseFeedback(`🔊 Testing ${selectedClassObj.startingAbility.name} voice line!`);
+                  setTimeout(() => setPurchaseFeedback(null), 3000);
+                }}
+                className="w-full py-1.5 px-3 bg-stone-900 hover:bg-stone-800 border border-amber-500/40 text-amber-300 hover:text-white text-[11px] font-mono font-bold rounded-xl transition flex items-center justify-center gap-2 cursor-pointer shadow"
+              >
+                <Volume2 size={13} className="text-yellow-400" />
+                <span>Test Voice & Ability Audio</span>
+              </button>
             </div>
           </div>
 
@@ -533,6 +576,21 @@ export default function AvatarCreatorModal({
               <button
                 onClick={() => {
                   audioEngine.playMinecraftSound('click');
+                  setActiveTab('faction');
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer whitespace-nowrap ${
+                  activeTab === 'faction'
+                    ? 'bg-amber-500 text-stone-950 shadow-md'
+                    : 'text-stone-400 hover:text-white hover:bg-stone-800'
+                }`}
+              >
+                <span>⭐</span>
+                <span>8. Brand Factions</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  audioEngine.playMinecraftSound('click');
                   setActiveTab('emotes');
                 }}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition cursor-pointer whitespace-nowrap ${
@@ -542,7 +600,7 @@ export default function AvatarCreatorModal({
                 }`}
               >
                 <span>🎭</span>
-                <span>8. Origin Emotes</span>
+                <span>9. Origin Emotes</span>
               </button>
 
               <button
@@ -557,7 +615,7 @@ export default function AvatarCreatorModal({
                 }`}
               >
                 <Award size={13} />
-                <span>9. Identity</span>
+                <span>10. Identity</span>
               </button>
 
               <button
@@ -572,7 +630,7 @@ export default function AvatarCreatorModal({
                 }`}
               >
                 <Bookmark size={13} />
-                <span>10. Saved Presets & Outfits</span>
+                <span>11. Saved Presets & Outfits</span>
               </button>
             </div>
 
@@ -581,6 +639,31 @@ export default function AvatarCreatorModal({
               {/* TAB 1: BASE CHARACTER PICKER */}
               {activeTab === 'base' && (
                 <div className="space-y-4">
+                  {/* Species & Anatomy Showcase */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
+                    {SPECIES_INFO.map((sp) => (
+                      <div
+                        key={sp.id}
+                        onClick={() => {
+                          audioEngine.playMinecraftSound('click');
+                          setBaseCategory(sp.id as any);
+                        }}
+                        className={`p-2.5 rounded-2xl border text-left cursor-pointer transition transform hover:-translate-y-0.5 shadow-sm ${
+                          baseCategory === sp.id
+                            ? 'bg-amber-950/40 border-amber-500 ring-1 ring-amber-400/50'
+                            : 'bg-stone-950/70 border-stone-800 hover:border-stone-700'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xl">{sp.icon}</span>
+                          <span className="text-[9px] font-bold text-amber-400 font-mono">{sp.playableCount}+</span>
+                        </div>
+                        <h4 className="text-[11px] font-bold text-white line-clamp-1">{sp.name}</h4>
+                        <p className="text-[9.5px] text-stone-400 line-clamp-1 mt-0.5">{sp.innatePerk.split(':')[0]}</p>
+                      </div>
+                    ))}
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
                     {/* Category Filter Pills */}
                     <div className="flex items-center gap-1.5 flex-wrap">
@@ -589,8 +672,14 @@ export default function AvatarCreatorModal({
                         { id: 'minecraft', label: '⛏️ Minecraft' },
                         { id: 'roblox', label: '🟥 Roblox' },
                         { id: 'countryball', label: '🌐 Countryballs' },
-                        { id: 'xilam', label: '🐱 Xilam' },
-                        { id: 'sprnuki', label: '🎵 Sprunki' },
+                        { id: 'xilam', label: '💥 Xilam' },
+                        { id: 'nz', label: '🌿 NZ' },
+                        { id: 'tarragower', label: '🏫 Tarragower' },
+                        { id: 'bp', label: '⚡ BP Energy' },
+                        { id: 'mcdonalds', label: '🍔 McDonald\'s' },
+                        { id: 'youtube', label: '▶️ YouTube' },
+                        { id: 'newworld', label: '🧭 New World' },
+                        { id: 'sprnuki', label: '🔮 Sprunki' },
                         { id: 'thomas', label: '🚂 Thomas & Friends' },
                       ].map((cat) => (
                         <button
@@ -599,7 +688,7 @@ export default function AvatarCreatorModal({
                             audioEngine.playMinecraftSound('click');
                             setBaseCategory(cat.id as any);
                           }}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                          className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition cursor-pointer ${
                             baseCategory === cat.id
                               ? 'bg-stone-800 text-amber-300 border border-amber-500/60 shadow-sm'
                               : 'text-stone-400 hover:text-stone-200 bg-stone-950/60 border border-stone-800'
@@ -984,63 +1073,138 @@ export default function AvatarCreatorModal({
                     </div>
                   </div>
 
-                  {/* Custom Hex Color Picker */}
-                  <div className="bg-stone-950/80 p-4 rounded-2xl border border-stone-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                    <div>
-                      <h4 className="text-xs font-bold text-white mb-0.5">Custom Hex Color Picker</h4>
-                      <p className="text-[11px] text-stone-400">Pick any custom shade or enter a custom 6-digit hex code.</p>
+                  {/* Brand Themed Color Palettes (McDonald's & BP Logos) */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* McDonald's Palette */}
+                    <div className="bg-red-950/40 p-3.5 rounded-2xl border border-red-500/50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-yellow-300 flex items-center gap-1.5">
+                          <span>🍟</span>
+                          <span>McDonald's Brand Palette</span>
+                        </span>
+                        <span className="text-[10px] text-stone-400">Golden Arches</span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {COLOR_PRESETS.mcdonalds.map((hex) => (
+                          <button
+                            key={hex}
+                            onClick={() => {
+                              audioEngine.playMinecraftSound('click');
+                              const field = colorTarget === 'skin' 
+                                ? 'skinColor' 
+                                : colorTarget === 'hair' 
+                                ? 'hairColor' 
+                                : colorTarget === 'shirt' 
+                                ? 'shirtColor' 
+                                : 'pantsColor';
+                              setCustomData((prev) => ({ ...prev, [field]: hex }));
+                            }}
+                            className="w-8 h-8 rounded-xl border-2 border-red-400/60 transition cursor-pointer hover:scale-110 active:scale-95 shadow-sm"
+                            style={{ backgroundColor: hex }}
+                            title={`McDonald's Tint: ${hex}`}
+                          />
+                        ))}
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    {/* BP Energy Palette */}
+                    <div className="bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-500/50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                          <span>⚡</span>
+                          <span>BP Helios Clean Energy Palette</span>
+                        </span>
+                        <span className="text-[10px] text-stone-400">Solar Green & Gold</span>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {COLOR_PRESETS.bp.map((hex) => (
+                          <button
+                            key={hex}
+                            onClick={() => {
+                              audioEngine.playMinecraftSound('click');
+                              const field = colorTarget === 'skin' 
+                                ? 'skinColor' 
+                                : colorTarget === 'hair' 
+                                ? 'hairColor' 
+                                : colorTarget === 'shirt' 
+                                ? 'shirtColor' 
+                                : 'pantsColor';
+                              setCustomData((prev) => ({ ...prev, [field]: hex }));
+                            }}
+                            className="w-8 h-8 rounded-xl border-2 border-emerald-400/60 transition cursor-pointer hover:scale-110 active:scale-95 shadow-sm"
+                            style={{ backgroundColor: hex }}
+                            title={`BP Tint: ${hex}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Custom Texture Upload System */}
+                  <div className="bg-stone-950/80 p-4 rounded-2xl border border-cyan-500/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+                          <span>🎨</span>
+                          <span>Upload Custom Texture Skin / Pattern</span>
+                        </h4>
+                        <p className="text-[11px] text-stone-400">
+                          Upload your custom PNG or JPG texture for Minecraft cape, Roblox shirt, or Countryball flag layer.
+                        </p>
+                      </div>
+                      {customData.customTextureUrl && (
+                        <button
+                          onClick={() => {
+                            setCustomData((prev) => ({ ...prev, customTextureUrl: undefined }));
+                            audioEngine.playMinecraftSound('click');
+                          }}
+                          className="text-[10px] text-red-400 hover:underline cursor-pointer"
+                        >
+                          Clear Texture
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3">
                       <input
-                        type="color"
-                        value={
-                          (colorTarget === 'skin' 
-                            ? customData.skinColor 
-                            : colorTarget === 'hair' 
-                            ? customData.hairColor 
-                            : colorTarget === 'shirt' 
-                            ? customData.shirtColor 
-                            : customData.pantsColor) || '#0055ff'
-                        }
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp"
+                        id="custom-texture-upload"
+                        className="hidden"
                         onChange={(e) => {
-                          const hex = e.target.value;
-                          const field = colorTarget === 'skin' 
-                            ? 'skinColor' 
-                            : colorTarget === 'hair' 
-                            ? 'hairColor' 
-                            : colorTarget === 'shirt' 
-                            ? 'shirtColor' 
-                            : 'pantsColor';
-                          setCustomData((prev) => ({ ...prev, [field]: hex }));
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          const reader = new FileReader();
+                          reader.onload = (event) => {
+                            const result = event.target?.result as string;
+                            if (result) {
+                              setCustomData((prev) => ({ ...prev, customTextureUrl: result }));
+                              audioEngine.playMinecraftSound('levelup');
+                              setPurchaseFeedback('✨ Custom Texture Skin applied successfully!');
+                              setTimeout(() => setPurchaseFeedback(null), 3000);
+                            }
+                          };
+                          reader.readAsDataURL(file);
                         }}
-                        className="w-10 h-10 rounded-xl border border-stone-700 bg-stone-900 cursor-pointer p-0.5"
                       />
-                      <input
-                        type="text"
-                        maxLength={7}
-                        value={
-                          (colorTarget === 'skin' 
-                            ? customData.skinColor 
-                            : colorTarget === 'hair' 
-                            ? customData.hairColor 
-                            : colorTarget === 'shirt' 
-                            ? customData.shirtColor 
-                            : customData.pantsColor) || '#0055ff'
-                        }
-                        onChange={(e) => {
-                          const hex = e.target.value;
-                          const field = colorTarget === 'skin' 
-                            ? 'skinColor' 
-                            : colorTarget === 'hair' 
-                            ? 'hairColor' 
-                            : colorTarget === 'shirt' 
-                            ? 'shirtColor' 
-                            : 'pantsColor';
-                          setCustomData((prev) => ({ ...prev, [field]: hex }));
-                        }}
-                        className="w-24 bg-stone-900 border border-stone-700 rounded-xl px-2.5 py-1.5 text-xs text-white uppercase font-mono focus:outline-none focus:border-amber-400"
-                      />
+                      <label
+                        htmlFor="custom-texture-upload"
+                        className="px-3 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-400/70 text-cyan-200 hover:text-white font-bold text-xs cursor-pointer flex items-center gap-2 transition"
+                      >
+                        <span>📁 Choose Texture File (.png / .jpg)</span>
+                      </label>
+                      {customData.customTextureUrl ? (
+                        <div className="flex items-center gap-2">
+                          <img
+                            src={customData.customTextureUrl}
+                            alt="Custom Texture Preview"
+                            className="w-8 h-8 rounded-lg object-cover border border-cyan-400 shadow"
+                          />
+                          <span className="text-[11px] text-emerald-400 font-bold">Active Skin Layer</span>
+                        </div>
+                      ) : (
+                        <span className="text-[11px] text-stone-500 italic">No custom texture uploaded yet</span>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1155,6 +1319,96 @@ export default function AvatarCreatorModal({
                               {isSelected ? '✓ Equipped Class' : 'Select Class'}
                             </button>
                           </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 8: BRAND FACTIONS */}
+              {activeTab === 'faction' && (
+                <div className="space-y-4">
+                  <div className="bg-stone-950/80 p-4 rounded-2xl border border-stone-800 text-xs text-stone-300">
+                    <p className="font-bold text-amber-300 mb-1">Brand Guilds & Sovereign Factions</p>
+                    <p className="text-stone-400">
+                      Pledge allegiance to one of the 10 Multiverse Factions. Aligning with a faction grants passive territory perks, trade fee waivers, and exclusive crest banners.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[52vh] overflow-y-auto pr-1">
+                    {BRAND_FACTIONS.map((f) => {
+                      const isEquipped = customData.selectedFaction === f.id;
+                      return (
+                        <div
+                          key={f.id}
+                          className={`p-4 rounded-2xl border text-left transition flex flex-col justify-between relative ${
+                            isEquipped
+                              ? 'bg-amber-950/30 border-amber-500 shadow-md ring-1 ring-amber-400/50'
+                              : 'bg-stone-950/70 border-stone-800 hover:border-stone-700'
+                          }`}
+                        >
+                          <div>
+                            {/* Faction Header */}
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <div className="flex items-center gap-2.5">
+                                <div className="w-12 h-12 bg-stone-900 border border-stone-700 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 shadow-inner">
+                                  {f.bannerEmoji}
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <h4 className="text-sm font-black text-white">{f.name}</h4>
+                                    <span className="text-[9px] uppercase px-2 py-0.5 rounded-full bg-stone-800 text-amber-400 border border-stone-700">
+                                      {f.brand}
+                                    </span>
+                                  </div>
+                                  <div className="text-[10px] text-stone-400 flex items-center gap-1 mt-0.5">
+                                    <span>HQ:</span>
+                                    <span className="text-stone-300 font-bold">{f.headquarters}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Lore */}
+                            <p className="text-[11px] text-stone-300 leading-snug mb-3">
+                              {f.lore}
+                            </p>
+
+                            {/* Faction Perk Card */}
+                            <div className="bg-stone-900/90 border border-stone-800 p-2.5 rounded-xl mb-3 space-y-1">
+                              <div className="flex items-center justify-between text-xs">
+                                <span className="font-bold text-amber-300 flex items-center gap-1">
+                                  <span>{f.crestIcon}</span>
+                                  <span>Faction Perk: {f.factionPerkTitle}</span>
+                                </span>
+                              </div>
+                              <p className="text-[10.5px] text-stone-300 leading-snug">
+                                {f.factionPerkDescription}
+                              </p>
+                              <div className="text-[9.5px] font-bold text-emerald-400 pt-1">
+                                Perk Bonus: {f.statBonus}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Equip Button */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              audioEngine.playMinecraftSound('levelup');
+                              setCustomData((prev) => ({ ...prev, selectedFaction: f.id }));
+                              setPurchaseFeedback(`Pledged allegiance to ${f.name}!`);
+                              setTimeout(() => setPurchaseFeedback(null), 3000);
+                            }}
+                            className={`w-full py-2 rounded-xl text-xs font-bold transition cursor-pointer flex items-center justify-center gap-1 shadow ${
+                              isEquipped
+                                ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-black'
+                                : 'bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold'
+                            }`}
+                          >
+                            {isEquipped ? '✓ Allegiance Active' : `Join ${f.name}`}
+                          </button>
                         </div>
                       );
                     })}

@@ -40,6 +40,20 @@
         "description": { "type": "string" }
       },
       "required": ["achievementId", "title"]
+    },
+    "DailyMissionsState": {
+      "title": "DailyMissionsState",
+      "description": "User daily missions, streak calendar, and completed claims.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "dateKey": { "type": "string" },
+        "streakDays": { "type": "number" },
+        "lastStreakClaimDate": { "type": "string" },
+        "allClearClaimed": { "type": "boolean" },
+        "rerollsUsedToday": { "type": "number" },
+        "missions": { "type": "array" }
+      }
     }
   },
   "firestore": {
@@ -54,6 +68,10 @@
     "/achievements/{achievementId}": {
       "schema": "Achievement",
       "description": "Global achievements"
+    },
+    "/daily_missions/{uid}": {
+      "schema": "DailyMissionsState",
+      "description": "Daily missions and streak tracking"
     }
   }
 }

@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Heart, MessageSquare, Share2, Download, ExternalLink, Sparkles, 
   Flame, Gem, Camera, Compass, Plus, Filter, Check, Eye, MapPin, 
-  Send, Layers, Swords, Box, User, Star, ChevronDown, ChevronUp, Copy
+  Send, Layers, Swords, Box, User, Star, ChevronDown, ChevronUp, Copy,
+  Gamepad2
 } from 'lucide-react';
 import { socialFeedManager, SocialPost, BuildSchematic, ScreenshotHighlight } from '../utils/socialFeedManager';
 import { audioEngine } from '../utils/audioEngine';
@@ -12,6 +13,7 @@ interface SocialFeedProps {
   user?: any;
   onImportBuild?: (schematic: BuildSchematic) => void;
   onWarpToCoordinates?: (x: number, y: number) => void;
+  onSelectRobloxExperience?: (gameId: string) => void;
 }
 
 // Block style definitions for interactive 2D mini-grids
@@ -41,9 +43,10 @@ export default function SocialFeed({
   user,
   onImportBuild,
   onWarpToCoordinates,
+  onSelectRobloxExperience,
 }: SocialFeedProps) {
   const [posts, setPosts] = useState<SocialPost[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'builds' | 'screenshots' | 'ugc' | 'liked'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'experiences' | 'videos' | 'builds' | 'screenshots' | 'ugc' | 'liked'>('all');
   const [selectedBrand, setSelectedBrand] = useState<string>('all');
   const [selectedSort, setSelectedSort] = useState<'trending' | 'newest' | 'top'>('trending');
   const [expandedCommentsPostId, setExpandedCommentsPostId] = useState<string | null>(null);
@@ -239,6 +242,8 @@ export default function SocialFeed({
         <div className="flex flex-wrap items-center gap-1.5">
           {[
             { id: 'all', label: 'All Posts', icon: '🌐' },
+            { id: 'experiences', label: 'Roblox Games', icon: '🎮' },
+            { id: 'videos', label: 'RP Videos', icon: '🎬' },
             { id: 'builds', label: '2D Builds', icon: '🏰' },
             { id: 'screenshots', label: 'Screenshots', icon: '📸' },
             { id: 'ugc', label: 'Skins & UGC', icon: '🎨' },
@@ -338,9 +343,21 @@ export default function SocialFeed({
                       ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' 
                       : post.type === 'community_screenshot'
                       ? 'bg-sky-500/20 text-sky-300 border-sky-500/30'
+                      : post.type === 'megaworld_video'
+                      ? 'bg-red-500/20 text-red-300 border-red-500/30'
+                      : post.type === 'roblox_experience_share'
+                      ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 text-cyan-300 border-cyan-500/40'
                       : 'bg-purple-500/20 text-purple-300 border-purple-500/30'
                   }`}>
-                    {post.type === 'minecraft_2d_build' ? '🏰 2D Build' : post.type === 'community_screenshot' ? '📸 Screenshot' : '🎨 Skin UGC'}
+                    {post.type === 'minecraft_2d_build' 
+                      ? '🏰 2D Build' 
+                      : post.type === 'community_screenshot' 
+                      ? '📸 Screenshot' 
+                      : post.type === 'megaworld_video' 
+                      ? '🎬 RP Video' 
+                      : post.type === 'roblox_experience_share'
+                      ? '🎮 Roblox Experience'
+                      : '🎨 Skin UGC'}
                   </span>
                 </div>
 
@@ -421,6 +438,141 @@ export default function SocialFeed({
                       <span>Featured: <strong className="text-stone-300">{post.screenshotData.featuredPlayers.join(', ')}</strong></span>
                       <span className="text-amber-300">{post.screenshotData.visualTheme}</span>
                     </div>
+                  </div>
+                )}
+
+                {/* ================= MEGAWORLD RP VIDEO PREVIEW ================= */}
+                {post.type === 'megaworld_video' && post.videoData && (
+                  <div className="mb-4 bg-gradient-to-b from-stone-900 to-black border border-stone-800 rounded-xl p-3 shadow-inner">
+                    <div className="w-full h-32 rounded-lg bg-gradient-to-tr from-stone-950 via-red-950/40 to-slate-900 border border-stone-800 flex flex-col items-center justify-center relative p-3 text-center mb-2 overflow-hidden">
+                      <div className="w-12 h-12 rounded-full bg-red-600/90 border border-red-400 flex items-center justify-center text-white shadow-lg text-lg mb-1 animate-pulse">
+                        ▶
+                      </div>
+                      <div className="text-xs font-bold text-white tracking-wide">
+                        {post.videoData.episodeTitle}
+                      </div>
+                      <div className="text-[10px] text-stone-400 mt-1 flex items-center gap-2">
+                        <span>⏱️ {post.videoData.duration}</span>
+                        <span>•</span>
+                        <span className="text-red-400 font-bold">{post.videoData.views}</span>
+                      </div>
+                    </div>
+                    <div className="text-[10.5px] text-stone-400 flex items-center justify-between">
+                      <span>Cast: <strong className="text-stone-300">{post.videoData.cast.join(', ')}</strong></span>
+                      <span className="text-amber-400 font-bold">1080p RP Cinema</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* ================= ROBLOX EXPERIENCE SOCIAL MEDIA-READY PREVIEW CARD ================= */}
+                {post.type === 'roblox_experience_share' && post.robloxExperienceData && (
+                  <div className="mb-4 bg-[#191B1D] border border-[#393B3D] rounded-2xl p-3.5 shadow-xl relative overflow-hidden group/roblox-preview">
+                    {/* Background ambient gradient glow */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${post.robloxExperienceData.bannerGradient || 'from-indigo-950/40 to-slate-950/80'} opacity-35 pointer-events-none`} />
+                    
+                    {/* Card Banner Preview */}
+                    <div className={`w-full min-h-[148px] rounded-xl bg-gradient-to-r ${post.robloxExperienceData.bannerGradient || 'from-indigo-900 to-slate-900'} p-3.5 relative flex flex-col justify-between overflow-hidden border border-white/10 shadow-lg`}>
+                      {/* Dot grid pattern */}
+                      <div 
+                        className="absolute inset-0 opacity-20 pointer-events-none"
+                        style={{
+                          backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                          backgroundSize: '14px 14px'
+                        }}
+                      />
+                      
+                      {/* Top row */}
+                      <div className="relative z-10 flex items-center justify-between flex-wrap gap-2">
+                        <div className="flex items-center gap-1.5">
+                          {post.robloxExperienceData.badge && (
+                            <span className="text-[9.5px] font-black font-mono px-2 py-0.5 rounded-full uppercase tracking-wider bg-amber-400 text-black shadow">
+                              {post.robloxExperienceData.badge}
+                            </span>
+                          )}
+                          <span className="text-[9.5px] font-mono text-stone-200 bg-black/60 px-2 py-0.5 rounded-full border border-white/10">
+                            {post.robloxExperienceData.category}
+                          </span>
+                        </div>
+
+                        <span className="text-[9.5px] font-mono text-emerald-300 bg-black/60 px-2 py-0.5 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                          Verified Multiverse Card
+                        </span>
+                      </div>
+
+                      {/* Center Icon & Title */}
+                      <div className="relative z-10 flex items-center gap-3 my-2">
+                        <div className="w-13 h-13 rounded-2xl bg-black/55 border border-white/25 flex items-center justify-center text-3xl shadow-xl filter drop-shadow group-hover/roblox-preview:scale-105 transition-transform">
+                          {post.robloxExperienceData.emoji}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-base font-black text-white drop-shadow font-mono truncate">
+                            {post.robloxExperienceData.gameName}
+                          </h4>
+                          <div className="text-[11px] text-stone-300 font-mono flex items-center gap-2 mt-0.5 flex-wrap">
+                            <span className="text-emerald-300 font-semibold">👥 {post.robloxExperienceData.playerCount} Active</span>
+                            <span>•</span>
+                            <span className="text-amber-300 font-semibold">⭐ {post.robloxExperienceData.rating} Upvote</span>
+                            <span>•</span>
+                            <span className="text-stone-300">🏷️ {post.robloxExperienceData.genre}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Experience Description Snippet */}
+                      <div className="relative z-10 text-[10.5px] text-stone-300 font-mono bg-black/40 backdrop-blur-xs px-2.5 py-1.5 rounded-lg border border-white/10 line-clamp-2">
+                        {post.robloxExperienceData.description}
+                      </div>
+                    </div>
+
+                    {/* Social Media OpenGraph Meta Simulation Box */}
+                    <div className="mt-2.5 bg-black/60 border border-stone-800 rounded-xl p-2.5 font-mono text-[11px] text-stone-400 space-y-1">
+                      <div className="flex items-center justify-between text-[10px] text-stone-400 border-b border-stone-800 pb-1">
+                        <span className="flex items-center gap-1 text-cyan-300 font-bold">
+                          <ExternalLink size={10} />
+                          <span>Social Media OpenGraph Meta Preview</span>
+                        </span>
+                        <span className="text-[9px] text-stone-400">roblox.megaworld-rp.internal</span>
+                      </div>
+                      <div className="pt-0.5 flex flex-wrap items-center justify-between gap-2">
+                        <div className="truncate max-w-[280px] text-stone-300">
+                          <span className="text-purple-400 font-bold">og:title</span> "{post.robloxExperienceData.gameName}"
+                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const shareUrl = post.robloxExperienceData?.socialPreviewUrl || `https://roblox.megaworld-rp.internal/experience/${post.robloxExperienceData?.gameId}`;
+                            navigator.clipboard?.writeText(shareUrl);
+                            showToast('📋 Copied OpenGraph Experience Link!');
+                          }}
+                          className="text-[10px] text-purple-300 hover:text-white bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 px-2 py-0.5 rounded cursor-pointer transition flex items-center gap-1"
+                          title="Copy direct shareable web URL"
+                        >
+                          <Copy size={10} />
+                          <span>Copy Link</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Direct Launch Experience Action */}
+                    {onSelectRobloxExperience && (
+                      <div className="mt-3 flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            audioEngine.playRobloxSound('click');
+                            onSelectRobloxExperience(post.robloxExperienceData!.gameId);
+                            showToast(`🚀 Launching ${post.robloxExperienceData!.gameName}...`);
+                          }}
+                          className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-[#00A2FF] to-blue-600 hover:from-[#0091e6] hover:to-blue-500 text-white font-mono text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow active:scale-95"
+                        >
+                          <Gamepad2 size={14} />
+                          <span>Play Experience in Roblox App</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 

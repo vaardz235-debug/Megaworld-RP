@@ -42,8 +42,14 @@ import {
   ChevronDown,
   ChevronUp,
   ThumbsUp,
-  Send
+  Send,
+  Sliders,
+  MessageCircle,
+  RefreshCw,
+  Share2,
+  Copy
 } from 'lucide-react';
+import { socialFeedManager, SocialPost } from '../utils/socialFeedManager';
 
 export interface RobloxExperienceInfo {
   id: 'verity_rp' | 'obby' | 'disaster' | 'tycoon' | 'bloxfruits' | 'brookhaven';
@@ -140,6 +146,8 @@ interface RobloxAppProps {
   onLaunchGame: () => void;
   currentAvatar?: CharacterData;
   onClose?: () => void;
+  onOpenCommunityDashboard?: () => void;
+  initialGameId?: RobloxExperienceInfo['id'];
 }
 
 export const ROBLOX_PRESET_AVATARS: CharacterData[] = [
@@ -244,6 +252,414 @@ export const ROBLOX_PRESET_AVATARS: CharacterData[] = [
 ];
 
 // ==========================================================
+// LOCALIZED CHAT BUBBLES & COURTYARD MULTIPLAYER SYSTEM
+// ==========================================================
+export interface LocalizedChatBubble {
+  id: string;
+  speakerId: string;
+  speakerName: string;
+  colorHex: string;
+  text: string;
+  studDistance: number;
+  timestamp: number;
+  expiresAt: number;
+  isPlayer?: boolean;
+}
+
+export interface ChatHistoryMessage {
+  id: string;
+  sender: string;
+  channel: 'Local' | 'Emote' | 'Server';
+  text: string;
+  color: string;
+  time: string;
+  distance?: number;
+}
+
+export interface PlazaNpcPlayer {
+  id: string;
+  name: string;
+  avatar: CharacterData;
+  studDistance: number;
+  status: string;
+  badge: string;
+  badgeColor: string;
+  colorHex: string;
+  positionX: string;
+}
+
+export const PLAZA_NPC_PLAYERS: PlazaNpcPlayer[] = [
+  {
+    id: 'noob',
+    name: 'Classic Noob',
+    avatar: ROBLOX_PRESET_AVATARS[0],
+    studDistance: 4,
+    status: 'Exploring',
+    badge: 'Noob lvl 8',
+    badgeColor: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30',
+    colorHex: '#facc15',
+    positionX: '12%',
+  },
+  {
+    id: 'bacon',
+    name: 'Bacon Hair',
+    avatar: ROBLOX_PRESET_AVATARS[1],
+    studDistance: 7,
+    status: 'In Courtyard',
+    badge: 'Veteran',
+    badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+    colorHex: '#60a5fa',
+    positionX: '30%',
+  },
+  {
+    id: 'builderman',
+    name: 'Builderman',
+    avatar: ROBLOX_PRESET_AVATARS[2],
+    studDistance: 11,
+    status: 'Master Architect',
+    badge: 'Roblox Admin 🔨',
+    badgeColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+    colorHex: '#fb923c',
+    positionX: '68%',
+  },
+  {
+    id: 'valkyrie',
+    name: 'Valkyrie Warrior',
+    avatar: ROBLOX_PRESET_AVATARS[6],
+    studDistance: 16,
+    status: 'Champion',
+    badge: 'Warrior ⚔️',
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+    colorHex: '#34d399',
+    positionX: '84%',
+  },
+  {
+    id: 'korblox',
+    name: 'Korblox Lord',
+    avatar: ROBLOX_PRESET_AVATARS[4],
+    studDistance: 24,
+    status: 'Frostbite',
+    badge: 'Archon ❄️',
+    badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+    colorHex: '#38bdf8',
+    positionX: '94%',
+  },
+  {
+    id: 'guest666',
+    name: 'Guest 666',
+    avatar: ROBLOX_PRESET_AVATARS[3],
+    studDistance: 32,
+    status: 'Shadow Realm',
+    badge: 'Spooky 💀',
+    badgeColor: 'bg-red-500/20 text-red-400 border-red-500/30',
+    colorHex: '#f87171',
+    positionX: '4%',
+  },
+];
+
+export const ROBLOX_EMOTE_RESPONSES: Record<string, Record<string, string[]>> = {
+  '/e dance': {
+    noob: [
+      'Ayyy dance party! :D',
+      '*does classic noob wiggle spin*',
+      'Dancing with you!! 🕺',
+      'Woooo! Drop the beat!',
+    ],
+    bacon: [
+      'Nice moves! Watch me join! /e dance2',
+      'Who has the best rhythm in the server?!',
+      "Bacon shuffle let's go! 🔥",
+    ],
+    builderman: [
+      '10/10! Spawning dynamic disco floor lights! 🪩',
+      'Top tier choreography, builder!',
+      'Physics engine dance cycle approved!',
+    ],
+    valkyrie: [
+      'A glorious victory dance of champions! ⚔️',
+      'Valhalla beat drop! Celebrate the glory!',
+    ],
+    korblox: [
+      '*spectral hover dance in the sub-zero frost*',
+      'Cold winds echo your rhythmic steps...',
+    ],
+    guest666: [
+      '...the dark ritual tempo begins...',
+      '*haunting 360 shadow spin* 💀',
+    ],
+  },
+  '/e dance2': {
+    noob: [
+      'Breakdance spin!! Look at me go! 🌀',
+      'Windmill noob power!',
+    ],
+    bacon: [
+      'Ooh that rhythm is straight fire! 🔥',
+      'Server groove on point!',
+    ],
+    builderman: [
+      'Synchronizing network dance packets across all clients!',
+    ],
+    valkyrie: [
+      'Warrior combat drill dance! ⚔️',
+    ],
+    korblox: [
+      '*frost crystallization rhythm*',
+    ],
+    guest666: [
+      '...dancing upon the cursed baseplate...',
+    ],
+  },
+  '/e wave': {
+    noob: [
+      'Hiiii!! 👋 Welcome to the server!',
+      'Hello friend! Can I have 5 Robux please? :3',
+      'Hiii! Waving back at you! 👋',
+    ],
+    bacon: [
+      "Yo what's up! 👋",
+      'Hey there! Want to jump in Tower Obby?',
+      'Welcome to Crossroads Courtyard! 👋',
+    ],
+    builderman: [
+      'Welcome to Roblox! Great to see you in the server!',
+      'Happy building and scripting! 🔨',
+    ],
+    valkyrie: [
+      'Greetings, brave warrior! 🛡️',
+      'May your sword stay keen and true.',
+    ],
+    korblox: [
+      '*cold silent nod from the frost archon*',
+      'Greetings, mortal voyager.',
+    ],
+    guest666: [
+      '...i see you waving into the darkness...',
+    ],
+  },
+  '/e point': {
+    noob: [
+      "What is over there?! Is it free Bloxy Cola?! 🥤",
+      'Look at that sky island platform! 👆',
+    ],
+    bacon: [
+      'Whoa check it out! Secret badge stud spotted! 🔍',
+      'Follow them, they found the hidden passage!',
+    ],
+    builderman: [
+      'Careful pointing! That sector is undergoing voxel maintenance!',
+    ],
+    valkyrie: [
+      'Pointing toward the enemy ramparts! Charge! ⚔️',
+    ],
+    korblox: [
+      'You point toward the desolate northern peaks...',
+    ],
+    guest666: [
+      '...the cursed rift opens where you point...',
+    ],
+  },
+  '/e cheer': {
+    noob: [
+      'HOORAY! WOOOO! 🎉🎉🎉',
+      'WE DID IT! GG GUYS!!',
+      'BEST SQUAD IN ROBLOX! 🏆',
+    ],
+    bacon: [
+      "LET'S GOOOOO! 🔥🔥🔥",
+      'HYPE! That was totally epic!',
+      'GG WP! Best server ever!',
+    ],
+    builderman: [
+      'Outstanding teamwork everyone! 🏆',
+      'A true masterclass in community gameplay!',
+    ],
+    valkyrie: [
+      'Glory and eternal honor to our server! Huzzah! ⚔️',
+    ],
+    korblox: [
+      'The freezing wind carries our victory.',
+    ],
+    guest666: [
+      '...your cheer echoes across the void...',
+    ],
+  },
+  '/e laugh': {
+    noob: [
+      'HAHAHAHAHA XD :D',
+      'ROFL LOLOL that is too funny!!',
+      'My sides hurt from laughing! 😂',
+    ],
+    bacon: [
+      "LMAOOOO I can't even! 😂",
+      'Bruh that was hilarious!',
+      'Dead from laughter! 💀',
+    ],
+    builderman: [
+      'Haha, that ragdoll glitch never gets old!',
+    ],
+    valkyrie: [
+      'Hearty laughter among battle-tested warriors!',
+    ],
+    korblox: [
+      '*frosty hollow chuckle echoes*',
+    ],
+    guest666: [
+      '...hehehe...hahaha...💀',
+    ],
+  },
+  '/e salute': {
+    noob: [
+      '🫡 Sir yes sir! Ready to build!',
+      'Salute! Respect to the captain!',
+    ],
+    bacon: [
+      '🫡 Big respect! Top player in the lobby!',
+    ],
+    builderman: [
+      '🫡 Salute! Thank you for maintaining our community!',
+    ],
+    valkyrie: [
+      '🫡 Iron discipline and unwavering loyalty! At your command!',
+    ],
+    korblox: [
+      '*freezes rigid in eternal salute*',
+    ],
+    guest666: [
+      '...even shadows recognize authority...',
+    ],
+  },
+  '/e shrug': {
+    noob: [
+      'idk lol ¯\\_(ツ)_/¯',
+      'Nobody told me anything! I am just a noob!',
+    ],
+    bacon: [
+      "Don't look at me, I just spawned 30 seconds ago! 🤷",
+    ],
+    builderman: [
+      'Must be an unhandled physics raycast exception!',
+    ],
+    valkyrie: [
+      'The fog of war conceals the outcome.',
+    ],
+    korblox: [
+      'The winter frost answers nothing.',
+    ],
+    guest666: [
+      '...some mysteries are not meant to be solved...',
+    ],
+  },
+  '/e oof': {
+    noob: [
+      'NOOOOO! NOT THE OOF! 😭💀',
+      'Rest in pepperoni! OOF in peace brother!',
+    ],
+    bacon: [
+      'RIP! Tommy Tallarico grunt strikes again! 💀',
+      'Press F to pay respects!',
+    ],
+    builderman: [
+      'Respawning character block model in 3... 2... 1...',
+    ],
+    valkyrie: [
+      'A heroic warrior has fallen! We shall avenge you! ⚔️',
+    ],
+    korblox: [
+      'Another soul claimed by the sub-zero chill...',
+    ],
+    guest666: [
+      '...your soul now belongs to server 666... 💀',
+    ],
+  },
+  '/e flex': {
+    noob: [
+      'Look at my massive Roblox blox muscles! 💪',
+      'Stronk noob power!',
+    ],
+    bacon: [
+      'Do you even lift Robux?! 💪🔥',
+      'Pure bacon gains in the gym!',
+    ],
+    builderman: [
+      'Forged from solid anchor blocks!',
+    ],
+    valkyrie: [
+      'Strength forged through hundreds of duels!',
+    ],
+    korblox: [
+      'Frozen iron constitution...',
+    ],
+    guest666: [
+      '...dark essence transcends flesh and stone...',
+    ],
+  },
+  '/e tilt': {
+    noob: [
+      '*tilts head* Huh? Why is the baseplate sideways? :O',
+    ],
+    bacon: [
+      'Who messed with the camera CFrame?! lol',
+    ],
+    builderman: [
+      'Checking gyroscope and camera rotation matrix!',
+    ],
+    valkyrie: [
+      'Assessing battlefield angles.',
+    ],
+    korblox: [
+      'The world tilts on frozen axes...',
+    ],
+    guest666: [
+      '...reality is distorting before your eyes...',
+    ],
+  },
+  'sound_oof': {
+    noob: ['OOF!! 💀 That classic grunt never dies!', 'RIP bro!'],
+    bacon: ['Legendary Tommy Tallarico sound! 💀', 'Classic 2006 memory!'],
+    builderman: ['Health reduced to 0! Respawning!'],
+    valkyrie: ['A warrior has fallen in combat!'],
+    guest666: ['...one more soul for the server...'],
+  },
+  'sound_sword': {
+    valkyrie: ['Draw your Linked Swords! En garde! ⚔️', 'Schwing! Combat ready!'],
+    noob: ["AHHH don't slash me please! I have no armor! 🛡️"],
+    bacon: ['Sword fight on the heights! SFOTH nostalgia! ⚔️'],
+    builderman: ['Be careful with the melee hitboxes!'],
+  },
+  'sound_cola': {
+    bacon: ['Ahhh! Crisp cold Bloxy Cola! Save a sip for me! 🥤', 'Ice cold refreshment!'],
+    noob: ['Fizzy! Slurp slurp! Can I have a sip? 🥤'],
+    builderman: ['Hydration boost: +50 HP applied!'],
+  },
+  'sound_cheezburger': {
+    noob: ['CAN I HAZ CHEEZBURGER PLZ?! 🍔 Mmmm... tasty!'],
+    bacon: ['Burgers for the whole squad! 🍔 Mmm!'],
+    builderman: ['Mmm... Cheezburger! Classic 2008 audio!'],
+  },
+  'sound_coil': {
+    builderman: ['Gravity Coil enabled! Low gravity spring physics! 🌀'],
+    noob: ['BOING BOING BOING! I am flying to the clouds! ☁️'],
+    bacon: ['High jump right onto the leaderboard platform!'],
+  },
+  'sound_speed': {
+    korblox: ['Speed Coil supersonic overdrive engaged! ⚡'],
+    bacon: ['Zooming across the baseplate at lightspeed! ⚡'],
+    noob: ['Wait for meeeee! Too fast!'],
+  },
+  'sound_rocket': {
+    bacon: ['INCOMING SUB-BASS ROCKET! TAKE COVER! 🚀💥'],
+    noob: ['BOOM! The explosion rattled my blox! 💥'],
+    builderman: ['Rebuilding the blast zone voxels!'],
+  },
+  'sound_badge': {
+    builderman: ['🏆 Badge Awarded: Master of the Crossroads Plaza!'],
+    noob: ['WOAH YOU WON A BADGE! CONGRATS! 🎉'],
+    valkyrie: ['Trophy earned through skill and valor! 🏅'],
+  },
+};
+
+// ==========================================================
 // DAILY STREAK CONFIGURATION & REWARD TIERS
 // ==========================================================
 export interface DailyStreakReward {
@@ -299,6 +715,7 @@ export function RobloxExperienceCard({
   onSelectGame,
   isSelected,
   onLaunchMegaWorld,
+  onShareExperience,
 }: {
   game: RobloxExperienceInfo;
   isFavorite: boolean;
@@ -306,6 +723,7 @@ export function RobloxExperienceCard({
   onSelectGame: (id: RobloxExperienceInfo['id']) => void;
   isSelected?: boolean;
   onLaunchMegaWorld?: () => void;
+  onShareExperience?: (game: RobloxExperienceInfo, e: React.MouseEvent) => void;
 }) {
   return (
     <div
@@ -404,22 +822,39 @@ export function RobloxExperienceCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-2 border-t border-[#393B3D]/80 flex items-center gap-2">
+        <div className="pt-2 border-t border-[#393B3D]/80 flex items-center gap-1.5">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               onSelectGame(game.id);
             }}
-            className={`flex-1 py-1.5 px-3 rounded-xl font-mono text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow ${
+            className={`flex-1 py-1.5 px-2.5 rounded-xl font-mono text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow ${
               isSelected
                 ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
                 : 'bg-[#00A2FF] hover:bg-[#0091e6] text-white active:scale-95'
             }`}
           >
             <Play size={12} className="fill-current" />
-            <span>{isSelected ? 'Currently Playing' : 'Play Experience'}</span>
+            <span>{isSelected ? 'Playing' : 'Play'}</span>
           </button>
+
+          {/* Share Button to Community Dashboard */}
+          {onShareExperience && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onShareExperience(game, e);
+              }}
+              title="Share Experience to Community Dashboard & Social Media"
+              aria-label={`Share ${game.name} experience`}
+              className="py-1.5 px-2.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 hover:text-white border border-purple-500/40 transition-all cursor-pointer flex items-center gap-1.5 text-xs font-mono font-bold shadow hover:scale-105 active:scale-95"
+            >
+              <Share2 size={12} className="text-purple-300" />
+              <span>Share</span>
+            </button>
+          )}
 
           {onLaunchMegaWorld && (
             <button
@@ -445,12 +880,28 @@ export default function RobloxApp({
   onLaunchGame,
   currentAvatar,
   onClose,
+  onOpenCommunityDashboard,
+  initialGameId,
 }: RobloxAppProps) {
   // Navigation tabs - Includes new 'favorites' tab!
   const [activeTab, setActiveTab] = useState<'games' | 'favorites' | 'avatar' | 'soundboard' | 'robux'>('games');
 
-  // Active game in Discover (Default to brand new Verity Update experience!)
-  const [selectedGame, setSelectedGame] = useState<'verity_rp' | 'obby' | 'disaster' | 'tycoon' | 'bloxfruits' | 'brookhaven'>('verity_rp');
+  // Active game in Discover (Default to brand new Verity Update experience or initialGameId!)
+  const [selectedGame, setSelectedGame] = useState<'verity_rp' | 'obby' | 'disaster' | 'tycoon' | 'bloxfruits' | 'brookhaven'>(initialGameId || 'verity_rp');
+
+  useEffect(() => {
+    if (initialGameId) {
+      setSelectedGame(initialGameId);
+      setDiscoverViewMode('game');
+    }
+  }, [initialGameId]);
+
+  // Social share preview modal state
+  const [sharedPreviewData, setSharedPreviewData] = useState<{
+    game: RobloxExperienceInfo;
+    post: SocialPost;
+  } | null>(null);
+  const [copiedToast, setCopiedToast] = useState<string | null>(null);
 
   // Discover tab view mode: 'game' (interactive mini-game) or 'cards' (browse all experience cards)
   const [discoverViewMode, setDiscoverViewMode] = useState<'game' | 'cards'>('game');
@@ -487,6 +938,53 @@ export default function RobloxApp({
       }
       return next;
     });
+  };
+
+  const handleShareExperience = async (game: RobloxExperienceInfo, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+
+    try {
+      const shareUrl = `https://roblox.megaworld-rp.internal/experience/${game.id}`;
+      const newPost = await socialFeedManager.createPost({
+        type: 'roblox_experience_share',
+        title: `🎮 ${game.name} - Play Now on Roblox Multiverse!`,
+        caption: `Check out "${game.name}" in the MegaWorld Roblox Multiverse! ${game.description} Joined by ${game.playerCount || '50K+'} active adventurers with a ${game.rating || '96%'} community approval rating. #Roblox #${(game.genre || 'Gaming').replace(/\\s+/g, '')} #MegaWorldRP`,
+        author: {
+          uid: 'user_roblox_' + (activeRobloxChar?.id || 'explorer'),
+          name: activeRobloxChar?.name || 'Roblox Explorer',
+          avatarType: 'roblox',
+          avatarSubtype: (activeRobloxChar?.subtype as any) || 'noob',
+          verified: true,
+          rankTitle: 'Multiverse Creator',
+          classTitle: 'Roblox Pioneer',
+        },
+        brandTheme: 'Roblox',
+        tags: ['Roblox', game.genre || 'Experience', game.category, 'Multiplayer', 'MegaWorldRP'],
+        robloxExperienceData: {
+          gameId: game.id,
+          gameName: game.name,
+          emoji: game.emoji || '🎮',
+          category: game.category,
+          genre: game.genre || 'Adventure',
+          description: game.description,
+          playerCount: game.playerCount || '50K+',
+          rating: game.rating || '96%',
+          bannerGradient: game.bannerGradient || 'from-indigo-900 to-slate-900',
+          badge: game.badge,
+          socialPreviewUrl: shareUrl,
+          metaTags: ['Roblox', 'Experience', game.category, 'Multiplayer', 'UGC', 'MegaWorldRP'],
+          shareTimestamp: Date.now(),
+        },
+      });
+
+      window.dispatchEvent(new CustomEvent('megaworld_social_feed_updated'));
+      playSound('badge', `✨ Shared ${game.name} to Community Feed!`);
+      setSharedPreviewData({ game, post: newPost });
+    } catch (err) {
+      console.warn('Error sharing Roblox experience:', err);
+    }
   };
 
   const filteredExperiences = ROBLOX_EXPERIENCES.filter(game => {
@@ -586,9 +1084,66 @@ export default function RobloxApp({
   const [avatarPreviewWalk, setAvatarPreviewWalk] = useState<boolean>(true);
   const [avatarPreviewSprint, setAvatarPreviewSprint] = useState<boolean>(false);
 
-  // Soundboard state
+  // Soundboard & Localized Chat Bubble Multiplayer State
   const [activeEmote, setActiveEmote] = useState<string | null>(null);
   const [soundEffectToast, setSoundEffectToast] = useState<string | null>(null);
+
+  // Active chat bubbles keyed by speakerId ('player', 'noob', 'bacon', 'builderman', 'valkyrie', 'korblox', 'guest666')
+  const [activeChatBubbles, setActiveChatBubbles] = useState<Record<string, LocalizedChatBubble>>({});
+  
+  // Character animations on stage ('dance' | 'wave' | 'jump' | 'laugh' | 'salute' | 'oof' | 'flex' | 'tilt')
+  const [stagePlayerAnims, setStagePlayerAnims] = useState<Record<string, string>>({});
+
+  // Localized Proximity Distance Radius (in studs/meters)
+  const [proximityRadius, setProximityRadius] = useState<number>(18);
+
+  // Auto-respond toggle for NPCs
+  const [autoNpcResponses, setAutoNpcResponses] = useState<boolean>(true);
+
+  // Floating Roblox Chat Log
+  const [isChatLogOpen, setIsChatLogOpen] = useState<boolean>(true);
+  const [chatFilter, setChatFilter] = useState<'all' | 'local' | 'emotes'>('all');
+  const [chatInputText, setChatInputText] = useState<string>('');
+  const [chatHistory, setChatHistory] = useState<ChatHistoryMessage[]>([
+    {
+      id: 'init-1',
+      sender: 'System',
+      channel: 'Server',
+      color: '#a855f7',
+      text: 'Connected to Crossroads Courtyard [Multiplayer Lobby] • Local Proximity Audio Active',
+      time: '12:00:00',
+    },
+    {
+      id: 'init-2',
+      sender: 'Classic Noob',
+      channel: 'Local',
+      color: '#facc15',
+      text: 'Hiiii everyone! :D Welcome to the courtyard!',
+      time: '12:00:01',
+      distance: 4,
+    },
+    {
+      id: 'init-3',
+      sender: 'Builderman',
+      channel: 'Local',
+      color: '#fb923c',
+      text: 'Select an emote or sound below to trigger live localized chat bubbles!',
+      time: '12:00:02',
+      distance: 11,
+    },
+  ]);
+
+  // Selected player for targeted interaction popup in the courtyard
+  const [targetedPlayerId, setTargetedPlayerId] = useState<string | null>(null);
+
+  // Ref for managing timeouts cleanly
+  const chatBubbleTimersRef = useRef<Record<string, any>>({});
+
+  useEffect(() => {
+    return () => {
+      Object.values(chatBubbleTimersRef.current).forEach(t => clearTimeout(t));
+    };
+  }, []);
 
   // Persistence Effects
   useEffect(() => {
@@ -636,6 +1191,239 @@ export default function RobloxApp({
     if (label) {
       setSoundEffectToast(label);
       setTimeout(() => setSoundEffectToast(null), 1200);
+    }
+  };
+
+  // Core handler for triggering an emote with localized speech bubbles for player and nearby NPCs
+  const triggerEmoteChat = (
+    cmd: string,
+    customText?: string,
+    soundOverride?: string
+  ) => {
+    const now = Date.now();
+    const timeStr = new Date().toLocaleTimeString();
+
+    // Sound mapping
+    let soundToPlay = soundOverride;
+    if (!soundToPlay) {
+      if (cmd === '/e dance' || cmd === '/e dance2') soundToPlay = 'badge';
+      else if (cmd === '/e wave' || cmd === '/e point' || cmd === '/e tilt') soundToPlay = 'click';
+      else if (cmd === '/e cheer') soundToPlay = 'badge';
+      else if (cmd === '/e laugh') soundToPlay = 'cheezburger';
+      else if (cmd === '/e oof') soundToPlay = 'oof';
+      else if (cmd === '/e salute') soundToPlay = 'click';
+      else if (cmd === '/e flex') soundToPlay = 'speed';
+      else if (cmd === '/e shrug') soundToPlay = 'click';
+      else soundToPlay = 'click';
+    }
+
+    // Play procedural sound & set active emote indicator
+    playSound(soundToPlay, customText || cmd);
+    setActiveEmote(cmd);
+    setTimeout(() => setActiveEmote(null), 2500);
+
+    // Determine animation key from command
+    const animKey = cmd.replace('/e ', '').trim();
+
+    // 1. Spawn Player Chat Bubble
+    const playerBubbleText = customText || (
+      cmd === '/e dance' ? '/e dance 💃' :
+      cmd === '/e dance2' ? '/e dance2 🕺' :
+      cmd === '/e wave' ? '/e wave 👋' :
+      cmd === '/e point' ? '/e point 👉' :
+      cmd === '/e cheer' ? '/e cheer 🎉' :
+      cmd === '/e laugh' ? '/e laugh 😂' :
+      cmd === '/e salute' ? '/e salute 🫡' :
+      cmd === '/e shrug' ? '/e shrug 🤷' :
+      cmd === '/e oof' ? '/e oof 💀' :
+      cmd === '/e flex' ? '/e flex 💪' :
+      cmd === '/e tilt' ? '/e tilt 🌀' : cmd
+    );
+
+    const playerBubble: LocalizedChatBubble = {
+      id: `player-${now}`,
+      speakerId: 'player',
+      speakerName: activeRobloxChar?.name || 'You',
+      colorHex: '#38bdf8',
+      text: playerBubbleText,
+      studDistance: 0,
+      timestamp: now,
+      expiresAt: now + 4500,
+      isPlayer: true,
+    };
+
+    if (chatBubbleTimersRef.current['player']) {
+      clearTimeout(chatBubbleTimersRef.current['player']);
+    }
+
+    setActiveChatBubbles(prev => ({ ...prev, player: playerBubble }));
+    setStagePlayerAnims(prev => ({ ...prev, player: animKey }));
+
+    // Append to Chat Log
+    setChatHistory(prev => [
+      ...prev.slice(-35),
+      {
+        id: `msg-${now}`,
+        sender: activeRobloxChar?.name || 'You',
+        channel: cmd.startsWith('/e') ? 'Emote' : 'Local',
+        color: '#38bdf8',
+        text: playerBubbleText,
+        time: timeStr,
+        distance: 0,
+      },
+    ]);
+
+    chatBubbleTimersRef.current['player'] = setTimeout(() => {
+      setActiveChatBubbles(prev => {
+        const next = { ...prev };
+        delete next.player;
+        return next;
+      });
+      setStagePlayerAnims(prev => {
+        const next = { ...prev };
+        delete next.player;
+        return next;
+      });
+    }, 4500);
+
+    // 2. Trigger Localized Responses from Nearby NPCs
+    if (autoNpcResponses) {
+      // Find players within proximityRadius
+      const eligibleNpcs = PLAZA_NPC_PLAYERS.filter(npc => npc.studDistance <= proximityRadius);
+      
+      // Shuffle & pick 2 to 4 respondents so conversation feels lively and authentic
+      const shuffled = [...eligibleNpcs].sort(() => Math.random() - 0.5);
+      const respondents = shuffled.slice(0, Math.min(shuffled.length, 3));
+
+      respondents.forEach((npc, index) => {
+        // Stagger responses by 320ms - 800ms intervals
+        const staggerDelay = 320 + index * 420 + Math.floor(Math.random() * 180);
+
+        const timerId = setTimeout(() => {
+          // Look up NPC lines for this command or category
+          const responsesForCmd = ROBLOX_EMOTE_RESPONSES[cmd] || ROBLOX_EMOTE_RESPONSES['/e dance'];
+          const lines = responsesForCmd[npc.id] || responsesForCmd['noob'] || ['*looks over curiously*'];
+          const selectedLine = lines[Math.floor(Math.random() * lines.length)];
+
+          // Speech blip
+          audioEngine.playSpeechBlip(
+            npc.id === 'noob' ? 1.3 : npc.id === 'valkyrie' ? 1.1 : npc.id === 'korblox' ? 0.6 : 0.9,
+            npc.id === 'noob'
+          );
+
+          const npcNow = Date.now();
+          const npcBubble: LocalizedChatBubble = {
+            id: `${npc.id}-${npcNow}`,
+            speakerId: npc.id,
+            speakerName: npc.name,
+            colorHex: npc.colorHex,
+            text: selectedLine,
+            studDistance: npc.studDistance,
+            timestamp: npcNow,
+            expiresAt: npcNow + 4200,
+          };
+
+          setActiveChatBubbles(prev => ({ ...prev, [npc.id]: npcBubble }));
+          setStagePlayerAnims(prev => ({
+            ...prev,
+            [npc.id]: (animKey === 'dance' || animKey === 'dance2') ? 'dance' : (animKey === 'wave' ? 'wave' : 'jump'),
+          }));
+
+          // Add to chat history
+          setChatHistory(prev => [
+            ...prev.slice(-35),
+            {
+              id: `msg-${npcNow}-${npc.id}`,
+              sender: npc.name,
+              channel: 'Local',
+              color: npc.colorHex,
+              text: selectedLine,
+              time: new Date().toLocaleTimeString(),
+              distance: npc.studDistance,
+            },
+          ]);
+
+          // Clear after 4.2s
+          if (chatBubbleTimersRef.current[npc.id]) {
+            clearTimeout(chatBubbleTimersRef.current[npc.id]);
+          }
+          chatBubbleTimersRef.current[npc.id] = setTimeout(() => {
+            setActiveChatBubbles(prev => {
+              const next = { ...prev };
+              delete next[npc.id];
+              return next;
+            });
+            setStagePlayerAnims(prev => {
+              const next = { ...prev };
+              delete next[npc.id];
+              return next;
+            });
+          }, 4200);
+        }, staggerDelay);
+
+        chatBubbleTimersRef.current[`stagger-${npc.id}`] = timerId;
+      });
+    }
+  };
+
+  // Trigger sound with companion chat bubbles
+  const triggerSoundWithChat = (soundId: string, soundName: string) => {
+    const soundCmdMap: Record<string, string> = {
+      oof: '/e oof',
+      sword: 'sound_sword',
+      cola: 'sound_cola',
+      cheezburger: 'sound_cheezburger',
+      coil: 'sound_coil',
+      speed: 'sound_speed',
+      rocket: 'sound_rocket',
+      badge: 'sound_badge',
+    };
+
+    const targetKey = soundCmdMap[soundId] || '/e dance';
+    const playerMsg = (
+      soundId === 'oof' ? '💀 OOF!' :
+      soundId === 'sword' ? '⚔️ *schwing!*' :
+      soundId === 'cola' ? '🥤 *slurp fizz!*' :
+      soundId === 'cheezburger' ? '🍔 Mmm... Cheezburger!' :
+      soundId === 'coil' ? '🌀 *boing wobble!*' :
+      soundId === 'speed' ? '⚡ *supersonic hum!*' :
+      soundId === 'rocket' ? '🚀 *rocket boom!*' :
+      soundId === 'badge' ? '🏆 *badge fanfare!*' : soundName
+    );
+
+    triggerEmoteChat(targetKey, playerMsg, soundId);
+  };
+
+  // Submit custom text from Chat Input box
+  const handleSendCustomChat = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setChatInputText('');
+
+    if (trimmed.startsWith('/e ')) {
+      triggerEmoteChat(trimmed);
+      return;
+    }
+
+    const lower = trimmed.toLowerCase();
+    if (lower.includes('dance') || lower.includes('party')) {
+      triggerEmoteChat('/e dance', trimmed);
+    } else if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('yo')) {
+      triggerEmoteChat('/e wave', trimmed);
+    } else if (lower.includes('oof') || lower.includes('rip') || lower.includes('dead')) {
+      triggerEmoteChat('/e oof', trimmed);
+    } else if (lower.includes('cheer') || lower.includes('gg') || lower.includes('win')) {
+      triggerEmoteChat('/e cheer', trimmed);
+    } else if (lower.includes('laugh') || lower.includes('lol') || lower.includes('haha') || lower.includes('lmao')) {
+      triggerEmoteChat('/e laugh', trimmed);
+    } else if (lower.includes('sword') || lower.includes('pvp') || lower.includes('fight')) {
+      triggerEmoteChat('sound_sword', trimmed, 'sword');
+    } else if (lower.includes('burger') || lower.includes('cheezburger') || lower.includes('food')) {
+      triggerEmoteChat('sound_cheezburger', trimmed, 'cheezburger');
+    } else if (lower.includes('cola') || lower.includes('drink')) {
+      triggerEmoteChat('sound_cola', trimmed, 'cola');
+    } else {
+      triggerEmoteChat('/e wave', trimmed, 'click');
     }
   };
 
@@ -1085,6 +1873,7 @@ export default function RobloxApp({
                     game={game}
                     isFavorite={favorites.includes(game.id)}
                     onToggleFavorite={(id, e) => toggleFavorite(id, e)}
+                    onShareExperience={handleShareExperience}
                     onSelectGame={(id) => {
                       setSelectedGame(id);
                       setDiscoverViewMode('game');
@@ -1129,8 +1918,19 @@ export default function RobloxApp({
                   </div>
                 </div>
 
-                {/* Heart Button for the Active Game */}
+                {/* Action Buttons for the Active Game */}
                 <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => handleShareExperience(selectedGameInfo, e)}
+                    title="Share this experience to Community Dashboard & generate a social media preview card"
+                    aria-label={`Share ${selectedGameInfo.name} experience`}
+                    className="px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 transition cursor-pointer shadow-sm bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 hover:text-white border border-purple-500/40 active:scale-95"
+                  >
+                    <Share2 size={13} className="text-purple-300" />
+                    <span>Share Game</span>
+                  </button>
+
                   <button
                     type="button"
                     onClick={(e) => toggleFavorite(selectedGame, e)}
@@ -1347,6 +2147,7 @@ export default function RobloxApp({
                   game={game}
                   isFavorite={true}
                   onToggleFavorite={(id, e) => toggleFavorite(id, e)}
+                  onShareExperience={handleShareExperience}
                   onSelectGame={(id) => {
                     setSelectedGame(id);
                     setDiscoverViewMode('game');
@@ -1569,85 +2370,567 @@ export default function RobloxApp({
         </div>
       )}
 
-      {/* ================= TAB 3: OOF SOUNDBOARD & EMOTES ================= */}
+      {/* ================= TAB 3: OOF SOUNDBOARD & LOCALIZED CHAT BUBBLES ================= */}
       {activeTab === 'soundboard' && (
         <div className="p-4 sm:p-6 flex-1 flex flex-col gap-6 font-mono">
-          <div className="border-b border-[#393B3D] pb-3">
-            <h2 className="text-xl font-black text-white flex items-center gap-2">
-              <Volume2 className="text-cyan-400" />
-              <span>Authentic Roblox Audio Soundboard</span>
-              <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30">
-                Procedural Web Audio
+          {/* Header Bar */}
+          <div className="border-b border-[#393B3D] pb-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-white flex items-center gap-2">
+                <Volume2 className="text-cyan-400" />
+                <span>Authentic Roblox Audio Soundboard & Localized Chat</span>
+                <span className="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded-full border border-cyan-500/30">
+                  Proximity Bubbles
+                </span>
+              </h2>
+              <p className="text-xs text-stone-400 mt-1">
+                Trigger emotes or sounds to cast authentic 3D speech bubbles for your avatar and nearby players in the Crossroads Courtyard!
+              </p>
+            </div>
+
+            {/* Quick Status Pill */}
+            <div className="flex items-center gap-2 text-[11px]">
+              <span className="flex items-center gap-1.5 bg-[#232527] px-3 py-1 rounded-full border border-[#393B3D] text-stone-300">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>7 Players in Lobby</span>
               </span>
-            </h2>
-            <p className="text-xs text-stone-400">
-              Click any sound below to trigger the classic synthesized sound effects!
-            </p>
+              <span className="bg-cyan-500/10 text-cyan-300 px-3 py-1 rounded-full border border-cyan-500/30">
+                Range: {proximityRadius} studs
+              </span>
+            </div>
           </div>
 
-          {/* Soundboard Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {[
-              { id: 'oof', name: '💀 OOF! (Classic Grunt)', desc: 'The legendary death sound', color: 'hover:border-red-500' },
-              { id: 'sword', name: '⚔️ Linked Sword', desc: 'Classic metal schwing slash', color: 'hover:border-cyan-500' },
-              { id: 'cola', name: '🥤 Bloxy Cola', desc: 'Slurp & fizzy can crack', color: 'hover:border-amber-500' },
-              { id: 'cheezburger', name: '🍔 Cheezburger!', desc: 'Mmm... Cheezburger crunch', color: 'hover:border-yellow-500' },
-              { id: 'coil', name: '🌀 Gravity Coil', desc: 'High springy bouncy wobble', color: 'hover:border-blue-500' },
-              { id: 'speed', name: '⚡ Speed Coil', desc: 'High frequency revving hum', color: 'hover:border-purple-500' },
-              { id: 'rocket', name: '🚀 Rocket Launcher', desc: 'Sub-bass explosive boom', color: 'hover:border-orange-500' },
-              { id: 'badge', name: '🏆 Badge Awarded', desc: 'Four-note victory arpeggio', color: 'hover:border-emerald-500' },
-            ].map(sound => (
-              <button
-                key={sound.id}
-                onClick={() => playSound(sound.id, sound.name)}
-                className={`p-4 rounded-2xl bg-[#232527] border-2 border-[#393B3D] ${sound.color} shadow-lg transition active:scale-95 text-left flex flex-col justify-between cursor-pointer group`}
-              >
-                <div className="text-sm font-bold text-white group-hover:text-yellow-300 transition">
-                  {sound.name}
-                </div>
-                <div className="text-[11px] text-stone-400 mt-2 leading-tight">
-                  {sound.desc}
-                </div>
-                <div className="mt-3 flex items-center justify-between text-[10px] text-cyan-400 font-bold uppercase">
-                  <span>▶ Play Sound</span>
-                  <span>🔊</span>
-                </div>
-              </button>
-            ))}
-          </div>
-
-          {/* Classic Chat Emotes Bar */}
-          <div className="bg-[#232527] rounded-3xl p-5 border border-[#393B3D] mt-2">
-            <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
-              <Smile size={16} className="text-yellow-400" />
-              <span>Chat Emotes & Commands</span>
-            </h3>
-            <p className="text-xs text-stone-400 mb-3">
-              Click to execute Roblox avatar animations & gestures:
-            </p>
-
-            <div className="flex gap-2 flex-wrap">
+          {/* ================= PROXIMITY RADIUS & CHAT CONTROLS TOOLBAR ================= */}
+          <div className="bg-[#232527] border border-[#393B3D] rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 shadow-md">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-stone-300 font-bold flex items-center gap-1.5">
+                <Sliders size={14} className="text-cyan-400" />
+                <span>Proximity Hearing Range:</span>
+              </span>
               {[
-                { cmd: '/e dance', name: '💃 /e dance', sound: 'badge' },
-                { cmd: '/e wave', name: '👋 /e wave', sound: 'click' },
-                { cmd: '/e point', name: '👉 /e point', sound: 'click' },
-                { cmd: '/e cheer', name: '🎉 /e cheer', sound: 'badge' },
-                { cmd: '/e laugh', name: '😂 /e laugh', sound: 'cheezburger' },
-              ].map(emote => (
+                { radius: 8, label: '8 studs (Near)' },
+                { radius: 18, label: '18 studs (Courtyard)' },
+                { radius: 30, label: '30 studs (Plaza)' },
+                { radius: 50, label: '50 studs (Server-Wide)' },
+              ].map(item => (
                 <button
-                  key={emote.cmd}
+                  key={item.radius}
                   onClick={() => {
-                    setActiveEmote(emote.cmd);
-                    playSound(emote.sound, emote.cmd);
-                    setTimeout(() => setActiveEmote(null), 2000);
+                    setProximityRadius(item.radius);
+                    playSound('click');
                   }}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold border transition cursor-pointer shadow ${
-                    activeEmote === emote.cmd
-                      ? 'bg-emerald-600 text-white border-emerald-400 animate-pulse'
-                      : 'bg-[#191B1D] text-stone-300 border-[#393B3D] hover:border-emerald-500'
+                  className={`px-2.5 py-1 text-xs rounded-xl border transition cursor-pointer font-bold ${
+                    proximityRadius === item.radius
+                      ? 'bg-cyan-500/20 text-cyan-300 border-cyan-400 shadow-sm'
+                      : 'bg-[#191B1D] text-stone-400 border-[#393B3D] hover:border-stone-500'
                   }`}
                 >
-                  {emote.name}
+                  {item.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* Auto NPC Reactions Toggle */}
+              <button
+                onClick={() => {
+                  setAutoNpcResponses(prev => !prev);
+                  playSound('click');
+                }}
+                className={`px-3 py-1 text-xs rounded-xl border transition cursor-pointer font-bold flex items-center gap-1.5 ${
+                  autoNpcResponses
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400'
+                    : 'bg-[#191B1D] text-stone-400 border-[#393B3D]'
+                }`}
+              >
+                <span>Auto-NPC Chat:</span>
+                <span className="uppercase text-[10px] px-1.5 py-0.2 rounded bg-black/40">
+                  {autoNpcResponses ? 'ON' : 'OFF'}
+                </span>
+              </button>
+
+              {/* Toggle Chat Log overlay */}
+              <button
+                onClick={() => setIsChatLogOpen(prev => !prev)}
+                className={`px-3 py-1 text-xs rounded-xl border transition cursor-pointer font-bold flex items-center gap-1.5 ${
+                  isChatLogOpen
+                    ? 'bg-blue-500/20 text-blue-300 border-blue-400'
+                    : 'bg-[#191B1D] text-stone-400 border-[#393B3D]'
+                }`}
+              >
+                <MessageSquare size={13} />
+                <span>Chat Log</span>
+              </button>
+
+              {/* Clear Chat History */}
+              <button
+                onClick={() => {
+                  setChatHistory([]);
+                  playSound('click');
+                }}
+                title="Clear Chat History"
+                className="p-1.5 rounded-xl bg-[#191B1D] hover:bg-stone-800 text-stone-400 hover:text-white border border-[#393B3D] transition cursor-pointer"
+              >
+                <RefreshCw size={13} />
+              </button>
+            </div>
+          </div>
+
+          {/* ================= CROSSROADS COURTYARD STAGE (MULTIPLAYER PROXIMITY STAGE) ================= */}
+          <div className="relative w-full rounded-3xl border-2 border-[#393B3D] overflow-hidden bg-gradient-to-b from-[#18191c] via-[#202225] to-[#121315] shadow-2xl min-h-[380px] flex flex-col justify-between">
+            {/* Stage Stud Grid Floor Aesthetic */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-25"
+              style={{
+                backgroundImage: 'radial-gradient(#ffffff 1.5px, transparent 1.5px)',
+                backgroundSize: '24px 24px',
+              }}
+            />
+
+            {/* Stage Ambient Lighting & Floor Boundary */}
+            <div className="absolute bottom-0 inset-x-0 h-44 bg-gradient-to-t from-stone-900/90 via-[#1c1d20]/80 to-transparent border-t border-white/5 pointer-events-none" />
+
+            {/* Distance Markers along bottom */}
+            <div className="absolute bottom-2 inset-x-4 flex justify-between text-[10px] text-stone-600 font-mono pointer-events-none border-b border-stone-800/80 pb-1">
+              <span>⟵ 32 studs (Shadow)</span>
+              <span>15 studs</span>
+              <span className="text-cyan-400 font-bold">0 studs (YOU)</span>
+              <span>15 studs</span>
+              <span>30 studs (Frost) ⟶</span>
+            </div>
+
+            {/* ================= FLOATING ROBLOX CHAT LOG OVERLAY (TOP-LEFT) ================= */}
+            {isChatLogOpen && (
+              <div className="absolute top-3 left-3 z-40 w-72 sm:w-80 bg-black/75 backdrop-blur-md rounded-2xl border border-white/10 p-2.5 shadow-2xl flex flex-col gap-1.5 transition-all">
+                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-stone-200">
+                    <MessageCircle size={13} className="text-cyan-400" />
+                    <span>Roblox Server Chat</span>
+                  </div>
+                  {/* Channel Filter Pills */}
+                  <div className="flex gap-1 text-[9px]">
+                    {(['all', 'local', 'emotes'] as const).map(tab => (
+                      <button
+                        key={tab}
+                        onClick={() => setChatFilter(tab)}
+                        className={`px-1.5 py-0.5 rounded cursor-pointer capitalize font-bold ${
+                          chatFilter === tab
+                            ? 'bg-cyan-500 text-black'
+                            : 'bg-white/10 text-stone-300 hover:bg-white/20'
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Chat Log Message Scrollbox */}
+                <div className="h-32 overflow-y-auto flex flex-col gap-1 text-[11px] pr-1 font-sans">
+                  {chatHistory
+                    .filter(msg => {
+                      if (chatFilter === 'local') return msg.channel === 'Local';
+                      if (chatFilter === 'emotes') return msg.channel === 'Emote';
+                      return true;
+                    })
+                    .map(msg => (
+                      <div key={msg.id} className="leading-tight break-words">
+                        <span className="text-[9px] text-stone-500 font-mono mr-1">
+                          [{msg.time.split(' ')[0]}]
+                        </span>
+                        <span
+                          className={`text-[9px] font-black uppercase px-1 py-0.2 rounded mr-1 ${
+                            msg.channel === 'Server'
+                              ? 'bg-purple-900/60 text-purple-300'
+                              : msg.channel === 'Emote'
+                              ? 'bg-amber-900/60 text-amber-300'
+                              : 'bg-emerald-900/60 text-emerald-300'
+                          }`}
+                        >
+                          {msg.channel}
+                        </span>
+                        <span
+                          className="font-bold mr-1"
+                          style={{ color: msg.color || '#ffffff' }}
+                        >
+                          {msg.sender}:
+                        </span>
+                        <span className="text-stone-200 font-medium">
+                          {msg.text}
+                        </span>
+                        {typeof msg.distance === 'number' && msg.distance > 0 && (
+                          <span className="text-[9px] text-stone-500 font-mono ml-1">
+                            ({msg.distance}m)
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  {chatHistory.length === 0 && (
+                    <div className="text-stone-500 text-[10px] italic py-4 text-center">
+                      Chat log is empty. Trigger an emote to chat!
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Targeted Player Interaction Modal if selected */}
+            {targetedPlayerId && (
+              <div className="absolute top-3 right-3 z-40 bg-[#232527] border-2 border-cyan-500/60 rounded-2xl p-3 shadow-2xl flex flex-col gap-2 max-w-[220px] animate-in fade-in slide-in-from-top-2">
+                {(() => {
+                  const targetNpc = PLAZA_NPC_PLAYERS.find(p => p.id === targetedPlayerId);
+                  if (!targetNpc) return null;
+                  return (
+                    <>
+                      <div className="flex items-center justify-between border-b border-[#393B3D] pb-1.5">
+                        <span className="text-xs font-black text-white">
+                          {targetNpc.name}
+                        </span>
+                        <button
+                          onClick={() => setTargetedPlayerId(null)}
+                          className="text-stone-400 hover:text-white p-0.5"
+                        >
+                          <X size={13} />
+                        </button>
+                      </div>
+                      <div className="text-[10px] text-stone-400 flex items-center justify-between">
+                        <span>Distance: {targetNpc.studDistance} studs</span>
+                        <span className={`px-1.5 py-0.5 rounded border text-[9px] ${targetNpc.badgeColor}`}>
+                          {targetNpc.badge}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-1.5 mt-1">
+                        <button
+                          onClick={() => {
+                            triggerEmoteChat('/e wave', `👋 Waves directly at ${targetNpc.name}!`);
+                            setTargetedPlayerId(null);
+                          }}
+                          className="px-2 py-1 bg-[#191B1D] hover:bg-cyan-600 text-stone-200 hover:text-white text-[10px] rounded-lg border border-[#393B3D] transition cursor-pointer font-bold"
+                        >
+                          👋 Wave
+                        </button>
+                        <button
+                          onClick={() => {
+                            triggerEmoteChat('/e dance', `💃 Dance battle with ${targetNpc.name}!`);
+                            setTargetedPlayerId(null);
+                          }}
+                          className="px-2 py-1 bg-[#191B1D] hover:bg-emerald-600 text-stone-200 hover:text-white text-[10px] rounded-lg border border-[#393B3D] transition cursor-pointer font-bold"
+                        >
+                          💃 Dance
+                        </button>
+                        <button
+                          onClick={() => {
+                            triggerEmoteChat('/e cheer', `🎉 High fives ${targetNpc.name}!`);
+                            setTargetedPlayerId(null);
+                          }}
+                          className="px-2 py-1 bg-[#191B1D] hover:bg-amber-600 text-stone-200 hover:text-white text-[10px] rounded-lg border border-[#393B3D] transition cursor-pointer font-bold"
+                        >
+                          🎉 High Five
+                        </button>
+                        <button
+                          onClick={() => {
+                            triggerEmoteChat('/e point', `👉 Challenges ${targetNpc.name} to Obby!`);
+                            setTargetedPlayerId(null);
+                          }}
+                          className="px-2 py-1 bg-[#191B1D] hover:bg-purple-600 text-stone-200 hover:text-white text-[10px] rounded-lg border border-[#393B3D] transition cursor-pointer font-bold"
+                        >
+                          👉 Challenge
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+
+            {/* ================= STAGE CHARACTERS CONTAINER ================= */}
+            <div className="relative w-full h-[360px] flex items-end justify-center pb-8 px-4 sm:px-8">
+              {/* NPC Characters */}
+              {PLAZA_NPC_PLAYERS.map(npc => {
+                const isOutOfRange = npc.studDistance > proximityRadius;
+                const bubble = activeChatBubbles[npc.id];
+                const anim = stagePlayerAnims[npc.id];
+
+                return (
+                  <div
+                    key={npc.id}
+                    style={{ left: npc.positionX }}
+                    onClick={() => setTargetedPlayerId(npc.id)}
+                    className={`absolute bottom-8 -translate-x-1/2 flex flex-col items-center cursor-pointer group transition-all duration-300 ${
+                      isOutOfRange ? 'opacity-40 grayscale-[40%]' : 'opacity-100'
+                    }`}
+                  >
+                    {/* Authentic Roblox Speech Bubble */}
+                    {bubble && (
+                      <div className="absolute -top-24 z-30 pointer-events-none transition-all duration-200 animate-in fade-in zoom-in-90 slide-in-from-bottom-2">
+                        <div className="relative bg-white text-stone-900 border border-stone-200/90 rounded-2xl px-3.5 py-2 shadow-2xl min-w-[130px] max-w-[210px] text-center filter drop-shadow-xl">
+                          {/* Bubble Header */}
+                          <div className="flex items-center justify-center gap-1.5 mb-1 pb-1 border-b border-stone-100">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-wider text-stone-700 truncate max-w-[90px]">
+                              {bubble.speakerName}
+                            </span>
+                            <span className="text-[9px] font-mono text-stone-500 bg-stone-100 px-1 py-0.2 rounded border border-stone-200">
+                              {bubble.studDistance}m
+                            </span>
+                          </div>
+                          {/* Spoken Text */}
+                          <div className="text-xs font-bold font-sans text-stone-950 leading-snug break-words">
+                            {bubble.text}
+                          </div>
+                          {/* Downward Pointer Tail */}
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-t-[9px] border-t-white -mt-[1px]" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Avatar Model with Animation */}
+                    <div
+                      className={`transition-transform duration-300 ${
+                        anim === 'dance'
+                          ? 'animate-bounce'
+                          : anim === 'wave'
+                          ? 'rotate-3 -translate-y-1'
+                          : anim === 'jump'
+                          ? '-translate-y-3'
+                          : anim === 'oof'
+                          ? 'rotate-90 translate-y-4 opacity-75'
+                          : 'hover:scale-105'
+                      }`}
+                    >
+                      <CharacterAvatar
+                        character={npc.avatar}
+                        size="md"
+                        isWalking={anim === 'dance'}
+                        isTalking={Boolean(bubble)}
+                        showName={false}
+                      />
+                    </div>
+
+                    {/* Floor Shadow on Baseplate */}
+                    <div className="w-14 h-3 bg-black/60 rounded-full blur-[2px] mt-1" />
+
+                    {/* Name & Stud Distance Tag */}
+                    <div className="mt-1 flex flex-col items-center">
+                      <span className="text-[10px] font-bold text-white bg-black/70 px-2 py-0.5 rounded-md border border-white/10 group-hover:border-cyan-400 transition whitespace-nowrap shadow">
+                        {npc.name}
+                      </span>
+                      <span className="text-[9px] text-stone-400 font-mono">
+                        {npc.studDistance} studs
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* ================= PLAYER'S AVATAR (CENTER: 0 STUDS) ================= */}
+              {(() => {
+                const playerBubble = activeChatBubbles['player'];
+                const playerAnim = stagePlayerAnims['player'];
+
+                return (
+                  <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center">
+                    {/* Player Speech Bubble */}
+                    {playerBubble && (
+                      <div className="absolute -top-24 z-30 pointer-events-none transition-all duration-200 animate-in fade-in zoom-in-90 slide-in-from-bottom-2">
+                        <div className="relative bg-white text-stone-900 border-2 border-cyan-400 rounded-2xl px-3.5 py-2 shadow-2xl min-w-[140px] max-w-[220px] text-center filter drop-shadow-2xl">
+                          <div className="flex items-center justify-center gap-1.5 mb-1 pb-1 border-b border-stone-100">
+                            <span className="w-2 h-2 rounded-full bg-cyan-500 animate-ping" />
+                            <span className="text-[10px] font-black uppercase tracking-wider text-cyan-700">
+                              {playerBubble.speakerName} (YOU)
+                            </span>
+                            <span className="text-[9px] font-mono text-cyan-600 bg-cyan-50 px-1 py-0.2 rounded border border-cyan-200">
+                              Local
+                            </span>
+                          </div>
+                          <div className="text-xs font-bold font-sans text-stone-950 leading-snug break-words">
+                            {playerBubble.text}
+                          </div>
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[7px] border-l-transparent border-r-[7px] border-r-transparent border-t-[9px] border-t-white -mt-[1px]" />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Golden Beacon Ground Ring for Player */}
+                    <div className="absolute -bottom-1 w-20 h-6 rounded-full border-2 border-yellow-400/80 bg-yellow-500/10 shadow-[0_0_15px_rgba(250,204,21,0.5)] animate-pulse" />
+
+                    {/* Player Model */}
+                    <div
+                      className={`transition-transform duration-300 ${
+                        playerAnim === 'dance' || playerAnim === 'dance2'
+                          ? 'animate-bounce'
+                          : playerAnim === 'wave'
+                          ? '-translate-y-2 rotate-2'
+                          : playerAnim === 'jump'
+                          ? '-translate-y-4'
+                          : playerAnim === 'oof'
+                          ? 'rotate-90 translate-y-4 opacity-75'
+                          : ''
+                      }`}
+                    >
+                      <CharacterAvatar
+                        character={activeRobloxChar || ROBLOX_PRESET_AVATARS[0]}
+                        size="lg"
+                        isWalking={avatarPreviewWalk || playerAnim === 'dance'}
+                        isSprinting={avatarPreviewSprint}
+                        isTalking={Boolean(playerBubble)}
+                        showName={false}
+                      />
+                    </div>
+
+                    {/* Floor Shadow */}
+                    <div className="w-16 h-3.5 bg-black/70 rounded-full blur-[2px] mt-1" />
+
+                    {/* Player Tag */}
+                    <div className="mt-1 flex flex-col items-center">
+                      <span className="text-[11px] font-black text-yellow-300 bg-black/80 px-2.5 py-0.5 rounded-md border-2 border-yellow-400/80 shadow">
+                        ★ {activeRobloxChar?.name || 'You'} (YOU) ★
+                      </span>
+                      <span className="text-[9px] text-cyan-400 font-mono font-bold">
+                        Center Stage (0m)
+                      </span>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+
+          {/* ================= CHAT INPUT & QUICK COMMANDS BAR ================= */}
+          <div className="bg-[#232527] rounded-3xl p-4 sm:p-5 border border-[#393B3D] shadow-lg flex flex-col gap-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Smile size={16} className="text-yellow-400" />
+                <span>Roblox Emotes Bar & Localized Chat Input</span>
+              </h3>
+              <span className="text-[11px] text-stone-400">
+                Click any emote below to trigger multi-avatar localized speech bubbles!
+              </span>
+            </div>
+
+            {/* Custom Chat Input Box */}
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleSendCustomChat(chatInputText);
+              }}
+              className="flex items-center gap-2 bg-[#191B1D] rounded-2xl p-1.5 border border-[#393B3D] focus-within:border-cyan-400 transition"
+            >
+              <div className="pl-3 text-cyan-400">
+                <MessageSquare size={16} />
+              </div>
+              <input
+                type="text"
+                value={chatInputText}
+                onChange={e => setChatInputText(e.target.value)}
+                placeholder="Type /e dance, /e wave or say something in local proximity chat..."
+                className="flex-1 bg-transparent border-none text-white text-xs font-mono px-2 py-1.5 focus:outline-none placeholder:text-stone-500"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow"
+              >
+                <Send size={13} />
+                <span>Send</span>
+              </button>
+            </form>
+
+            {/* Quick Dialogue Pills */}
+            <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+              <span className="text-stone-400 text-[10px] font-bold uppercase mr-1">
+                Quick Phrases:
+              </span>
+              {[
+                'Hello everyone! 👋',
+                'Anyone want to play Tower Obby? 🏃',
+                'CAN I HAZ CHEEZBURGER PLZ 🍔',
+                'Nice avatar! ✨',
+                'GG WP squad! 🏆',
+              ].map(phrase => (
+                <button
+                  key={phrase}
+                  type="button"
+                  onClick={() => handleSendCustomChat(phrase)}
+                  className="px-2.5 py-1 rounded-lg bg-[#191B1D] hover:bg-stone-800 text-stone-300 hover:text-white border border-[#393B3D] transition text-[10px] cursor-pointer"
+                >
+                  {phrase}
+                </button>
+              ))}
+            </div>
+
+            {/* 11 Classic Roblox Emotes Palette */}
+            <div className="pt-2 border-t border-[#393B3D]">
+              <div className="text-[11px] text-stone-400 uppercase font-bold mb-2">
+                Classic Roblox Emote Commands:
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                {[
+                  { cmd: '/e dance', name: '💃 /e dance', sound: 'badge' },
+                  { cmd: '/e dance2', name: '🕺 /e dance2', sound: 'badge' },
+                  { cmd: '/e wave', name: '👋 /e wave', sound: 'click' },
+                  { cmd: '/e point', name: '👉 /e point', sound: 'click' },
+                  { cmd: '/e cheer', name: '🎉 /e cheer', sound: 'badge' },
+                  { cmd: '/e laugh', name: '😂 /e laugh', sound: 'cheezburger' },
+                  { cmd: '/e salute', name: '🫡 /e salute', sound: 'click' },
+                  { cmd: '/e shrug', name: '🤷 /e shrug', sound: 'click' },
+                  { cmd: '/e oof', name: '💀 /e oof', sound: 'oof' },
+                  { cmd: '/e flex', name: '💪 /e flex', sound: 'speed' },
+                  { cmd: '/e tilt', name: '🌀 /e tilt', sound: 'click' },
+                ].map(emote => (
+                  <button
+                    key={emote.cmd}
+                    onClick={() => triggerEmoteChat(emote.cmd, undefined, emote.sound)}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold border transition cursor-pointer shadow flex items-center gap-1.5 ${
+                      activeEmote === emote.cmd
+                        ? 'bg-emerald-600 text-white border-emerald-400 animate-pulse'
+                        : 'bg-[#191B1D] text-stone-300 border-[#393B3D] hover:border-emerald-500 hover:text-white'
+                    }`}
+                  >
+                    <span>{emote.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ================= PROCEDURAL AUDIO SOUNDBOARD GRID ================= */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <Volume2 size={16} className="text-cyan-400" />
+                <span>Procedural Soundboard Grid (with Companion Chat Bubbles)</span>
+              </h3>
+              <span className="text-[11px] text-stone-400">
+                Clicking any sound plays procedural Web Audio and triggers localized NPC chat!
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              {[
+                { id: 'oof', name: '💀 OOF! (Classic Grunt)', desc: 'The legendary death sound', color: 'hover:border-red-500' },
+                { id: 'sword', name: '⚔️ Linked Sword', desc: 'Classic metal schwing slash', color: 'hover:border-cyan-500' },
+                { id: 'cola', name: '🥤 Bloxy Cola', desc: 'Slurp & fizzy can crack', color: 'hover:border-amber-500' },
+                { id: 'cheezburger', name: '🍔 Cheezburger!', desc: 'Mmm... Cheezburger crunch', color: 'hover:border-yellow-500' },
+                { id: 'coil', name: '🌀 Gravity Coil', desc: 'High springy bouncy wobble', color: 'hover:border-blue-500' },
+                { id: 'speed', name: '⚡ Speed Coil', desc: 'High frequency revving hum', color: 'hover:border-purple-500' },
+                { id: 'rocket', name: '🚀 Rocket Launcher', desc: 'Sub-bass explosive boom', color: 'hover:border-orange-500' },
+                { id: 'badge', name: '🏆 Badge Awarded', desc: 'Four-note victory arpeggio', color: 'hover:border-emerald-500' },
+              ].map(sound => (
+                <button
+                  key={sound.id}
+                  onClick={() => triggerSoundWithChat(sound.id, sound.name)}
+                  className={`p-4 rounded-2xl bg-[#232527] border-2 border-[#393B3D] ${sound.color} shadow-lg transition active:scale-95 text-left flex flex-col justify-between cursor-pointer group`}
+                >
+                  <div className="text-sm font-bold text-white group-hover:text-yellow-300 transition">
+                    {sound.name}
+                  </div>
+                  <div className="text-[11px] text-stone-400 mt-2 leading-tight">
+                    {sound.desc}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between text-[10px] text-cyan-400 font-bold uppercase">
+                    <span>▶ Play + Chat</span>
+                    <span>🔊</span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -2130,6 +3413,168 @@ export default function RobloxApp({
                   </div>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= SOCIAL MEDIA-READY PREVIEW MODAL ================= */}
+      {sharedPreviewData && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto"
+          onClick={() => setSharedPreviewData(null)}
+        >
+          <div 
+            className="bg-[#1e2022] border-2 border-purple-500/50 rounded-3xl max-w-xl w-full p-6 shadow-2xl relative font-mono text-white animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Toast Feedback within Modal */}
+            {copiedToast && (
+              <div className="absolute top-4 right-14 bg-emerald-500 text-black text-xs font-bold px-3 py-1.5 rounded-xl shadow-lg border border-emerald-300 animate-bounce flex items-center gap-1.5 z-20">
+                <span>✓</span>
+                <span>{copiedToast}</span>
+              </div>
+            )}
+
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-stone-700">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-xl shadow-md">
+                  <Share2 size={20} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-black tracking-tight text-white flex items-center gap-2">
+                    Social Media-Ready Card Generated!
+                  </h3>
+                  <p className="text-xs text-purple-300">
+                    Published to Community Dashboard & ready for social sharing
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSharedPreviewData(null)}
+                className="p-2 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white transition cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Social Card Visual Mockup (16:9 Aspect Ratio) */}
+            <div className="my-5 rounded-2xl overflow-hidden border-2 border-stone-700 shadow-2xl bg-[#141517] relative group">
+              {/* Banner with gradient & dot grid */}
+              <div className={`w-full min-h-[175px] bg-gradient-to-r ${sharedPreviewData.game.bannerGradient || 'from-indigo-900 to-slate-900'} p-4 relative flex flex-col justify-between overflow-hidden`}>
+                <div 
+                  className="absolute inset-0 opacity-20 pointer-events-none"
+                  style={{
+                    backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
+                    backgroundSize: '16px 16px'
+                  }}
+                />
+
+                {/* Top strip */}
+                <div className="relative z-10 flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    {sharedPreviewData.game.badge && (
+                      <span className="text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider bg-amber-400 text-black shadow font-mono">
+                        {sharedPreviewData.game.badge}
+                      </span>
+                    )}
+                    <span className="text-[10px] font-mono text-stone-200 bg-black/60 px-2.5 py-0.5 rounded-full border border-white/10">
+                      {sharedPreviewData.game.category}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-black/70 px-2.5 py-0.5 rounded-full border border-white/15 text-[10px] text-cyan-300 font-mono">
+                    <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                    <span>ROBLOX MULTIVERSE</span>
+                  </div>
+                </div>
+
+                {/* Center Info */}
+                <div className="relative z-10 flex items-center gap-3.5 my-auto">
+                  <div className="w-16 h-16 rounded-2xl bg-black/60 border-2 border-white/30 flex items-center justify-center text-4xl shadow-2xl filter drop-shadow">
+                    {sharedPreviewData.game.emoji}
+                  </div>
+                  <div>
+                    <h4 className="text-xl font-black text-white drop-shadow font-mono">
+                      {sharedPreviewData.game.name}
+                    </h4>
+                    <div className="text-xs text-stone-200 font-mono flex items-center gap-2.5 mt-1 flex-wrap">
+                      <span className="text-emerald-300 font-bold">👥 {sharedPreviewData.game.playerCount} Playing Now</span>
+                      <span>•</span>
+                      <span className="text-amber-300 font-bold">⭐ {sharedPreviewData.game.rating} Approval</span>
+                      <span>•</span>
+                      <span className="text-stone-300">🏷️ {sharedPreviewData.game.genre}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Watermark bar */}
+                <div className="relative z-10 flex items-center justify-between text-[10px] text-stone-300 bg-black/40 px-2.5 py-1 rounded-lg backdrop-blur-xs">
+                  <span className="truncate max-w-[340px]">{sharedPreviewData.game.description}</span>
+                  <span className="text-stone-400 font-mono">roblox.megaworld-rp.internal</span>
+                </div>
+              </div>
+
+              {/* OpenGraph Metadata Simulation Bar */}
+              <div className="bg-[#191b1d] p-3 border-t border-stone-800 text-xs font-mono space-y-1 text-stone-300">
+                <div className="flex items-center justify-between text-[10.5px] text-stone-400 border-b border-stone-800 pb-1.5">
+                  <span className="text-cyan-300 flex items-center gap-1 font-bold">
+                    <ExternalLink size={12} />
+                    <span>OpenGraph Social Media Tags</span>
+                  </span>
+                  <span className="text-emerald-400 font-bold">✓ Synced to Community Feed</span>
+                </div>
+                <div className="pt-1 text-[11px] grid grid-cols-1 gap-1 text-stone-300">
+                  <div><span className="text-purple-400 font-bold">og:title:</span> {sharedPreviewData.game.name}</div>
+                  <div className="text-stone-400 truncate"><span className="text-purple-400 font-bold">og:description:</span> {sharedPreviewData.game.description}</div>
+                  <div className="text-stone-400 truncate"><span className="text-purple-400 font-bold">og:url:</span> https://roblox.megaworld-rp.internal/experience/{sharedPreviewData.game.id}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons Row */}
+            <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const url = `https://roblox.megaworld-rp.internal/experience/${sharedPreviewData.game.id}`;
+                  navigator.clipboard?.writeText(url);
+                  setCopiedToast('Share URL copied!');
+                  setTimeout(() => setCopiedToast(null), 2500);
+                }}
+                className="flex-1 w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-mono text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow active:scale-95"
+              >
+                <Copy size={13} />
+                <span>Copy Social Link</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const caption = `🎮 Check out "${sharedPreviewData.game.name}" in the MegaWorld Roblox Multiverse! 👥 ${sharedPreviewData.game.playerCount} adventurers active • Rating: ${sharedPreviewData.game.rating} 👍 Play here: https://roblox.megaworld-rp.internal/experience/${sharedPreviewData.game.id} #Roblox #MegaWorldRP`;
+                  navigator.clipboard?.writeText(caption);
+                  setCopiedToast('Caption & tags copied!');
+                  setTimeout(() => setCopiedToast(null), 2500);
+                }}
+                className="flex-1 w-full py-2.5 px-3 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-200 hover:text-white font-mono text-xs font-bold transition border border-stone-600 flex items-center justify-center gap-1.5 cursor-pointer shadow active:scale-95"
+              >
+                <Share2 size={13} className="text-purple-300" />
+                <span>Copy Post Caption</span>
+              </button>
+
+              {onOpenCommunityDashboard && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSharedPreviewData(null);
+                    onOpenCommunityDashboard();
+                  }}
+                  className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-mono text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer shadow active:scale-95"
+                >
+                  <span>🌐 View in Feed</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -3071,18 +4516,18 @@ function RobloxVerityRPMiniGame({
       {/* Game Header Bar */}
       <div className="flex items-center justify-between flex-wrap gap-3 border-b border-purple-500/30 pb-3">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-700 via-indigo-600 to-amber-400 p-0.5 shadow-[0_0_15px_rgba(168,85,247,0.5)] flex items-center justify-center">
-            <span className="text-2xl animate-spin" style={{ animationDuration: '8s' }}>✨</span>
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-red-600 via-emerald-600 to-amber-400 p-0.5 shadow-[0_0_15px_rgba(239,68,68,0.5)] flex items-center justify-center">
+            <span className="text-2xl animate-spin" style={{ animationDuration: '8s' }}>🎅</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-lg font-black text-white">Sprunki 3D RP: The Verity Update</h3>
-              <span className="text-[10px] bg-amber-400 text-black px-2 py-0.5 rounded-full font-black animate-pulse">
-                v1.7 OFFICIAL
+              <h3 className="text-lg font-black text-white">Sprunki 3D RP: Christmas Holiday Update</h3>
+              <span className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded-full font-black animate-pulse">
+                CHRISTMAS OFFICIAL
               </span>
             </div>
-            <p className="text-xs text-purple-300">
-              👥 92,450 Playing • ⭐ 98.2% Likes • By Sprunki Team RP
+            <p className="text-xs text-emerald-300">
+              👥 95,800 Playing • ⭐ 99.1% Likes • By Sprunki Christmas Team
             </p>
           </div>
         </div>
@@ -3296,7 +4741,7 @@ function RobloxVerityRPMiniGame({
       {/* Badges Earned Strip */}
       <div className="bg-[#111214] p-3 rounded-xl border border-stone-800 flex items-center justify-between flex-wrap gap-2">
         <span className="text-xs font-bold text-stone-300 flex items-center gap-1.5">
-          <span>🏆</span> Verity Update Badges ({unlockedBadges.length}/4):
+          <span>🏆</span> Holiday & Celestial Badges ({unlockedBadges.length}/4):
         </span>
         <div className="flex gap-2 flex-wrap">
           {[

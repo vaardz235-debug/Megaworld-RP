@@ -75,6 +75,19 @@ export function getBiomeForX(worldX: number): BiomeInfo {
     };
   }
 
+  // 5. Sodor International Airport & Supersonic Runway (Jeremy / Steremy Hub)
+  if (absX >= 392 && absX <= 415) {
+    return {
+      id: 'sodor_airport',
+      name: '✈️ Sodor International Airport & Runway (Jeremy / Steremy)',
+      icon: '🛫',
+      surfaceBlock: 'stone',
+      subsurfaceBlock: 'obsidian',
+      deepBlock: 'netherite',
+      isSpecial: true,
+    };
+  }
+
   // Natural cycling biomes across the infinite procedural landscape
   const cycleIndex = Math.floor(absX / 30) % 6;
   switch (cycleIndex) {
@@ -159,7 +172,10 @@ export function generateColumnBlocks(worldX: number, rows: number = 50): string[
 
   // Surface height formula
   let surfaceY = 6;
-  if (biome.id === 'far_lands') {
+  if (biome.id === 'sodor_airport') {
+    // Perfectly level supersonic airstrip tarmac
+    surfaceY = 6;
+  } else if (biome.id === 'far_lands') {
     // Wild swiss-cheese distortion in the Far Lands
     surfaceY = 5 + Math.floor(Math.sin(worldX * 0.45) * 4);
   } else if (biome.id === 'universe_horizon') {
@@ -216,8 +232,17 @@ export function generateColumnBlocks(worldX: number, rows: number = 50): string[
     }
   }
 
-  // Foliage decorations: Trees, Mushrooms, Cacti, Flowers
-  if (biome.hasTrees && worldX % 6 === 0 && surfaceY >= 4) {
+  // Foliage & Runway decorations: Trees, Mushrooms, Cacti, Flowers, Runway Lights
+  if (biome.id === 'sodor_airport') {
+    // Sodor Airport Runway edge lights & launch pad
+    if (worldX % 3 === 0 && surfaceY >= 1) {
+      column[surfaceY - 1] = 'glowstone'; // Bright runway beacon light
+    }
+    if (Math.abs(worldX) === 400 && surfaceY >= 2) {
+      column[surfaceY - 1] = 'repeating_command_block'; // Supersonic launch pad
+      column[surfaceY - 2] = 'torch';
+    }
+  } else if (biome.hasTrees && worldX % 6 === 0 && surfaceY >= 4) {
     column[surfaceY - 1] = 'tree';
     column[surfaceY - 2] = 'tree';
     column[surfaceY - 3] = 'leaves';

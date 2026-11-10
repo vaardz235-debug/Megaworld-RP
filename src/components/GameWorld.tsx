@@ -24,6 +24,7 @@ import { speechEngine } from '../utils/speechEngine';
 import SettingsModal from './SettingsModal';
 import { voiceChatEngine } from '../utils/voiceChatEngine';
 import { avatarManager, ORIGIN_EMOTES_CATALOG, CHARACTER_CLASSES } from '../utils/avatarManager';
+import { dailyMissionManager } from '../utils/dailyMissionManager';
 import ThreeVoxelWorld from './ThreeVoxelWorld';
 import CommandBlockModal from './CommandBlockModal';
 import UniverseWarpModal from './UniverseWarpModal';
@@ -36,6 +37,23 @@ import {
   MIN_WORLD_COORDINATE 
 } from '../utils/commandEngine';
 import { getBiomeForX, generateColumnBlocks } from '../utils/proceduralWorld';
+import { WorldPlayer, INITIAL_ONLINE_PLAYERS, updateSimulatedPlayers } from '../utils/multiplayerPlayers';
+import MultiplayerScoreboardModal from './MultiplayerScoreboardModal';
+import PlayerInteractionModal from './PlayerInteractionModal';
+import MiniMapRadar from './MiniMapRadar';
+import BossRaidHUD from './BossRaidHUD';
+import VehicleMountHUD from './VehicleMountHUD';
+import CompanionPetModal from './CompanionPetModal';
+import VehicleGarageModal from './VehicleGarageModal';
+import BossRaidSummonModal from './BossRaidSummonModal';
+import { vehicleManager } from '../utils/vehicleManager';
+import { bossRaidManager } from '../utils/bossRaidManager';
+import { petCompanionManager } from '../utils/petCompanionManager';
+import ChristmasMegaModal from './ChristmasMegaModal';
+import BrandHubModal from './BrandHubModal';
+import CountryballCreatorModal from './CountryballCreatorModal';
+import ProgressionModal from './ProgressionModal';
+import { progressionManager } from '../utils/progressionManager';
 
 const rows = 50;
 const cols = 90;
@@ -113,6 +131,53 @@ export const BLOCK_LOOT_INFO: Record<string, BlockDetailMetadata> = {
   command_block: { label: '+1 Impulse Command Block', icon: '🟧', color: '#c47037', tool: 'Hand / Creative', hardness: 'Indestructible', lightLevel: 1, description: 'Programmable console block that executes server-grade Minecraft commands on pulse activation.' },
   chain_command_block: { label: '+1 Chain Command Block', icon: '🟩', color: '#3b846e', tool: 'Hand / Creative', hardness: 'Indestructible', lightLevel: 1, description: 'Cascading command block that executes sequentially when connected to another triggering block.' },
   repeating_command_block: { label: '+1 Repeating Command Block', icon: '🟪', color: '#6a4697', tool: 'Hand / Creative', hardness: 'Indestructible', lightLevel: 2, description: 'Continuous looping command block executing commands every tick while powered or always active.' },
+  carved_pumpkin: { label: '+1 Carved Pumpkin', icon: '🎃', color: '#ea580c', tool: 'Axe / Shear', hardness: 'Medium', lightLevel: 0, description: 'Harvested orange squash carved with a spooky face.' },
+  jack_o_lantern: { label: '+1 Jack-o\'-Lantern', icon: '🏮', color: '#f97316', tool: 'Axe', hardness: 'Medium', lightLevel: 15, description: 'Carved pumpkin illuminated with a blazing torch, glowing at light level 15!' },
+  candy_corn: { label: '+1 Candy Corn', icon: '🍬', color: '#f59e0b', tool: 'Hand', hardness: 'Soft', lightLevel: 0, description: 'Sweet three-layered Halloween confection that restores hunger and grants speed!' },
+  reaper_scythe: { label: '+1 Reaper Scythe', icon: '🗡️', color: '#475569', tool: 'Hand', hardness: 'Hard', lightLevel: 0, description: 'Spectral dark blade forged for harvesting souls and clearing spooky foliage.' },
+  witch_cauldron: { label: '+1 Witch\'s Cauldron', icon: '🧙', color: '#166534', tool: 'Pickaxe', hardness: 'Hard', lightLevel: 4, description: 'Cast-iron bubbling cauldron filled with glowing green bewitched brew.' },
+  spooky_cobweb: { label: '+1 Spooky Cobweb', icon: '🕸️', color: '#e2e8f0', tool: 'Shears / Sword', hardness: 'Soft', lightLevel: 0, description: 'Sticky ghost spider silk that slows down walking entities.' },
+  tombstone: { label: '+1 Catacomb Tombstone', icon: '🪦', color: '#64748b', tool: 'Pickaxe', hardness: 'Hard', lightLevel: 0, description: 'Weathered granite gravestone inscribed with ancient epitaph runes.' },
+  ghost_lantern: { label: '+1 Ghost Wisp Lantern', icon: '👻', color: '#a855f7', tool: 'Hand / Any', hardness: 'Fragile', lightLevel: 12, description: 'Ethereal purple lantern containing a friendly dancing spirit wisp.' },
+  trick_or_treat_bag: { label: '+1 Trick-or-Treat Bag', icon: '🛍️', color: '#9333ea', tool: 'Hand', hardness: 'Soft', lightLevel: 0, description: 'Festive canvas loot bag filled with assorted sugary festive goodies!' },
+  sprunki_sword: { label: "Sprunki's Sword of Friendship", icon: '⚔️', color: '#ec4899', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 4, description: 'Infused with resonant beatbox energy (+14 Attack, plays musical chords on strikes).' },
+  sprunki_headphones: { label: 'Sprunki DJ Headphones', icon: '🎧', color: '#8b5cf6', tool: 'Armor', hardness: 'Armor', lightLevel: 2, description: 'Pro studio headset tuned to 128 BPM (+20 Max Mana & Bass Drop pulse).' },
+  new_world_boots: { label: "New World Explorer's Boots", icon: '🥾', color: '#16a34a', tool: 'Armor', hardness: 'Armor', lightLevel: 0, description: 'Rugged leather trail boots granting +40% traversal speed and feather falling.' },
+  new_world_satchel: { label: 'New World Harvest Satchel', icon: '🎒', color: '#ca8a04', tool: 'Bag', hardness: 'Soft', lightLevel: 0, description: 'Expansive gathering pouch doubling harvest yields from foliage and crops.' },
+  mcdonalds_spatula: { label: 'Golden Arches Battle Spatula', icon: '🍳', color: '#eab308', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 2, description: 'Legendary grill flipper searing enemies with flame sizzle (+12 Attack).' },
+  grimace_shake: { label: 'Cosmic Grimace Elixir', icon: '🥤', color: '#9333ea', tool: 'Consumable', hardness: 'Soft', lightLevel: 5, description: 'Mystical cosmic purple shake granting full health restore and cosmic aura.' },
+  blox_hyper_sword: { label: 'Bloxian Linked Hyper-Sword', icon: '🗡️', color: '#ef4444', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 4, description: 'Classic Roblox linked blade (+16 Attack, plays nostalgic slash and OOF audio).' },
+  gravity_coil_rig: { label: 'Master Gravity Coil Jump Rig', icon: '🌀', color: '#3b82f6', tool: 'Gear', hardness: 'Artifact', lightLevel: 3, description: 'Spring-loaded quantum coil rig boosting jump height by 2.2x with zero fall damage.' },
+  youtube_shield: { label: 'Diamond Play Button Aegis', icon: '🛡️', color: '#06b6d4', tool: 'Shield', hardness: 'Artifact', lightLevel: 6, description: '10M Subscriber creator shield parrying incoming attacks with blinding flash.' },
+  streamer_mic: { label: 'Studio Condenser Mic Wand', icon: '🎙️', color: '#ec4899', tool: 'Hand / Magic', hardness: 'Artifact', lightLevel: 3, description: 'Broadcast microphone inspiring nearby players with viral engagement aura.' },
+  oggy_swatter: { label: "Oggy's Colossal Flyswatter", icon: '🏸', color: '#3b82f6', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 0, description: 'Giant slap weapon knocking back pests and hostile mobs.' },
+  bp_jetpack: { label: 'BP High-Octane Fuel Jetpack', icon: '🚀', color: '#15803d', tool: 'Gear', hardness: 'Artifact', lightLevel: 4, description: 'High-octane thruster rig enabling continuous hovering burst jump.' },
+  poland_helmet: { label: 'Polandball Space Pioneer Helmet', icon: '🧑‍🚀', color: '#e11d48', tool: 'Armor', hardness: 'Armor', lightLevel: 2, description: 'Aeronautical dome helmet allowing survival in lunar void conditions.' },
+
+  // 🎄 Christmas & Brand Multiverse Items
+  candy_cane_blade: { label: '+1 Peppermint Candy Cane Blade', icon: '🍭', color: '#ef4444', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 5, description: 'Festive sugar-forged rapier that slices enemies with minty peppermint frost bursts (+18 Attack).' },
+  santa_gift_box: { label: '+1 Santa Holiday Surprise Gift', icon: '🎁', color: '#dc2626', tool: 'Hand / Any', hardness: 'Soft', lightLevel: 4, description: 'Festive red parcel wrapped with gold ribbon that drops rare emeralds, diamonds, and holiday treats when opened!' },
+  gingerbread_shield: { label: '+1 Frosted Gingerbread Aegis', icon: '🍪', color: '#b45309', tool: 'Shield', hardness: 'Artifact', lightLevel: 2, description: 'Crispy cinnamon-baked holiday shield decorated with royal icing that parries attacks with sweet holiday crumbs.' },
+  peppermint_pickaxe: { label: '+1 Peppermint Silk Pickaxe', icon: '⛏️', color: '#f43f5e', tool: 'Pickaxe', hardness: 'Artifact', lightLevel: 3, description: 'Holiday mining pickaxe carved from candy cane crystal that mines blocks instantly with Silk Touch precision.' },
+  aurora_snowglobe: { label: '+1 Northern Aurora Snowglobe', icon: '🔮', color: '#06b6d4', tool: 'Hand / Magic', hardness: 'Artifact', lightLevel: 12, description: 'Enchanted glass sphere containing swirling cosmic snow that summons the celestial Aurora Borealis weather.' },
+  nutcracker_musket: { label: '+1 Nutcracker Toy Blaster', icon: '🎺', color: '#eab308', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 2, description: 'Polished wooden clockwork rifle firing explosive holiday chestnuts at distant foes (+16 Ranged Attack).' },
+  polar_star_wand: { label: '+1 North Pole Polaris Star Wand', icon: '⭐', color: '#fef08a', tool: 'Hand / Magic', hardness: 'Artifact', lightLevel: 15, description: 'Radiant five-pointed golden star wand illuminating dark caves at maximum level 15 brilliance.' },
+  holiday_hot_cocoa: { label: '+1 Steaming Holiday Hot Cocoa', icon: '☕', color: '#78350f', tool: 'Consumable', hardness: 'Soft', lightLevel: 1, description: 'Rich Dutch chocolate with melted marshmallows granting instant 100% health restore and +35% warm sprint boost.' },
+  reindeer_bell: { label: '+1 Golden Reindeer Harness Bell', icon: '🔔', color: '#fbbf24', tool: 'Gear', hardness: 'Artifact', lightLevel: 3, description: 'Harmonic sleigh bell that grants the player temporary Rudolph flight speed bursts when activated.' },
+  frostmourne_icicle: { label: '+1 Glacier Frost Dagger', icon: '🗡️', color: '#38bdf8', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 4, description: 'Sub-zero glacier shard blade that freezes hit targets solid for 3 seconds.' },
+  christmas_wreath: { label: '+1 Holiday Pine Wreath', icon: '🎄', color: '#15803d', tool: 'Hand / Any', hardness: 'Fragile', lightLevel: 4, description: 'Aromatic pine branch wreath decorated with crimson berries and golden bells to hang on doors.' },
+  festive_light_string: { label: '+1 Multicolour Twinkle Lights', icon: '💡', color: '#10b981', tool: 'Hand / Any', hardness: 'Fragile', lightLevel: 14, description: 'String of 50 animated rainbow fairy lights that brighten up player buildings.' },
+  mistletoe_charm: { label: '+1 Mistletoe Friendship Charm', icon: '🌿', color: '#22c55e', tool: 'Hand / Trinket', hardness: 'Artifact', lightLevel: 2, description: 'Enchanted sprig of mistletoe that pacifies hostile mobs within a 12-block radius.' },
+  winter_festive_tree: { label: '+1 Decorated Holiday Pine Tree', icon: '🎄', color: '#166534', tool: 'Axe / Hand', hardness: 'Medium', lightLevel: 10, description: 'Grand Christmas spruce tree adorned with shiny glass baubles, silver tinsel, and a glowing star topper.' },
+  eggnog_potion: { label: '+1 Spiced Holiday Eggnog', icon: '🥛', color: '#fef3c7', tool: 'Consumable', hardness: 'Soft', lightLevel: 0, description: 'Festive nutmeg brew restoring 50 Health and granting Health Regeneration III for 60 seconds.' },
+  tarragower_chronicle: { label: '+1 Tarragower Master Chronicle', icon: '📜', color: '#4338ca', tool: 'Book / Magic', hardness: 'Artifact', lightLevel: 3, description: 'Gilded leather tome chronicling the complete history, cartography, and arcane secrets of all 13 brand realms.' },
+  bp_solar_snowblower: { label: '+1 BP Solar Thermal Snowblower', icon: '🔋', color: '#059669', tool: 'Hand / Tool', hardness: 'Artifact', lightLevel: 8, description: 'High-power photon thermal blaster that instantly melts snow and ice blocks into fresh spring water.' },
+  mcdonalds_festive_burger: { label: '+1 Holiday Mega Feast Burger', icon: '🍔', color: '#ea580c', tool: 'Consumable', hardness: 'Soft', lightLevel: 1, description: 'Legendary triple-decker holiday burger served with golden fries that grants permanent saturation and strength.' },
+  youtube_ruby_play: { label: '+1 50M Ruby Creator Beacon', icon: '💎', color: '#e11d48', tool: 'Hand / Artifact', hardness: 'Artifact', lightLevel: 15, description: 'Ultra-exclusive 50M subscriber ruby plaque that shoots viral crimson beacon beams into the clouds.' },
+  newworld_gleamite_crystal: { label: '+1 Aeternum Gleamite Comet Shard', icon: '✨', color: '#a855f7', tool: 'Pickaxe / Hand', hardness: 'Hard', lightLevel: 11, description: 'Fallen celestial comet mineral harvested during the Winter Convergence that infuses weapons with astral power.' },
+  xilam_cartoon_spring: { label: '+1 Xilam Slapstick Bouncy Coil', icon: '🌀', color: '#2563eb', tool: 'Gear', hardness: 'Artifact', lightLevel: 0, description: 'Giant comical rubber coil that propels player or entities 25 blocks skyward with cartoon boing sound effects.' },
+  roblox_speed_coil_frost: { label: '+1 Frost Speed Coil V2', icon: '🔵', color: '#0284c7', tool: 'Gear', hardness: 'Artifact', lightLevel: 6, description: 'Upgraded winter quantum coil giving 3.5x hyper-sonic sprint velocity and ice trail particles.' },
+  netherite_frost_blade: { label: '+1 Permafrost Netherite Claymore', icon: '⚔️', color: '#1e293b', tool: 'Hand / Weapon', hardness: 'Weapon', lightLevel: 6, description: 'Forged from Netherite alloy quenched in Arctic glacier water (+22 Attack, strikes with frost lightning).' },
 };
 
 interface GameWorldProps {
@@ -123,6 +188,12 @@ interface GameWorldProps {
   onOpenRoblox?: () => void;
   onOpenProgression?: () => void;
   onOpenVoiceChat?: () => void;
+  onOpenDailyMissions?: () => void;
+  onOpenWorldMap?: () => void;
+  onOpenLegoWebsite?: () => void;
+  onOpenCountryballCreator?: () => void;
+  onOpenCommunityHubs?: () => void;
+  onOpenMiniGames?: () => void;
 }
 
 export default function GameWorld({ 
@@ -133,6 +204,12 @@ export default function GameWorld({
   onOpenRoblox,
   onOpenProgression,
   onOpenVoiceChat,
+  onOpenDailyMissions,
+  onOpenWorldMap,
+  onOpenLegoWebsite,
+  onOpenCountryballCreator,
+  onOpenCommunityHubs,
+  onOpenMiniGames,
 }: GameWorldProps) {
   const { playEffect, playAmbient } = useSound();
   const [isPauseMenuOpen, setIsPauseMenuOpen] = useState(false);
@@ -171,6 +248,34 @@ export default function GameWorld({
   const [showVerityShrineModal, setShowVerityShrineModal] = useState(false);
   const [truthXRayActive, setTruthXRayActive] = useState(false);
 
+  // Multiverse Enhancements: Radar, Pets, Mounts & Bosses
+  const [isRadarOpen, setIsRadarOpen] = useState(true);
+  const [isPetModalOpen, setIsPetModalOpen] = useState(false);
+  const [isGarageModalOpen, setIsGarageModalOpen] = useState(false);
+  const [isBossModalOpen, setIsBossModalOpen] = useState(false);
+  const [screenShake, setScreenShake] = useState(false);
+  const [mountedVehicleState, setMountedVehicleState] = useState(vehicleManager.getActiveVehicle());
+  const [activePetState, setActivePetState] = useState(petCompanionManager.getActivePet());
+
+  // 1,000 Christmas, Brand Hubs, Countryball & Progression Modals
+  const [isChristmasMegaModalOpen, setIsChristmasMegaModalOpen] = useState(false);
+  const [isBrandHubModalOpen, setIsBrandHubModalOpen] = useState(false);
+  const [isCountryballModalOpen, setIsCountryballModalOpen] = useState(false);
+  const [isProgressionModalOpen, setIsProgressionModalOpen] = useState(false);
+
+  useEffect(() => {
+    const unsubVeh = vehicleManager.subscribe(() => {
+      setMountedVehicleState(vehicleManager.getActiveVehicle());
+    });
+    const unsubPet = petCompanionManager.subscribe(() => {
+      setActivePetState(petCompanionManager.getActivePet());
+    });
+    return () => {
+      unsubVeh();
+      unsubPet();
+    };
+  }, []);
+
   // Player Inventory
   const [inventory, setInventory] = useState<Record<string, { count: number; durability?: number }>>({
     'grass': { count: 12 },
@@ -189,8 +294,27 @@ export default function GameWorld({
     'verity_musicbox': { count: 1 },
     'disc_verity': { count: 1 },
     'starlight_halo': { count: 1 },
+    'carved_pumpkin': { count: 8 },
+    'jack_o_lantern': { count: 8 },
+    'candy_corn': { count: 16 },
+    'reaper_scythe': { count: 1, durability: 100 },
+    'witch_cauldron': { count: 2 },
+    'spooky_cobweb': { count: 6 },
+    'tombstone': { count: 4 },
+    'trick_or_treat_bag': { count: 2 },
+    'candy_cane_blade': { count: 1, durability: 150 },
+    'santa_gift_box': { count: 3 },
+    'gingerbread_shield': { count: 1 },
+    'holiday_hot_cocoa': { count: 4 },
+    'peppermint_pickaxe': { count: 1, durability: 200 },
+    'festive_light_string': { count: 12 },
   });
   const [activeItem, setActiveItem] = useState('pickaxe');
+
+  // Simulated Multiplayer Players Server State (30 Active Players)
+  const [onlinePlayers, setOnlinePlayers] = useState<WorldPlayer[]>(INITIAL_ONLINE_PLAYERS);
+  const [showScoreboard, setShowScoreboard] = useState(false);
+  const [selectedPlayerToInteract, setSelectedPlayerToInteract] = useState<WorldPlayer | null>(null);
 
   // Survival Stats
   const [health, setHealth] = useState(100);
@@ -207,9 +331,9 @@ export default function GameWorld({
   const [followCamera, setFollowCamera] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
-  const walkTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const walkTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const keysDownRef = useRef<Set<string>>(new Set());
-  const activeHoldIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const activeHoldIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // 165 FPS High-Performance Engine State
   const [targetFps, setTargetFps] = useState<number>(165);
@@ -222,9 +346,9 @@ export default function GameWorld({
   const frameCountRef = useRef<number>(0);
   const fpsAccumulatorRef = useRef<number>(0);
 
-  // Weather Variety & Day/Night Cycle
-  const [weather, setWeather] = useState<'sunny' | 'rainy' | 'snowy' | 'stormy' | 'aurora' | 'bloodmoon'>('sunny');
-  const [timeOfDay, setTimeOfDay] = useState(20); // 0 to 100
+  // Weather Variety & Day/Night Cycle (Christmas Holiday Update: Default to Festive Snowy)
+  const [weather, setWeather] = useState<'sunny' | 'rainy' | 'snowy' | 'stormy' | 'aurora' | 'bloodmoon'>('snowy');
+  const [timeOfDay, setTimeOfDay] = useState(25); // 0 to 100
 
   // Character Speech & Dialogue State
   const [playerSpeechText, setPlayerSpeechText] = useState<string | null>(null);
@@ -559,16 +683,20 @@ export default function GameWorld({
   const [beatboxActive, setBeatboxActive] = useState(false);
   const [mcActionActive, setMcActionActive] = useState(false);
   const [roamingCharacters, setRoamingCharacters] = useState<RoamingCharacter[]>([
-    // All 10 Entities Roaming Ambassadors & Champions
-    { id: 251, x: 12, y: 5, avatar: { id: 701, name: 'Chief Tamati', type: 'custom', classArchetype: 'nz_rangatira', color: 'bg-emerald-800' } as any, isWalking: false },
-    { id: 252, x: 18, y: 6, avatar: { id: 5, name: 'Poland', type: 'countryball', color: 'bg-white' }, isWalking: true },
-    { id: 253, x: 30, y: 6, avatar: { id: 601, name: 'Oggy', type: 'xilam', subtype: 'oggy' } as any, isWalking: false },
-    { id: 254, x: 4, y: 6, avatar: { id: 501, name: 'Classic Noob', type: 'roblox', subtype: 'noob' }, isWalking: true },
-    { id: 255, x: 74, y: 6, avatar: { id: 702, name: 'Headmaster Tarragower', type: 'custom', classArchetype: 'tarragower_scholar', color: 'bg-indigo-700' } as any, isWalking: false },
-    { id: 256, x: 26, y: 6, avatar: { id: 703, name: 'Engineer Brenda', type: 'custom', classArchetype: 'bp_engineer', color: 'bg-emerald-600' } as any, isWalking: false },
-    { id: 257, x: 38, y: 6, avatar: { id: 704, name: 'Chef Ronald', type: 'custom', classArchetype: 'mcdonalds_crew', color: 'bg-red-600' } as any, isWalking: false },
-    { id: 258, x: 50, y: 6, avatar: { id: 705, name: 'Creator Nova', type: 'custom', classArchetype: 'youtube_streamer', color: 'bg-rose-600' } as any, isWalking: false },
-    { id: 259, x: 68, y: 6, avatar: { id: 706, name: 'Commander Adelyn', type: 'custom', classArchetype: 'newworld_conqueror', color: 'bg-amber-800' } as any, isWalking: false },
+    // All 10 Entities Roaming Ambassadors & Champions (Festive Christmas Holiday Costumes)
+    { id: 251, x: 12, y: 5, avatar: { id: 701, name: 'Chief Tamati', type: 'custom', classArchetype: 'nz_rangatira', color: 'bg-emerald-800', isChristmas: true, christmasCostume: 'santa' } as any, isWalking: false },
+    { id: 252, x: 18, y: 6, avatar: { id: 5, name: 'Poland', type: 'countryball', color: 'bg-white', isChristmas: true, christmasCostume: 'elf' }, isWalking: true },
+    { id: 253, x: 30, y: 6, avatar: { id: 601, name: 'Oggy', type: 'xilam', subtype: 'oggy', isChristmas: true, christmasCostume: 'reindeer' } as any, isWalking: false },
+    { id: 254, x: 4, y: 6, avatar: { id: 501, name: 'Classic Noob', type: 'roblox', subtype: 'noob', isChristmas: true, christmasCostume: 'santa' }, isWalking: true },
+    { id: 255, x: 74, y: 6, avatar: { id: 702, name: 'Headmaster Tarragower', type: 'custom', classArchetype: 'tarragower_scholar', color: 'bg-indigo-700', isChristmas: true, christmasCostume: 'elf' } as any, isWalking: false },
+    { id: 256, x: 26, y: 6, avatar: { id: 703, name: 'Engineer Brenda', type: 'custom', classArchetype: 'bp_engineer', color: 'bg-emerald-600', isChristmas: true, christmasCostume: 'tree' } as any, isWalking: false },
+    { id: 257, x: 38, y: 6, avatar: { id: 704, name: 'Chef Ronald', type: 'custom', classArchetype: 'mcdonalds_crew', color: 'bg-red-600', isChristmas: true, christmasCostume: 'gingerbread' } as any, isWalking: false },
+    { id: 258, x: 50, y: 6, avatar: { id: 705, name: 'Creator Nova', type: 'custom', classArchetype: 'youtube_streamer', color: 'bg-rose-600', isChristmas: true, christmasCostume: 'santa' } as any, isWalking: false },
+    { id: 259, x: 68, y: 6, avatar: { id: 706, name: 'Commander Adelyn', type: 'custom', classArchetype: 'newworld_conqueror', color: 'bg-amber-800', isChristmas: true, christmasCostume: 'nutcracker' } as any, isWalking: false },
+
+    // ✈️ Jeremy the Jet Plane (Steremy) & Holiday Steremy at Sodor Airport Runway (x: 400 - 404)
+    { id: 260, x: 400, y: 5, avatar: { id: 850, name: 'Jeremy the Jet Plane (Steremy)', type: 'train', color: 'bg-sky-400' } as any, isWalking: true },
+    { id: 261, x: 404, y: 5, avatar: { id: 851, name: 'Holiday Steremy', type: 'train', color: 'bg-rose-600', isChristmas: true, christmasCostume: 'santa' } as any, isWalking: true },
 
     // The Verity Update & Celestial Shrine (Landmark 6: Celestial Shrine)
     { id: 185, x: 86, y: 6, avatar: { id: 185, name: 'Verity', type: 'sprnuki', subtype: 'verity' }, isWalking: true },
@@ -762,6 +890,28 @@ export default function GameWorld({
       }
     }
   };
+
+  // Listen to external warp requests (e.g. from Interactive World Map or Videos)
+  useEffect(() => {
+    const handleWarpReq = (e: any) => {
+      if (e.detail && typeof e.detail.x === 'number') {
+        const targetX = Math.round(e.detail.x);
+        const targetY = typeof e.detail.y === 'number' ? Math.round(e.detail.y) : 7;
+        setPlayerPos({ x: targetX, y: targetY });
+        setIsWalking(true);
+        playEffect('build');
+        showToast(`✨ Teleported to X: ${formatBlockNumber(targetX)}, Y: ${targetY}!`);
+        setTimeout(() => setIsWalking(false), 300);
+      }
+    };
+    window.addEventListener('megaworld_warp_request', handleWarpReq);
+    return () => window.removeEventListener('megaworld_warp_request', handleWarpReq);
+  }, [playEffect, showToast]);
+
+  // Broadcast player position to sync with Interactive World Map
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('megaworld_pos_update', { detail: { x: playerPos.x, y: playerPos.y } }));
+  }, [playerPos.x, playerPos.y]);
 
   // Minecraft Command Execution Context
   const commandContext: CommandContext = React.useMemo(() => ({
@@ -957,6 +1107,7 @@ export default function GameWorld({
 
   const handleDropBeatbox = useCallback(() => {
     audioEngine.playSprunkiSound(playerAvatar.name, playerAvatar.isHorror);
+    dailyMissionManager.recordAction('play_beatbox', 1);
     setBeatboxActive(true);
     setTimeout(() => setBeatboxActive(false), 900);
     showToast(`🎵 ${playerAvatar.name} dropped a rhythm beatbox!`);
@@ -982,9 +1133,37 @@ export default function GameWorld({
       audioEngine.playMinecraftSound('pickaxe');
       showToast(`⛏️ Action strike!`);
     }
+
+    // Check for nearby hostile entities (e.g. Minecraft Zombie, Creeper, Mobs)
+    const nearbyHostiles = roamingCharacters.filter(c => 
+      (c.avatar.subtype === 'zombie' || c.avatar.subtype === 'creeper' || c.avatar.subtype === 'blaze' || c.avatar.subtype === 'piglin' || c.avatar.name.toLowerCase().includes('zombie')) &&
+      Math.abs(c.x - playerPos.x) < 5 && Math.abs(c.y - playerPos.y) < 4
+    );
+
+    if (nearbyHostiles.length > 0) {
+      const target = nearbyHostiles[0];
+      const isZombie = target.avatar.subtype === 'zombie' || target.avatar.name.toLowerCase().includes('zombie');
+      const isCreeper = target.avatar.subtype === 'creeper';
+
+      if (isZombie) {
+        audioEngine.playMinecraftSound('zombie');
+        dailyMissionManager.recordAction('defeat_zombie', 1);
+        dailyMissionManager.recordAction('defeat_mob', 1);
+        showToast(`⚔️ Slayed Minecraft Zombie! (+1 Zombie Defeated!)`);
+      } else if (isCreeper) {
+        audioEngine.playMinecraftSound('fuse');
+        dailyMissionManager.recordAction('defeat_creeper', 1);
+        dailyMissionManager.recordAction('defeat_mob', 1);
+        showToast(`💥 Slayed Creeper before detonation!`);
+      } else {
+        dailyMissionManager.recordAction('defeat_mob', 1);
+        showToast(`⚔️ Defeated ${target.avatar.name}!`);
+      }
+    }
+
     setMcActionActive(true);
     setTimeout(() => setMcActionActive(false), 400);
-  }, [playerAvatar, showToast]);
+  }, [playerAvatar, showToast, roamingCharacters, playerPos]);
 
   // Core Player Movement Engine
   const movePlayer = useCallback((dx: number, dy: number, customSprint?: boolean) => {
@@ -993,18 +1172,31 @@ export default function GameWorld({
     if (dx < 0) setFacingDir('left');
     else if (dx > 0) setFacingDir('right');
 
+    const activeVeh = vehicleManager.getActiveVehicle();
+    const vehMultiplier = activeVeh ? activeVeh.speedMultiplier : 1;
+    const canAerialMove = isFlying || !!activeVeh?.canFly;
+
     const sprintActive = customSprint ?? isSprinting;
-    const baseSpeed = isFlying ? 2 : 1;
-    const speed = sprintActive ? baseSpeed * 2 : baseSpeed;
+    const baseSpeed = canAerialMove ? 2 : 1;
+    const rawSpeed = sprintActive ? baseSpeed * 2 : baseSpeed;
+    const speed = Math.max(1, Math.round(rawSpeed * vehMultiplier));
 
     const finalDx = dx * speed;
     const finalDy = dy * speed;
+
+    if (activeVeh) {
+      vehicleManager.setDrivingSpeed(true, sprintActive);
+    }
 
     setPlayerPos(prev => {
       const nextX = Math.max(MIN_WORLD_COORDINATE, Math.min(MAX_WORLD_COORDINATE, prev.x + finalDx));
       const nextY = Math.max(0, Math.min(rows - 1, prev.y + finalDy));
       return { x: nextX, y: nextY };
     });
+
+    if (Math.abs(finalDx) > 0 || Math.abs(finalDy) > 0) {
+      dailyMissionManager.recordAction('travel_distance', Math.abs(finalDx) + Math.abs(finalDy));
+    }
 
     setIsWalking(true);
 
@@ -1018,6 +1210,7 @@ export default function GameWorld({
       // Keep walking if keys or touch are still held
       if (keysDownRef.current.size === 0) {
         setIsWalking(false);
+        vehicleManager.setDrivingSpeed(false, false);
       }
     }, 450);
   }, [isDead, isPauseMenuOpen, isFlying, isSprinting, grid, playerPos, viewportChunkX]);
@@ -1029,9 +1222,12 @@ export default function GameWorld({
     setIsWalking(true);
     audioEngine.playMinecraftSound('step_grass');
 
+    const activeVeh = vehicleManager.getActiveVehicle();
+    const canAerialMove = isFlying || !!activeVeh?.canFly;
+
     setPlayerPos(prev => ({
       ...prev,
-      y: Math.max(0, prev.y - (isFlying ? 2 : 1))
+      y: Math.max(0, prev.y - (canAerialMove ? 2 : 1))
     }));
 
     setTimeout(() => {
@@ -1203,9 +1399,74 @@ export default function GameWorld({
           const emoteObj = ORIGIN_EMOTES_CATALOG.find(em => em.id === emoteId);
           if (emoteObj) {
             e.preventDefault();
+            dailyMissionManager.recordAction('perform_emote', 1);
             audioEngine.playMinecraftSound('orb');
             showToast(`🎭 ${emoteObj.name}! [Slot #${e.key}]`);
           }
+        }
+      }
+
+      // 'J' key opens Daily Missions & Bounties
+      if (e.key === 'j' || e.key === 'J') {
+        e.preventDefault();
+        if (onOpenDailyMissions) onOpenDailyMissions();
+        return;
+      }
+
+      // 'Tab' key opens Multiplayer Player Scoreboard
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        setShowScoreboard(prev => !prev);
+        return;
+      }
+
+      // 'G' key opens Vehicle Garage
+      if (e.key === 'g' || e.key === 'G') {
+        e.preventDefault();
+        setIsGarageModalOpen(true);
+        audioEngine.playMinecraftSound('anvil');
+        return;
+      }
+
+      // 'P' key opens Companion Pet Sanctuary
+      if (e.key === 'p' || e.key === 'P') {
+        e.preventDefault();
+        setIsPetModalOpen(true);
+        audioEngine.playMinecraftSound('levelup');
+        return;
+      }
+
+      // 'K' key opens Boss Raid Summoner
+      if (e.key === 'k' || e.key === 'K') {
+        e.preventDefault();
+        setIsBossModalOpen(true);
+        audioEngine.playMinecraftSound('wither_spawn');
+        return;
+      }
+
+      // 'N' key toggles Tactical Mini-Map Radar
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setIsRadarOpen(prev => !prev);
+        audioEngine.playMinecraftSound('click');
+        return;
+      }
+
+      // 'H' key honks vehicle horn when mounted
+      if (e.key === 'h' || e.key === 'H') {
+        if (mountedVehicleState) {
+          e.preventDefault();
+          vehicleManager.honkHorn();
+          return;
+        }
+      }
+
+      // 'L' key toggles headlights when mounted
+      if (e.key === 'l' || e.key === 'L') {
+        if (mountedVehicleState) {
+          e.preventDefault();
+          vehicleManager.toggleHeadlights();
+          return;
         }
       }
 
@@ -1399,9 +1660,188 @@ export default function GameWorld({
     }
   }, [grid]);
 
+  // Autonomous Simulation Update for Online Multiplayer Players (Every 3.2s)
+  useEffect(() => {
+    const playerSimInterval = setInterval(() => {
+      setOnlinePlayers(prev => updateSimulatedPlayers(prev));
+    }, 3200);
+    return () => clearInterval(playerSimInterval);
+  }, []);
+
+  const handleTradeWithPlayer = (targetPlayer: WorldPlayer, itemKey: string) => {
+    playEffect('build');
+    audioEngine.playMinecraftSound('level');
+    setInventory(prev => {
+      const current = prev[itemKey]?.count || 0;
+      if (current <= 1) {
+        const next = { ...prev };
+        delete next[itemKey];
+        return next;
+      }
+      return { ...prev, [itemKey]: { ...prev[itemKey], count: current - 1 } };
+    });
+    showToast(`🎁 Gifted ${itemKey.replace(/_/g, ' ')} to ${targetPlayer.name}! They thanked you with +50 XP & holiday cheer! ✨`);
+    dailyMissionManager.recordAction('trade_item', 1);
+  };
+
+  const handleHighFivePlayer = (targetPlayer: WorldPlayer) => {
+    audioEngine.playRobloxSound('cheer');
+    showToast(`🤝 High-fived ${targetPlayer.name}! (+15 Friendship XP!)`);
+  };
+
+  const handleDuelPlayer = (targetPlayer: WorldPlayer) => {
+    audioEngine.playMinecraftSound('snowball');
+    showToast(`❄️ Threw a festive snowball at ${targetPlayer.name}! Playful snowball duel initiated! ☃️`);
+  };
+
+  const handleTogglePartyMember = (targetPlayer: WorldPlayer) => {
+    setOnlinePlayers(prev => prev.map(p => {
+      if (p.id === targetPlayer.id) {
+        const newPartyState = !p.isPartyMember;
+        showToast(newPartyState ? `👥 ${p.name} joined your adventuring party!` : `👋 ${p.name} left the party.`);
+        return { ...p, isPartyMember: newPartyState };
+      }
+      return p;
+    }));
+    audioEngine.playMinecraftSound('levelup');
+  };
+
+  const handleWarpToPlayer = (targetPlayer: WorldPlayer) => {
+    setPlayerPos({ x: targetPlayer.x, y: targetPlayer.y });
+    playEffect('build');
+    audioEngine.playMinecraftSound('teleport');
+    showToast(`⚡ Teleported to ${targetPlayer.name} in ${targetPlayer.zone}!`);
+    setShowScoreboard(false);
+  };
+
   // Block Mining & Building Interactivity
   const handleCellClick = (index: number) => {
     if (isDead) return;
+
+    // Christmas & Multiverse Item Actions
+    if (activeItem === 'santa_gift_box') {
+      audioEngine.playMinecraftSound('totem');
+      setInventory(prev => {
+        const count = prev['santa_gift_box']?.count || 0;
+        const next = { ...prev };
+        if (count <= 1) delete next['santa_gift_box'];
+        else next['santa_gift_box'] = { count: count - 1 };
+        next['diamond'] = { count: (next['diamond']?.count || 0) + 3 };
+        next['emerald'] = { count: (next['emerald']?.count || 0) + 5 };
+        next['holiday_hot_cocoa'] = { count: (next['holiday_hot_cocoa']?.count || 0) + 2 };
+        next['candy_cane_blade'] = { count: (next['candy_cane_blade']?.count || 0) + 1, durability: 150 };
+        return next;
+      });
+      showToast('🎁 Opened Santa Holiday Surprise Gift! +3 Diamonds, +5 Emeralds, +2 Hot Cocoa & Peppermint Blade! 🎅✨');
+      return;
+    }
+    if (activeItem === 'candy_cane_blade') {
+      audioEngine.playMinecraftSound('levelup');
+      showToast('🍭 Sliced with Peppermint Candy Cane Blade! Minty holiday sparkles burst! (+18 Attack)');
+      return;
+    }
+    if (activeItem === 'gingerbread_shield') {
+      audioEngine.playMinecraftSound('anvil_land');
+      showToast('🍪 Frosted Gingerbread Aegis raised! Parries attacks with sweet cinnamon crumbs!');
+      return;
+    }
+    if (activeItem === 'peppermint_pickaxe') {
+      audioEngine.playMinecraftSound('mine');
+      showToast('⛏️ Peppermint Silk Pickaxe sparkles with Silk Touch precision!');
+      return;
+    }
+    if (activeItem === 'aurora_snowglobe') {
+      audioEngine.playMinecraftSound('level');
+      setWeather('aurora');
+      showToast('🔮 Shook the Northern Aurora Snowglobe! Cosmic Northern Lights illuminate the sky! 🌌');
+      return;
+    }
+    if (activeItem === 'holiday_hot_cocoa') {
+      audioEngine.playRobloxSound('cola');
+      setHealth(100);
+      setHunger(100);
+      setIsSprinting(true);
+      setInventory(prev => {
+        const count = prev['holiday_hot_cocoa']?.count || 0;
+        if (count <= 1) {
+          const next = { ...prev };
+          delete next['holiday_hot_cocoa'];
+          return next;
+        }
+        return { ...prev, 'holiday_hot_cocoa': { count: count - 1 } };
+      });
+      showToast('☕ Drank Steaming Holiday Hot Cocoa! Full Health & +35% Winter Sprint Boost! ⛄');
+      setTimeout(() => setIsSprinting(false), 12000);
+      return;
+    }
+    if (activeItem === 'reindeer_bell') {
+      audioEngine.playMinecraftSound('orb');
+      jumpPlayer();
+      setPlayerPos(prev => ({ ...prev, y: Math.max(0, prev.y - 4) }));
+      showToast('🔔 Jingle Bell rang! Rudolph flight sprint burst activated! 🦌');
+      return;
+    }
+    if (activeItem === 'frostmourne_icicle') {
+      audioEngine.playMinecraftSound('fuse');
+      showToast('🗡️ Glacier Frost Dagger strikes! Sub-zero ice frost freezes nearby mobs solid! ❄️');
+      return;
+    }
+    if (activeItem === 'nutcracker_musket') {
+      audioEngine.playMinecraftSound('fuse');
+      showToast('🎺 Nutcracker Toy Blaster fired explosive festive chestnuts! (+16 Ranged Attack)');
+      return;
+    }
+    if (activeItem === 'polar_star_wand') {
+      audioEngine.playVeritySound('oracle');
+      showToast('⭐ Polaris Star Wand radiates level 15 golden starlight! 🌟');
+      return;
+    }
+    if (activeItem === 'tarragower_chronicle') {
+      audioEngine.playVeritySound('chimes');
+      showToast('📜 Tarragower Master Chronicle reveals ancient cartography and secrets of all 13 realms!');
+      return;
+    }
+    if (activeItem === 'bp_solar_snowblower') {
+      audioEngine.playMinecraftSound('fire');
+      showToast('🔋 BP Solar Thermal Snowblower emits clean photon thermal blast, melting ice and snow!');
+      return;
+    }
+    if (activeItem === 'mcdonalds_festive_burger') {
+      audioEngine.playRobloxSound('cola');
+      setHealth(100);
+      setHunger(100);
+      showToast('🍔 Ate Holiday Mega Feast Burger! Permanent saturation & feast strength active! 🍟');
+      return;
+    }
+    if (activeItem === 'youtube_ruby_play') {
+      audioEngine.playMinecraftSound('totem');
+      showToast('💎 50M Ruby Creator Beacon pulses crimson beams into the stratosphere! 🔴');
+      return;
+    }
+    if (activeItem === 'xilam_cartoon_spring') {
+      audioEngine.playRobloxSound('coil');
+      setPlayerPos(prev => ({ ...prev, y: Math.max(0, prev.y - 6) }));
+      showToast('🌀 Xilam Slapstick Bouncy Coil boings you 20 blocks into the sky! BOING! 🚀');
+      return;
+    }
+    if (activeItem === 'roblox_speed_coil_frost') {
+      audioEngine.playRobloxSound('coil');
+      setIsSprinting(true);
+      showToast('🔵 Frost Speed Coil V2 engaged! 3.5x hyper-sonic sprint velocity active!');
+      setTimeout(() => setIsSprinting(false), 15000);
+      return;
+    }
+    if (activeItem === 'netherite_frost_blade') {
+      audioEngine.playMinecraftSound('explode');
+      showToast('⚔️ Permafrost Netherite Claymore slashes with freezing thunderbolt lightning! (+22 Attack)');
+      return;
+    }
+    if (activeItem === 'eggnog_potion') {
+      audioEngine.playRobloxSound('cola');
+      setHealth(100);
+      showToast('🥛 Drank Spiced Holiday Eggnog! Health Regeneration III active for 60 seconds!');
+      return;
+    }
 
     // The Verity Update Special Item Actions
     if (activeItem === 'verity_musicbox') {
@@ -1427,6 +1867,90 @@ export default function GameWorld({
       setHealth(100);
       setHunger(100);
       showToast('🔮 Truth Crystal infused you with celestial vitality!');
+      return;
+    }
+    if (activeItem === 'candy_corn') {
+      audioEngine.playMinecraftSound('level');
+      setHunger(prev => Math.min(100, prev + 25));
+      setHealth(prev => Math.min(100, prev + 15));
+      setIsSprinting(true);
+      setInventory(prev => {
+        const currentCount = prev['candy_corn']?.count || 0;
+        if (currentCount <= 1) {
+          const next = { ...prev };
+          delete next['candy_corn'];
+          return next;
+        }
+        return { ...prev, 'candy_corn': { count: currentCount - 1 } };
+      });
+      showToast('🍬 Ate Spooky Candy Corn! +25 Hunger, +15 Health & Sugar Sprint Boost!');
+      setTimeout(() => setIsSprinting(false), 5000);
+      return;
+    }
+    if (activeItem === 'trick_or_treat_bag') {
+      audioEngine.playMinecraftSound('totem');
+      setInventory(prev => ({
+        ...prev,
+        'candy_corn': { count: (prev['candy_corn']?.count || 0) + 4 },
+        'carved_pumpkin': { count: (prev['carved_pumpkin']?.count || 0) + 1 },
+      }));
+      showToast('🛍️ Opened Trick-or-Treat Bag! Received +4 Candy Corn & +1 Carved Pumpkin! 🎃');
+      return;
+    }
+    if (activeItem === 'sprunki_sword') {
+      audioEngine.playMinecraftSound('levelup');
+      showToast("⚔️ Sprunki's Sword of Friendship swings with 128 BPM harmonic power! (+14 Attack)");
+      return;
+    }
+    if (activeItem === 'blox_hyper_sword') {
+      audioEngine.playRobloxSound('sword');
+      showToast('🗡️ Bloxian Linked Hyper-Sword strikes with +16 Attack! OOF!');
+      return;
+    }
+    if (activeItem === 'grimace_shake') {
+      audioEngine.playRobloxSound('cola');
+      dailyMissionManager.recordAction('drink_shake', 1);
+      setHunger(100);
+      setHealth(100);
+      setIsSprinting(true);
+      showToast('🥤 Consumed Cosmic Grimace Elixir! Full Vitality restored & Cosmic Aura active!');
+      setTimeout(() => setIsSprinting(false), 10000);
+      return;
+    }
+    if (activeItem === 'gravity_coil_rig') {
+      audioEngine.playRobloxSound('coil');
+      jumpPlayer();
+      setPlayerPos(prev => ({ ...prev, y: Math.max(0, prev.y - 3) }));
+      showToast('🌀 Master Gravity Coil Rig vaults you 3 blocks skyward! 0 fall damage!');
+      return;
+    }
+    if (activeItem === 'youtube_shield') {
+      audioEngine.playMinecraftSound('totem');
+      showToast('🛡️ Diamond Play Button Aegis shines! 10M Subscriber creator barrier active!');
+      return;
+    }
+    if (activeItem === 'streamer_mic') {
+      audioEngine.playMinecraftSound('orb');
+      showToast('🎙️ Studio Condenser Mic broadcast! Live chat hype wave active!');
+      return;
+    }
+    if (activeItem === 'oggy_swatter') {
+      audioEngine.playMinecraftSound('anvil_land');
+      showToast("🏸 Oggy's Colossal Flyswatter SLAPS with giant kinetic force!");
+      return;
+    }
+    if (activeItem === 'bp_jetpack') {
+      audioEngine.playMinecraftSound('fire');
+      setPlayerPos(prev => ({ ...prev, y: Math.max(0, prev.y - 2) }));
+      setIsFlying(true);
+      showToast('🚀 BP High-Octane Fuel Jetpack thrusters engaged! Levitation activated!');
+      return;
+    }
+    if (activeItem === 'new_world_boots') {
+      audioEngine.playMinecraftSound('step_grass');
+      setIsSprinting(true);
+      showToast("🥾 New World Explorer's Boots laced up! +40% traversal sprint active!");
+      setTimeout(() => setIsSprinting(false), 12000);
       return;
     }
 
@@ -1631,6 +2155,21 @@ export default function GameWorld({
       const targetWorldX = viewportChunkX + (index % cols);
       const targetWorldY = Math.floor(index / cols);
       setModifiedWorldBlocks(prev => ({ ...prev, [`${targetWorldX},${targetWorldY}`]: 'sky' }));
+
+      // Record Daily Mission Progress
+      if (minedBlock === 'diamond') {
+        dailyMissionManager.recordAction('mine_diamond', 1);
+      } else if (minedBlock === 'gold') {
+        dailyMissionManager.recordAction('mine_gold', 1);
+      } else if (minedBlock === 'obsidian' || minedBlock === 'crying_obsidian') {
+        dailyMissionManager.recordAction('mine_obsidian', 1);
+      } else if (minedBlock === 'amethyst') {
+        dailyMissionManager.recordAction('mine_amethyst', 1);
+      } else if (minedBlock === 'tree' || minedBlock === 'wood') {
+        dailyMissionManager.recordAction('chop_wood', 1);
+      } else if (minedBlock === 'stone' || minedBlock === 'ore' || minedBlock === 'coal') {
+        dailyMissionManager.recordAction('mine_stone', 1);
+      }
 
       // In Creative mode: instant break, no item consumption or tool damage
       if (isCreative) return;
@@ -2101,6 +2640,58 @@ export default function GameWorld({
             <span>Roblox</span>
           </button>
 
+          {/* 1,000 Christmas Mega Edition Button */}
+          <button
+            onClick={() => setIsChristmasMegaModalOpen(true)}
+            className="bg-red-700 hover:bg-red-600 text-white border border-red-400 px-3 py-1.5 rounded-xl text-xs font-extrabold shadow flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+            title="Open 1,000 Christmas Characters, Items, and Settings"
+          >
+            <span>🎅</span>
+            <span>1,000 Xmas</span>
+          </button>
+
+          {/* Multiverse Brand Hubs Button */}
+          <button
+            onClick={() => setIsBrandHubModalOpen(true)}
+            className="bg-amber-800 hover:bg-amber-700 text-amber-100 border border-amber-400 px-3 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+            title="Open Brand Hubs (McDonald's, Roblox, Xilam, Tarragower, BP, New World, YouTube)"
+          >
+            <span>🏢</span>
+            <span>Brand Hubs</span>
+          </button>
+
+          {/* Countryball Creator Button */}
+          <button
+            onClick={() => {
+              if (onOpenCountryballCreator) {
+                onOpenCountryballCreator();
+              } else {
+                setIsCountryballModalOpen(true);
+              }
+            }}
+            className="bg-blue-700 hover:bg-blue-600 text-white border border-blue-400 px-3 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+            title="Open Polandball & Countryball Creator (Flags, Hats, Glasses & Personality Traits)"
+          >
+            <span>🌐</span>
+            <span>Countryball</span>
+          </button>
+
+          {/* Cloud Progression & Sync Button */}
+          <button
+            onClick={() => {
+              if (onOpenProgression) {
+                onOpenProgression();
+              } else {
+                setIsProgressionModalOpen(true);
+              }
+            }}
+            className="bg-sky-800 hover:bg-sky-700 text-sky-100 border border-sky-400 px-3 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5 cursor-pointer transition active:scale-95"
+            title="Open Cross-Platform Progression & Cloud Save (Level, Items & Quests)"
+          >
+            <span>☁️</span>
+            <span>Progression</span>
+          </button>
+
           {/* Settings Button */}
           <button
             onClick={() => setIsSettingsOpen(true)}
@@ -2230,6 +2821,17 @@ export default function GameWorld({
               style={{ left: `${(npc.x / cols) * 100}%`, top: `${(npc.y / rows) * 100}%` }}
               onClick={() => setActiveNPC(npc)}
               title={`NPC: ${npc.name} (${npc.biome})`}
+            />
+          ))}
+
+          {/* Online Multiplayer Players Markers */}
+          {onlinePlayers.map(p => (
+            <div
+              key={p.id}
+              className="absolute w-2 h-2 bg-emerald-400 border border-black rounded-full ring-1 ring-emerald-300 z-18 cursor-pointer -translate-x-1/2 -translate-y-1/2"
+              style={{ left: `${(p.x / cols) * 100}%`, top: `${(p.y / rows) * 100}%` }}
+              onClick={() => setSelectedPlayerToInteract(p)}
+              title={`Player: ${p.name} (Lv.${p.level}) - Click to Interact`}
             />
           ))}
         </div>
@@ -2394,6 +2996,16 @@ export default function GameWorld({
             <span>💬 Talk (T)</span>
           </button>
 
+          {/* Online Multiplayer Players Scoreboard Button */}
+          <button
+            onClick={() => setShowScoreboard(true)}
+            className="px-3 py-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 transition active:scale-95 cursor-pointer shadow-md"
+            title="Open Server Player Scoreboard & Player Actions (Press Tab)"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse" />
+            <span>👥 {onlinePlayers.length + 1} Online [Tab]</span>
+          </button>
+
           {/* Weather Selector */}
           <div className="flex items-center bg-stone-950 border border-stone-800 rounded-xl p-0.5 text-xs font-mono">
             {[
@@ -2474,17 +3086,33 @@ export default function GameWorld({
               <span>Classic</span>
             </button>
           </div>
-          {/* The Verity Update: Celestial Shrine & Truth Altar */}
+          {/* Celestial Shrine & Truth Altar */}
           <button
             onClick={() => {
               setShowVerityShrineModal(true);
               audioEngine.playVeritySound('oracle');
             }}
             className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition flex items-center gap-1.5 cursor-pointer border shadow-lg bg-gradient-to-r from-purple-950 via-indigo-950 to-purple-950 border-purple-500/80 hover:border-purple-300 text-purple-200 hover:text-white shadow-[0_0_12px_rgba(168,85,247,0.35)]"
-            title="The Verity Update: Celestial Shrine & Truth Altar (Click to open)"
+            title="Celestial Shrine & Truth Altar (Click to open)"
           >
             <Sparkles size={13} className="text-amber-300 animate-spin" style={{ animationDuration: '4s' }} />
             <span className="font-bold">Verity Shrine ✨</span>
+          </button>
+
+          {/* Sodor Airport & Jeremy the Jet Plane (Steremy) */}
+          <button
+            onClick={() => {
+              setPlayerPos({ x: 400, y: 5 });
+              scrollToPlayer();
+              vehicleManager.mountVehicle('jeremy_jet');
+              showToast('✈️ Teleported to Sodor Airport! Jeremy the Jet Plane (Steremy) mounted for supersonic flight!');
+              audioEngine.playRobloxSound('speed');
+            }}
+            className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition flex items-center gap-1.5 cursor-pointer border shadow-lg bg-gradient-to-r from-sky-950 via-blue-900 to-sky-950 border-sky-400 hover:border-sky-200 text-sky-200 hover:text-white shadow-[0_0_12px_rgba(56,189,248,0.35)]"
+            title="Teleport to Sodor Airport & Launch Jeremy the Jet Plane (Steremy)!"
+          >
+            <span className="text-sm animate-pulse">✈️</span>
+            <span className="font-bold">Sodor Airport & Steremy</span>
           </button>
 
           {/* 165 FPS Ultra High-Refresh Rate Engine Toggle */}
@@ -2554,6 +3182,19 @@ export default function GameWorld({
             </button>
           )}
 
+          {/* Daily Missions & Bounties Shortcut */}
+          {onOpenDailyMissions && (
+            <button
+              onClick={onOpenDailyMissions}
+              className="px-2.5 py-1 rounded-xl text-xs font-mono font-bold transition flex items-center gap-1.5 cursor-pointer border shadow-md bg-amber-950/80 hover:bg-amber-900 border-amber-500/70 text-amber-200 hover:text-white"
+              title="Daily Missions & Bounties [Hotkey: J]"
+            >
+              <span>🎯</span>
+              <span className="hidden sm:inline">Daily Missions</span>
+              <span className="text-[10px] text-amber-400 bg-black/40 px-1 rounded">J</span>
+            </button>
+          )}
+
           <button
             onClick={() => setIsExpandedView(prev => !prev)}
             className={`p-1.5 rounded-xl text-xs transition cursor-pointer border ${
@@ -2575,6 +3216,64 @@ export default function GameWorld({
           isExpandedView ? 'w-full h-[84vh]' : 'w-full max-w-6xl h-[680px]'
         }`}
       >
+        {/* World Boss Raid Animated HUD Bar (Top Center) */}
+        <BossRaidHUD
+          onDealPlayerDamage={(damage) => {
+            setScreenShake(true);
+            setTimeout(() => setScreenShake(false), 300);
+            dailyMissionManager.recordAction('defeat_mob', 1);
+          }}
+          onClaimLoot={(loot) => {
+            showToast(`🏆 VICTORY! Slayed World Boss! Claimed +${loot.coins} Coins, +${loot.robux} Robux & "${loot.badgeName}"!`);
+            audioEngine.playMinecraftSound('levelup');
+          }}
+        />
+
+        {/* Tactical Radar HUD (Overlay when enabled via [N]) */}
+        {isRadarOpen && (
+          <div className="absolute top-4 left-4 z-40">
+            <MiniMapRadar
+              playerX={playerPos.x}
+              playerY={playerPos.y}
+              facingDir={facingDir}
+              worldRows={rows}
+              worldCols={cols}
+              entities={[
+                ...roamingCharacters.map(r => ({
+                  id: r.id,
+                  x: r.x,
+                  y: r.y,
+                  name: r.avatar.name,
+                  type: (r.avatar.subtype === 'zombie' || r.avatar.subtype === 'creeper' ? 'hostile' : 'friendly') as 'hostile' | 'friendly',
+                })),
+                ...onlinePlayers.map(p => ({
+                  id: p.id ? Number(p.id.replace(/\D/g, '')) || 999 : 999,
+                  x: p.x,
+                  y: p.y,
+                  name: p.name,
+                  type: 'player' as const,
+                })),
+                ...(bossRaidManager.getActiveBoss() ? [{
+                  id: 99999,
+                  x: bossRaidManager.getActiveBoss()!.spawnCoordinates.x,
+                  y: bossRaidManager.getActiveBoss()!.spawnCoordinates.y,
+                  name: bossRaidManager.getActiveBoss()!.name,
+                  type: 'boss' as const,
+                }] : []),
+              ]}
+              onWarpClick={(x, y) => {
+                setPlayerPos({ x, y });
+                showToast(`📡 Warped via Radar Sonar to X: ${x}, Y: ${y}`);
+              }}
+            />
+          </div>
+        )}
+
+        {/* Rideable Vehicle Mount Dashboard HUD (Bottom Center-Left) */}
+        <VehicleMountHUD
+          onOpenGarage={() => setIsGarageModalOpen(true)}
+        />
+
         {/* Proximity NPC Dialogue Interaction Banner */}
         {nearbyNPC && !activeNPC && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-stone-900/95 border-2 border-emerald-400 text-white px-4 py-2 rounded-2xl shadow-2xl backdrop-blur-md flex items-center gap-3 animate-bounce select-none pointer-events-auto">
@@ -2603,6 +3302,45 @@ export default function GameWorld({
           </div>
         )}
 
+        {/* Floating In-Game Pinned Daily Missions HUD */}
+        <div className="absolute top-4 right-4 z-40 max-w-[250px] pointer-events-auto bg-black/85 backdrop-blur-md border border-amber-500/50 rounded-2xl p-2.5 shadow-2xl text-white font-mono hidden sm:block">
+          <div className="flex items-center justify-between gap-2 mb-1.5 border-b border-stone-800 pb-1">
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-amber-300">
+              <span>🎯</span>
+              <span>Daily Bounties</span>
+            </div>
+            {onOpenDailyMissions && (
+              <button
+                onClick={onOpenDailyMissions}
+                className="text-[9.5px] text-amber-400 hover:text-white hover:underline cursor-pointer font-bold"
+              >
+                Missions [J]
+              </button>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            {dailyMissionManager.getPinnedMissions().slice(0, 3).map((m) => {
+              const pct = Math.min(100, Math.round((m.currentCount / m.targetCount) * 100));
+              return (
+                <div key={m.id} className="text-[10px]">
+                  <div className="flex items-center justify-between text-stone-300 gap-1">
+                    <span className="truncate">{m.icon} {m.title}</span>
+                    <span className={m.completed ? 'text-emerald-400 font-bold flex-shrink-0' : 'text-amber-300 flex-shrink-0'}>
+                      {m.currentCount}/{m.targetCount}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-stone-800 rounded-full overflow-hidden mt-0.5">
+                    <div 
+                      className={`h-full ${m.completed ? 'bg-emerald-500 shadow-[0_0_6px_#10b981]' : 'bg-amber-400'}`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
         {engineMode === '3d' ? (
           <ThreeVoxelWorld
             grid={grid}
@@ -2626,7 +3364,16 @@ export default function GameWorld({
             facingDir={facingDir}
             weather={weather}
             timeOfDay={timeOfDay}
-            roamingCharacters={roamingCharacters}
+            roamingCharacters={[
+              ...roamingCharacters,
+              ...onlinePlayers.map((p, idx) => ({
+                id: 6000 + idx,
+                x: p.x,
+                y: p.y,
+                avatar: p.avatar,
+                isWalking: p.isWalking,
+              }))
+            ]}
             onMineBlock={(idx) => handleCellClick(idx)}
             onPlaceBlock={handlePlaceBlockFrom3D}
             onPlayerMove={(dx, dy) => movePlayer(dx, dy)}
@@ -2821,6 +3568,119 @@ export default function GameWorld({
                 </div>
 
                 <span className="text-stone-600 hidden sm:inline">•</span>
+
+                {/* Interactive Multiverse World Map Button */}
+                {onOpenWorldMap && (
+                  <button
+                    type="button"
+                    onClick={onOpenWorldMap}
+                    className="px-2 py-0.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/60 text-emerald-300 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                    title="Open Interactive Multiverse World Map (13 Zones, Fast Travel, Dynamic Routes) [Hotkey: M]"
+                  >
+                    <span>🗺️</span>
+                    <span>World Map [M]</span>
+                  </button>
+                )}
+
+                {/* LEGO Website & Builder Portal Shortcut */}
+                {onOpenLegoWebsite && (
+                  <button
+                    type="button"
+                    onClick={onOpenLegoWebsite}
+                    className="px-2 py-0.5 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-500/60 text-yellow-300 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                    title="Open Official LEGO.com Builder Universe & Minifigure Customizer"
+                  >
+                    <span>🧱</span>
+                    <span>LEGO.com</span>
+                  </button>
+                )}
+
+                {/* Countryball Creator Shortcut */}
+                {onOpenCountryballCreator && (
+                  <button
+                    type="button"
+                    onClick={onOpenCountryballCreator}
+                    className="px-2 py-0.5 rounded-lg bg-blue-950/80 hover:bg-blue-900 border border-blue-500/60 text-blue-200 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                    title="Open Sovereign Countryball Creator Studio"
+                  >
+                    <span>🌐</span>
+                    <span>CB Creator</span>
+                  </button>
+                )}
+
+                {/* Community Event Hubs Shortcut */}
+                {onOpenCommunityHubs && (
+                  <button
+                    type="button"
+                    onClick={onOpenCommunityHubs}
+                    className="px-2 py-0.5 rounded-lg bg-teal-950/80 hover:bg-teal-900 border border-teal-500/60 text-teal-200 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                    title="Open Persistent Community Event Hubs & Spatial Voice Radio"
+                  >
+                    <span>🏛️</span>
+                    <span>Hubs</span>
+                  </button>
+                )}
+
+                {/* Cross-Platform Mini-Games Shortcut */}
+                {onOpenMiniGames && (
+                  <button
+                    type="button"
+                    onClick={onOpenMiniGames}
+                    className="px-2 py-0.5 rounded-lg bg-purple-950/80 hover:bg-purple-900 border border-purple-500/60 text-purple-200 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                    title="Open Cross-Platform Mini-Games Arcade (Scavenger Hunt, Trivia, Resource Race)"
+                  >
+                    <span>🎮</span>
+                    <span>Mini-Games</span>
+                  </button>
+                )}
+
+                {/* Rideable Mounts & Vehicle Garage [G] */}
+                <button
+                  type="button"
+                  onClick={() => setIsGarageModalOpen(true)}
+                  className="px-2 py-0.5 rounded-lg bg-amber-950/80 hover:bg-amber-900 border border-amber-500/60 text-amber-300 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                  title="Open Rideable Mounts & Vehicle Garage [G]"
+                >
+                  <span>🏎️</span>
+                  <span>Garage [G]</span>
+                </button>
+
+                {/* Companion Pet Sanctuary [P] */}
+                <button
+                  type="button"
+                  onClick={() => setIsPetModalOpen(true)}
+                  className="px-2 py-0.5 rounded-lg bg-pink-950/80 hover:bg-pink-900 border border-pink-500/60 text-pink-300 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                  title="Open Companion Pet Sanctuary & Follower Hub [P]"
+                >
+                  <span>🐾</span>
+                  <span>Pets [P]</span>
+                </button>
+
+                {/* Multiverse World Boss Raids [K] */}
+                <button
+                  type="button"
+                  onClick={() => setIsBossModalOpen(true)}
+                  className="px-2 py-0.5 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-500/60 text-rose-300 hover:text-white font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105"
+                  title="Summon Multiverse World Boss Raids [K]"
+                >
+                  <span>⚔️</span>
+                  <span>Bosses [K]</span>
+                </button>
+
+                {/* Tactical Radar HUD Toggle [N] */}
+                <button
+                  type="button"
+                  onClick={() => setIsRadarOpen(prev => !prev)}
+                  className={`px-2 py-0.5 rounded-lg border font-bold text-[10px] flex items-center gap-1 cursor-pointer transition shadow hover:scale-105 ${
+                    isRadarOpen 
+                      ? 'bg-cyan-950 border-cyan-400 text-cyan-300 shadow-[0_0_8px_rgba(6,182,212,0.5)]' 
+                      : 'bg-stone-900 border-stone-700 text-stone-400 hover:text-white'
+                  }`}
+                  title="Toggle Tactical Radar & Ore Sonar [N]"
+                >
+                  <span>📡</span>
+                  <span>Radar [N]</span>
+                </button>
 
                 {/* Multiverse Map Size & Quick Warp Button */}
                 <button
@@ -3018,9 +3878,15 @@ export default function GameWorld({
                   ${block === 'command_block' ? 'bg-[#c47037] border-t-[4px] border-t-[#d48855] border-b-[#8f4b1e] border-r-[#8f4b1e]' : ''} 
                   ${block === 'chain_command_block' ? 'bg-[#3b846e] border-t-[4px] border-t-[#4fa389] border-b-[#235345] border-r-[#235345]' : ''} 
                   ${block === 'repeating_command_block' ? 'bg-[#6a4697] border-t-[4px] border-t-[#8b5cf6] border-b-[#422464] border-r-[#422464]' : ''} 
+                  ${block === 'carved_pumpkin' ? 'bg-[#c2410c] border-t-[4px] border-t-[#ea580c] border-b-[#7c2d12] border-r-[#7c2d12]' : ''} 
+                  ${block === 'jack_o_lantern' ? 'bg-[#ea580c] border-t-[4px] border-t-[#f97316] border-b-[#9a3412] border-r-[#9a3412] shadow-[0_0_16px_rgba(249,115,22,0.85)] z-10' : ''} 
+                  ${block === 'witch_cauldron' ? 'bg-[#18181b] border-t-[4px] border-t-[#27272a] border-b-[#09090b] border-r-[#09090b]' : ''} 
+                  ${block === 'spooky_cobweb' ? 'bg-white/10 border border-white/20' : ''} 
+                  ${block === 'tombstone' ? 'bg-[#475569] border-t-[4px] border-t-[#64748b] border-b-[#1e293b] border-r-[#1e293b]' : ''} 
+                  ${block === 'ghost_lantern' ? 'bg-[#3b0764]/70 border-t-[4px] border-t-[#7e22ce] shadow-[0_0_14px_rgba(168,85,247,0.8)]' : ''} 
                   ${isClosedDoor ? 'bg-[#6d4c41] border-t-[4px] border-t-[#8d6e63]' : ''} 
                   ${isOpenDoor ? 'bg-sky-400/20 border-2 border-dashed border-[#6d4c41]' : ''} 
-                  ${realismFXEnabled && (block === 'torch' || block === 'glowstone' || block === 'lava' || block === 'crying_obsidian' || block === 'repeating_command_block') ? 'shadow-[0_0_24px_rgba(251,191,36,0.85)] z-20' : ''}
+                  ${realismFXEnabled && (block === 'torch' || block === 'glowstone' || block === 'lava' || block === 'crying_obsidian' || block === 'repeating_command_block' || block === 'jack_o_lantern' || block === 'ghost_lantern') ? 'shadow-[0_0_24px_rgba(251,191,36,0.85)] z-20' : ''}
                 `}
                 title={
                   isClosedDoor ? 'Closed Door (Click to open)' :
@@ -3374,6 +4240,82 @@ export default function GameWorld({
                   </div>
                 )}
 
+                {/* Carved Pumpkin Spooky Face */}
+                {block === 'carved_pumpkin' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-1">
+                    <div className="w-1.5 h-1 bg-amber-900 rounded-t-xs -mt-1" />
+                    <div className="flex justify-between w-5 px-1 mt-0.5">
+                      <div className="w-1.5 h-1.5 bg-black rotate-45" />
+                      <div className="w-1.5 h-1.5 bg-black rotate-45" />
+                    </div>
+                    <div className="w-1 h-1 bg-black rotate-45 my-0.5" />
+                    <div className="w-4 h-1.5 bg-black rounded-b-xs flex justify-around px-0.5">
+                      <div className="w-0.5 h-1 bg-amber-600" />
+                      <div className="w-0.5 h-1 bg-amber-600" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Jack-o'-Lantern Glowing Ember Face */}
+                {block === 'jack_o_lantern' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-1">
+                    <div className="absolute -inset-2 bg-amber-400/30 rounded-full blur-sm animate-pulse pointer-events-none" />
+                    <div className="w-1.5 h-1 bg-amber-950 rounded-t-xs -mt-1" />
+                    <div className="flex justify-between w-5 px-1 mt-0.5 z-10">
+                      <div className="w-1.5 h-1.5 bg-yellow-200 rotate-45 shadow-[0_0_4px_#fde047] animate-pulse" />
+                      <div className="w-1.5 h-1.5 bg-yellow-200 rotate-45 shadow-[0_0_4px_#fde047] animate-pulse" />
+                    </div>
+                    <div className="w-1 h-1 bg-yellow-200 rotate-45 my-0.5 z-10 animate-pulse" />
+                    <div className="w-4 h-1.5 bg-yellow-200 rounded-b-xs shadow-[0_0_6px_#fde047] flex justify-around px-0.5 z-10">
+                      <div className="w-0.5 h-1 bg-orange-700" />
+                      <div className="w-0.5 h-1 bg-orange-700" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Witch's Bubbling Cauldron */}
+                {block === 'witch_cauldron' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-1">
+                    <div className="w-6 h-5 bg-stone-900 border-2 border-stone-700 rounded-b-lg flex flex-col items-center justify-center relative shadow-inner">
+                      <div className="w-4 h-2 bg-emerald-500 rounded-full shadow-[0_0_8px_#10b981] flex items-center justify-around px-0.5 animate-pulse">
+                        <div className="w-1 h-1 bg-emerald-200 rounded-full animate-ping" />
+                        <div className="w-1 h-1 bg-emerald-100 rounded-full animate-bounce" />
+                      </div>
+                      <div className="flex justify-between w-5 absolute -bottom-1">
+                        <div className="w-1 h-1.5 bg-stone-800" />
+                        <div className="w-1 h-1.5 bg-stone-800" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Spooky Cobweb Silk Strands */}
+                {block === 'spooky_cobweb' && (
+                  <div className="absolute inset-0 p-1 pointer-events-none flex items-center justify-center text-stone-200/90 text-sm">
+                    🕸️
+                  </div>
+                )}
+
+                {/* Catacomb Tombstone */}
+                {block === 'tombstone' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-1">
+                    <div className="w-5 h-6 bg-slate-600 border border-slate-500 rounded-t-lg shadow flex flex-col items-center justify-around py-0.5">
+                      <span className="text-[7px] text-slate-300 font-bold font-mono">R.I.P</span>
+                      <div className="w-2.5 h-0.5 bg-slate-400" />
+                    </div>
+                  </div>
+                )}
+
+                {/* Ghost Wisp Lantern */}
+                {block === 'ghost_lantern' && (
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-1">
+                    <div className="w-5 h-6 bg-purple-950/80 border border-purple-400 rounded-md flex flex-col items-center justify-center relative shadow-[0_0_10px_#a855f7]">
+                      <div className="w-1.5 h-1 bg-stone-400 rounded-t-xs -mt-1" />
+                      <span className="text-xs animate-bounce">👻</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Placement Preview Ghost in Sky Air */}
                 {isSky && isHovered && (
                   <div className="absolute inset-1 border border-dashed border-emerald-400/80 bg-emerald-500/20 rounded-xs flex items-center justify-center text-[9px] font-mono text-emerald-300 pointer-events-none">
@@ -3499,6 +4441,39 @@ export default function GameWorld({
               )}
             </div>
 
+            {/* Mounted Vehicle Chassis Render */}
+            {mountedVehicleState && (
+              <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 z-20 pointer-events-none flex flex-col items-center animate-bounce">
+                <div className="text-2xl filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]">
+                  {mountedVehicleState.icon}
+                </div>
+                {vehicleManager.getIsHeadlightsOn() && (
+                  <div className="w-12 h-6 bg-yellow-300/30 rounded-full blur-sm -mt-2 animate-pulse" />
+                )}
+                {vehicleManager.getIsBoosting() && (
+                  <div className="flex gap-1 -mt-1">
+                    <span className="w-1.5 h-3 bg-cyan-400 rounded-full animate-ping" />
+                    <span className="w-1.5 h-3 bg-amber-400 rounded-full animate-ping" style={{ animationDelay: '0.1s' }} />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Companion Pet Follower Render (Floats near player) */}
+            {activePetState && (
+              <div 
+                className="absolute -top-3 -right-6 z-25 pointer-events-none flex flex-col items-center animate-pulse"
+                title={`${activePetState.name} (Lvl ${petCompanionManager.getLevel()})`}
+              >
+                <div className="text-xl filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)] hover:scale-125 transition">
+                  {activePetState.icon}
+                </div>
+                <div className="bg-black/90 text-amber-300 text-[7px] font-mono font-bold px-1 rounded-sm border border-amber-500/40 -mt-0.5 whitespace-nowrap">
+                  Lv.{petCompanionManager.getLevel()}
+                </div>
+              </div>
+            )}
+
             <CharacterAvatar
               character={playerAvatar}
               size="md"
@@ -3519,6 +4494,20 @@ export default function GameWorld({
               key={char.id}
               onClick={(e) => {
                 e.stopPropagation();
+                if (char.avatar.subtype === 'zombie' || char.avatar.name.toLowerCase().includes('zombie')) {
+                  audioEngine.playMinecraftSound('zombie');
+                  dailyMissionManager.recordAction('defeat_zombie', 1);
+                  dailyMissionManager.recordAction('defeat_mob', 1);
+                  showToast(`⚔️ Slayed Minecraft Zombie! (+1 Zombie Defeated!)`);
+                  return;
+                }
+                if (char.avatar.subtype === 'creeper') {
+                  audioEngine.playMinecraftSound('fuse');
+                  dailyMissionManager.recordAction('defeat_creeper', 1);
+                  dailyMissionManager.recordAction('defeat_mob', 1);
+                  showToast(`💥 Slayed Creeper before detonation!`);
+                  return;
+                }
                 if (char.id === 185 || char.id === 187 || char.id === 188) {
                   setShowVerityShrineModal(true);
                   audioEngine.playVeritySound('oracle');
@@ -3544,6 +4533,62 @@ export default function GameWorld({
                 isTalking={!!activeSpeechMap[char.id]}
                 speechText={activeSpeechMap[char.id] || undefined}
                 showName={true}
+              />
+            </div>
+          ))}
+
+          {/* ================= ACTIVE ONLINE MULTIPLAYER PLAYERS ================= */}
+          {onlinePlayers.map(player => (
+            <div
+              key={player.id}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedPlayerToInteract(player);
+                audioEngine.playRobloxSound('click');
+              }}
+              className="absolute z-25 transition-all duration-700 cursor-pointer hover:scale-115 active:scale-95 group select-none"
+              style={{
+                left: `${player.x * 40 - 4}px`,
+                top: `${player.y * 40 - 24}px`,
+                transform: `rotateZ(${-cameraYaw}deg) rotateX(${-cameraPitch}deg)`,
+                transformOrigin: 'bottom center',
+              }}
+              title={`${player.name} (${player.rank} Lv.${player.level}) - Click to Interact!`}
+            >
+              {/* Ground Contact Shadow */}
+              <div className="w-8 h-2 bg-black/50 rounded-full blur-[2px] absolute -bottom-1 left-1/2 -translate-x-1/2 pointer-events-none" />
+
+              {/* Floating Rank & Player Tag */}
+              <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-none z-10 whitespace-nowrap">
+                <div className="flex items-center gap-1 bg-black/85 px-1.5 py-0.5 rounded-full border border-stone-700 shadow-md">
+                  <span className={`text-[8px] font-bold px-1 rounded uppercase ${player.rankBadgeColor}`}>
+                    {player.rank}
+                  </span>
+                  <span className="text-[10px] font-bold text-white">
+                    {player.name}
+                  </span>
+                  <span className="text-[9px] text-yellow-300 font-bold">
+                    Lv.{player.level}
+                  </span>
+                </div>
+              </div>
+
+              {/* Speech bubble if talking */}
+              {player.speechText && (
+                <div className="absolute -top-14 left-1/2 -translate-x-1/2 bg-amber-500 text-black text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-xl border-2 border-amber-300 z-20 whitespace-nowrap animate-bounce flex items-center gap-1">
+                  <span>{player.speechText}</span>
+                  <div className="w-2 h-2 bg-amber-500 rotate-45 absolute -bottom-1 left-1/2 -translate-x-1/2 border-r border-b border-amber-300" />
+                </div>
+              )}
+
+              {/* Player Avatar */}
+              <CharacterAvatar
+                character={player.avatar}
+                size="sm"
+                isWalking={player.isWalking}
+                isTalking={!!player.speechText}
+                speechText={undefined}
+                showName={false}
               />
             </div>
           ))}
@@ -3697,6 +4742,7 @@ export default function GameWorld({
           inventory={inventory}
           activeQuestIds={activeQuestIds}
           completedQuestIds={completedQuestIds}
+          playerTrait={playerAvatar.countryballTrait}
           onAcceptQuest={handleAcceptQuest}
           onTurnInQuest={handleTurnInQuest}
           onClose={() => setActiveNPC(null)}
@@ -3950,7 +4996,7 @@ export default function GameWorld({
                     </span>
                   </h3>
                   <p className="text-xs text-purple-300">
-                    Sacred truth sanctuary from The Verity Update. Seek wisdom, blessings & celestial morphs.
+                    Sacred truth sanctuary. Seek wisdom, blessings & celestial morphs.
                   </p>
                 </div>
               </div>
@@ -4448,6 +5494,10 @@ export default function GameWorld({
                 showToast(`Playing as ${playerAvatar.name} in MegaWorld!`);
               }}
               onClose={() => setIsRobloxAppOpen(false)}
+              onOpenCommunityDashboard={() => {
+                setIsRobloxAppOpen(false);
+                onQuitToMenu?.();
+              }}
             />
           </div>
         </div>
@@ -4495,6 +5545,122 @@ export default function GameWorld({
             setTimeout(() => setIsWalking(false), 300);
           }}
           onClose={() => setIsUniverseWarpOpen(false)}
+        />
+      )}
+
+      {/* ================= MULTIPLAYER SERVER SCOREBOARD MODAL ================= */}
+      {showScoreboard && (
+        <MultiplayerScoreboardModal
+          players={onlinePlayers}
+          currentPlayerAvatar={playerAvatar}
+          currentPlayerPos={playerPos}
+          onClose={() => setShowScoreboard(false)}
+          onSelectPlayer={(p) => {
+            setShowScoreboard(false);
+            setSelectedPlayerToInteract(p);
+          }}
+          onWarpToPlayer={handleWarpToPlayer}
+        />
+      )}
+
+      {/* ================= PLAYER INTERACTION PROFILE CARD MODAL ================= */}
+      {selectedPlayerToInteract && (
+        <PlayerInteractionModal
+          player={selectedPlayerToInteract}
+          playerInventory={inventory}
+          onClose={() => setSelectedPlayerToInteract(null)}
+          onTradeItem={handleTradeWithPlayer}
+          onHighFive={handleHighFivePlayer}
+          onDuel={handleDuelPlayer}
+          onToggleParty={handleTogglePartyMember}
+          onSendWhisper={(p, msg) => {
+            showToast(`💬 Whispered to ${p.name}: "${msg}"`);
+          }}
+        />
+      )}
+
+      {/* ================= VEHICLE & MOUNT GARAGE MODAL [G] ================= */}
+      {isGarageModalOpen && (
+        <VehicleGarageModal
+          isOpen={isGarageModalOpen}
+          onClose={() => setIsGarageModalOpen(false)}
+        />
+      )}
+
+      {/* ================= COMPANION PET SANCTUARY MODAL [P] ================= */}
+      {isPetModalOpen && (
+        <CompanionPetModal
+          isOpen={isPetModalOpen}
+          onClose={() => setIsPetModalOpen(false)}
+        />
+      )}
+
+      {/* ================= MULTIVERSE WORLD BOSS RAID SUMMONER MODAL [K] ================= */}
+      {isBossModalOpen && (
+        <BossRaidSummonModal
+          isOpen={isBossModalOpen}
+          onClose={() => setIsBossModalOpen(false)}
+          onWarpToArena={(x: number, y: number) => {
+            setPlayerPos({ x, y });
+            setIsWalking(true);
+            playEffect('build');
+            showToast(`⚡ Teleported to Boss Arena at X: ${x}, Y: ${y}! Prepare for battle!`);
+            setTimeout(() => setIsWalking(false), 300);
+          }}
+        />
+      )}
+
+      {/* ================= 1,000 CHRISTMAS MEGA EDITION MODAL ================= */}
+      {isChristmasMegaModalOpen && (
+        <ChristmasMegaModal
+          isOpen={isChristmasMegaModalOpen}
+          onClose={() => setIsChristmasMegaModalOpen(false)}
+          currentAvatar={playerAvatar}
+          onSelectCharacter={(char) => {
+            setActiveAvatar(char);
+            showToast(`🎅 Equipped ${char.name} as active hero!`);
+          }}
+          onAddItemToInventory={(item) => {
+            showToast(`🎁 Claimed ${item.name} to hotbar!`);
+          }}
+        />
+      )}
+
+      {/* ================= MULTIVERSE BRAND HUBS MODAL ================= */}
+      {isBrandHubModalOpen && (
+        <BrandHubModal
+          isOpen={isBrandHubModalOpen}
+          onClose={() => setIsBrandHubModalOpen(false)}
+          onTeleportToHub={(coords, hubName) => {
+            setPlayerPos({ x: coords.x, y: coords.y });
+            audioEngine.playMinecraftSound('portal');
+            showToast(`⚡ Fast Traveled to ${hubName} at X:${coords.x}, Y:${coords.y}!`);
+          }}
+          onRewardClaimed={(itemName) => {
+            showToast(`🌟 Received Brand Reward: ${itemName}!`);
+          }}
+        />
+      )}
+
+      {/* ================= POLANDBALL & COUNTRYBALL CREATOR MODAL ================= */}
+      {isCountryballModalOpen && (
+        <CountryballCreatorModal
+          isOpen={isCountryballModalOpen}
+          onClose={() => setIsCountryballModalOpen(false)}
+          user={auth.currentUser}
+          onApplyCountryball={(cbData) => {
+            setActiveAvatar(cbData);
+            showToast(`🌐 Equipped ${cbData.name}ball with ${cbData.countryballTrait || 'custom'} trait!`);
+          }}
+        />
+      )}
+
+      {/* ================= CROSS-PLATFORM CLOUD PROGRESSION MODAL ================= */}
+      {isProgressionModalOpen && (
+        <ProgressionModal
+          isOpen={isProgressionModalOpen}
+          onClose={() => setIsProgressionModalOpen(false)}
+          user={auth.currentUser}
         />
       )}
     </div>

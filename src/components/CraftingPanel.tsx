@@ -1,4 +1,5 @@
 import { Hammer, Sparkles } from 'lucide-react';
+import { dailyMissionManager } from '../utils/dailyMissionManager';
 
 interface CraftingProps {
   inventory: Record<string, { count: number; durability?: number }>;
@@ -92,14 +93,55 @@ export default function CraftingPanel({ inventory, onCraft, isCreative = false }
       }
       newInventory['diamond_sword'] = { count: (newInventory['diamond_sword']?.count || 0) + 1 };
       success = true;
+    } else if (type === 'sprunki_sword' && (inventory['amethyst']?.count || 0) >= 2 && (inventory['diamond']?.count || 0) >= 1) {
+      newInventory['amethyst'] = { count: newInventory['amethyst'].count - 2 };
+      newInventory['diamond'] = { count: newInventory['diamond'].count - 1 };
+      newInventory['sprunki_sword'] = { count: (newInventory['sprunki_sword']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'new_world_boots' && ((inventory['wood']?.count || 0) >= 4 || (inventory['planks']?.count || 0) >= 4) && (inventory['gold']?.count || 0) >= 1) {
+      if ((inventory['planks']?.count || 0) >= 4) {
+        newInventory['planks'] = { count: newInventory['planks'].count - 4 };
+      } else {
+        newInventory['wood'] = { count: newInventory['wood'].count - 4 };
+      }
+      newInventory['gold'] = { count: newInventory['gold'].count - 1 };
+      newInventory['new_world_boots'] = { count: (newInventory['new_world_boots']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'mcdonalds_spatula' && (inventory['ore']?.count || 0) >= 2 && (inventory['gold']?.count || 0) >= 1) {
+      newInventory['ore'] = { count: newInventory['ore'].count - 2 };
+      newInventory['gold'] = { count: newInventory['gold'].count - 1 };
+      newInventory['mcdonalds_spatula'] = { count: (newInventory['mcdonalds_spatula']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'blox_hyper_sword' && (inventory['diamond']?.count || 0) >= 2 && (inventory['amethyst']?.count || 0) >= 1) {
+      newInventory['diamond'] = { count: newInventory['diamond'].count - 2 };
+      newInventory['amethyst'] = { count: newInventory['amethyst'].count - 1 };
+      newInventory['blox_hyper_sword'] = { count: (newInventory['blox_hyper_sword']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'gravity_coil_rig' && (inventory['ore']?.count || 0) >= 2 && (inventory['gold']?.count || 0) >= 1) {
+      newInventory['ore'] = { count: newInventory['ore'].count - 2 };
+      newInventory['gold'] = { count: newInventory['gold'].count - 1 };
+      newInventory['gravity_coil_rig'] = { count: (newInventory['gravity_coil_rig']?.count || 0) + 1 };
+      success = true;
+    } else if (type === 'youtube_shield' && (inventory['diamond']?.count || 0) >= 3 && (inventory['gold']?.count || 0) >= 1) {
+      newInventory['diamond'] = { count: newInventory['diamond'].count - 3 };
+      newInventory['gold'] = { count: newInventory['gold'].count - 1 };
+      newInventory['youtube_shield'] = { count: (newInventory['youtube_shield']?.count || 0) + 1 };
+      success = true;
     }
     
     if (success) {
+      dailyMissionManager.recordAction('craft_gear', 1);
       onCraft(newInventory);
     }
   };
 
   const recipes = [
+    { id: 'sprunki_sword', name: "Sprunki's Sword of Friendship", cost: isCreative ? 'Free' : '2 Amethyst + 1 Diamond', icon: '🎶', color: 'bg-fuchsia-950 border border-fuchsia-400' },
+    { id: 'new_world_boots', name: "New World Explorer's Boots", cost: isCreative ? 'Free' : '4 Wood + 1 Gold', icon: '🥾', color: 'bg-rose-950 border border-rose-400' },
+    { id: 'mcdonalds_spatula', name: 'Golden Arches Battle Spatula', cost: isCreative ? 'Free' : '2 Iron + 1 Gold', icon: '🍳', color: 'bg-amber-950 border border-yellow-400' },
+    { id: 'blox_hyper_sword', name: 'Bloxian Linked Hyper-Sword', cost: isCreative ? 'Free' : '2 Diamonds + 1 Amethyst', icon: '⚔️', color: 'bg-cyan-950 border border-cyan-400' },
+    { id: 'gravity_coil_rig', name: 'Gravity Coil Jump Rig', cost: isCreative ? 'Free' : '2 Iron + 1 Gold', icon: '🌀', color: 'bg-blue-950 border border-blue-400' },
+    { id: 'youtube_shield', name: 'Diamond Play Button Aegis', cost: isCreative ? 'Free' : '3 Diamonds + 1 Gold', icon: '🛡️', color: 'bg-red-950 border border-red-400' },
     { id: 'celestial_blade', name: 'Celestial Blade of Verity', cost: isCreative ? 'Free' : '1 Diamond + 1 Amethyst', icon: '🗡️', color: 'bg-purple-900 border border-purple-400' },
     { id: 'starlight_halo', name: 'Verity Starlight Halo', cost: isCreative ? 'Free' : '1 Gold + 1 Amethyst', icon: '👑', color: 'bg-amber-900 border border-yellow-400' },
     { id: 'golden_apple', name: 'Golden Apple', cost: isCreative ? 'Free' : '1 Apple + 1 Gold', icon: '🍏', color: 'bg-yellow-900 border border-amber-300' },

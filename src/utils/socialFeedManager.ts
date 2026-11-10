@@ -35,9 +35,25 @@ export interface ScreenshotHighlight {
   featuredPlayers: string[];
 }
 
+export interface RobloxExperienceShareData {
+  gameId: string;
+  gameName: string;
+  emoji: string;
+  category: string;
+  genre: string;
+  description: string;
+  playerCount: string;
+  rating: string;
+  bannerGradient: string;
+  badge?: string;
+  socialPreviewUrl?: string;
+  metaTags?: string[];
+  shareTimestamp?: number;
+}
+
 export interface SocialPost {
   id: string;
-  type: 'minecraft_2d_build' | 'community_screenshot' | 'ugc_skin';
+  type: 'minecraft_2d_build' | 'community_screenshot' | 'ugc_skin' | 'megaworld_video' | 'roblox_experience_share';
   title: string;
   caption: string;
   author: {
@@ -60,6 +76,15 @@ export interface SocialPost {
   comments: PostComment[];
   buildData?: BuildSchematic;
   screenshotData?: ScreenshotHighlight;
+  robloxExperienceData?: RobloxExperienceShareData;
+  videoData?: {
+    videoId: string;
+    episodeTitle: string;
+    duration: string;
+    thumbnailStyle: string;
+    views: string;
+    cast: string[];
+  };
   ugcData?: {
     itemSlot: string;
     price: number;
@@ -352,6 +377,128 @@ export const INITIAL_SOCIAL_POSTS: SocialPost[] = [
       featuredPlayers: ['Chief Tamati', 'Wayfinder Rangatira', 'Alex', 'Tamed Wolf'],
     },
   },
+  {
+    id: 'post_video_genesis',
+    type: 'megaworld_video',
+    title: '🎬 [MegaWorld Cinema] Episode 1: Genesis of the Ten Realms',
+    caption: 'When the ancient Command Core fractured across the Multiverse, Steve, Classic Noob, and Polandball joined hands to seal the Nether Rift.',
+    author: {
+      uid: 'megaworld_studios',
+      name: 'MegaWorld RP Studios',
+      avatarType: 'youtube',
+      avatarSubtype: 'director',
+      verified: true,
+      rankTitle: 'Official RP Cinema',
+      classTitle: 'Content Creator',
+    },
+    brandTheme: 'Universal',
+    tags: ['MegaWorld RP', 'Cinema', 'Episode 1', 'Genesis', 'Multiverse Lore'],
+    likes: 3840,
+    diamondReactions: 1420,
+    fireReactions: 2950,
+    views: 48920,
+    createdAt: Date.now() - 86400000 * 3,
+    videoData: {
+      videoId: 'ep_genesis',
+      episodeTitle: 'Genesis of the Ten Realms',
+      duration: '04:18',
+      thumbnailStyle: 'sunset_citadel',
+      views: '48.9K views',
+      cast: ['Steve', 'Classic Noob', 'Polandball', 'Oren the Sprunki'],
+    },
+    comments: [
+      {
+        id: 'c_vid_1',
+        authorName: 'SprunkiBeats_DJ',
+        text: 'The 128 BPM remix when the command block sparked was peak cinema! 🔥🔥🔥',
+        createdAt: Date.now() - 86400000 * 2,
+      },
+    ],
+  },
+  {
+    id: 'post_video_polandball',
+    type: 'megaworld_video',
+    title: '🎬 [MegaWorld Cinema] Episode 4: Polandball’s Lunar Odyssey',
+    caption: 'Equipped with the high-octane BP Jetpack and Pioneer Helmet, Polandball proves to the entire multiverse that Poland CAN into space!',
+    author: {
+      uid: 'space_odyssey_rp',
+      name: 'Nations League RP',
+      avatarType: 'countryballs',
+      avatarSubtype: 'poland',
+      verified: true,
+      rankTitle: 'Space Agency Director',
+      classTitle: 'Pioneer',
+    },
+    brandTheme: 'Countryballs',
+    tags: ['Polandball', 'Space', 'BP Jetpack', 'Apollo RP', 'Cinema'],
+    likes: 4210,
+    diamondReactions: 2180,
+    fireReactions: 3120,
+    views: 62400,
+    createdAt: Date.now() - 86400000 * 2,
+    videoData: {
+      videoId: 'ep_poland_space',
+      episodeTitle: 'Polandball’s Lunar Odyssey',
+      duration: '05:42',
+      thumbnailStyle: 'waitangi_bay',
+      views: '62.4K views',
+      cast: ['Polandball', 'USA-ball', 'BP Mechanic', 'Space Steve'],
+    },
+    comments: [
+      {
+        id: 'c_vid_3',
+        authorName: 'BloxianWarrior',
+        text: 'The zero-G bounce with the Gravity Coil Rig was insane haha! 🚀',
+        createdAt: Date.now() - 86400000,
+      },
+    ],
+  },
+  {
+    id: 'post_roblox_share_verity',
+    type: 'roblox_experience_share',
+    title: '✨ Verity: Celestial Awakening RP (Holiday Update)',
+    caption: 'Step through the Starlight Gate into Verity! Claim festive auras, solve the Starlight Obelisk puzzle, and hang out with friends in the snow-dusted celestial courtyard.',
+    author: {
+      uid: 'user_verity_dev',
+      name: 'VerityArchitect',
+      avatarType: 'roblox',
+      avatarSubtype: 'guest',
+      verified: true,
+      rankTitle: 'Celestial Grandmaster',
+      classTitle: 'Roblox World Architect',
+    },
+    brandTheme: 'Roblox',
+    tags: ['Roblox', 'Experience', 'Roleplay', 'Holiday Update', 'Verity', 'Multiplayer'],
+    likes: 854,
+    diamondReactions: 412,
+    fireReactions: 520,
+    views: 8940,
+    createdAt: Date.now() - 3600000 * 5,
+    comments: [
+      {
+        id: 'c_roblox_1',
+        authorName: 'StarChaser_99',
+        authorAvatarType: 'roblox',
+        text: 'The starlight aura effect is incredible! Can\'t wait to explore with my guild.',
+        createdAt: Date.now() - 3600000 * 3,
+      },
+    ],
+    robloxExperienceData: {
+      gameId: 'verity_rp',
+      gameName: 'Verity: Celestial Awakening RP',
+      emoji: '✨',
+      category: 'Roleplay & Exploration',
+      genre: 'Celestial Fantasy RP',
+      description: 'Step into the realm of Verity! Form ancient pacts, harness astral magic, awaken celestial spirits, and socialize in high-fantasy sanctuaries.',
+      playerCount: '48.2K',
+      rating: '98%',
+      bannerGradient: 'from-purple-900 via-indigo-950 to-slate-950',
+      badge: 'NEW UPDATE',
+      socialPreviewUrl: 'https://roblox.megaworld-rp.internal/experience/verity_rp',
+      metaTags: ['Roblox', 'Verity', 'Roleplay', 'Celestial', 'Multiplayer', 'MegaWorldRP'],
+      shareTimestamp: Date.now() - 3600000 * 5,
+    },
+  },
 ];
 
 class SocialFeedManager {
@@ -412,6 +559,10 @@ class SocialFeedManager {
         filtered = filtered.filter((p) => p.type === 'community_screenshot');
       } else if (category === 'ugc') {
         filtered = filtered.filter((p) => p.type === 'ugc_skin');
+      } else if (category === 'videos') {
+        filtered = filtered.filter((p) => p.type === 'megaworld_video');
+      } else if (category === 'experiences' || category === 'roblox_experiences') {
+        filtered = filtered.filter((p) => p.type === 'roblox_experience_share');
       } else if (category === 'liked') {
         filtered = filtered.filter((p) => this.userLikedIds.has(p.id));
       }

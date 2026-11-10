@@ -85,5 +85,9 @@ service cloud.firestore {
       allow create: if isSignedIn();
       allow update, delete: if isSignedIn();
     }
+
+    match /daily_missions/{uid} {
+      allow read, write: if isSignedIn();
+    }
   }
 }

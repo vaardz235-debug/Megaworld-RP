@@ -21,6 +21,15 @@ interface DashboardProps {
   onOpenTitleMenu: () => void;
   onImportBuild?: (schematic: BuildSchematic) => void;
   onWarpToCoordinates?: (x: number, y: number) => void;
+  onOpenEditor?: () => void;
+  onOpenVideos?: () => void;
+  onOpenGuilds?: () => void;
+  onOpenDailyMissions?: () => void;
+  onSelectRobloxExperience?: (gameId: string) => void;
+  onOpenLegoWebsite?: () => void;
+  onOpenCountryballCreator?: () => void;
+  onOpenCommunityHubs?: () => void;
+  onOpenMiniGames?: () => void;
 }
 
 export default function Dashboard({
@@ -35,6 +44,15 @@ export default function Dashboard({
   onOpenTitleMenu,
   onImportBuild,
   onWarpToCoordinates,
+  onOpenEditor,
+  onOpenVideos,
+  onOpenGuilds,
+  onOpenDailyMissions,
+  onSelectRobloxExperience,
+  onOpenLegoWebsite,
+  onOpenCountryballCreator,
+  onOpenCommunityHubs,
+  onOpenMiniGames,
 }: DashboardProps) {
   return (
     <main className="max-w-6xl mx-auto space-y-8 font-mono pb-12">
@@ -76,6 +94,18 @@ export default function Dashboard({
               <span>Play Creative Mode</span>
             </button>
 
+            {onOpenEditor && (
+              <button
+                type="button"
+                onClick={onOpenEditor}
+                className="mc-btn font-bold px-5 py-2.5 rounded-xl shadow-lg transition flex items-center gap-2 cursor-pointer active:scale-95 text-xs sm:text-sm bg-amber-950/40 border border-amber-500/60 text-amber-200 hover:text-white"
+                title="Open World & Level Editor to create and edit custom levels"
+              >
+                <span className="text-base">🛠️</span> 
+                <span>World & Level Editor</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onOpenAvatarStudio}
@@ -96,6 +126,18 @@ export default function Dashboard({
               <span>Cosmetic Store</span>
             </button>
 
+            {onOpenDailyMissions && (
+              <button
+                type="button"
+                onClick={onOpenDailyMissions}
+                className="mc-btn font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer text-amber-300 hover:text-white bg-amber-950/40 border border-amber-500/50 text-xs sm:text-sm"
+                title="Open Daily Missions & 7-Day Adventurer Streak"
+              >
+                <span>🎯</span> 
+                <span>Daily Missions</span>
+              </button>
+            )}
+
             <button
               type="button"
               onClick={onOpenQuests}
@@ -115,6 +157,78 @@ export default function Dashboard({
               <span>⚖️</span> 
               <span>Market</span>
             </button>
+
+            {onOpenVideos && (
+              <button
+                type="button"
+                onClick={onOpenVideos}
+                className="mc-btn font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer text-red-300 hover:text-white bg-red-950/40 border border-red-500/50 text-xs sm:text-sm"
+                title="Watch MegaWorld RP Cinema Videos"
+              >
+                <span>🎬</span> 
+                <span>RP Videos</span>
+              </button>
+            )}
+
+            {onOpenGuilds && (
+              <button
+                type="button"
+                onClick={onOpenGuilds}
+                className="mc-btn font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer text-indigo-300 hover:text-white bg-indigo-950/40 border border-indigo-500/50 text-xs sm:text-sm"
+                title="Open Guilds & Factions Hub"
+              >
+                <span>🛡️</span> 
+                <span>Guilds & Factions</span>
+              </button>
+            )}
+
+            {onOpenLegoWebsite && (
+              <button
+                type="button"
+                onClick={onOpenLegoWebsite}
+                className="mc-btn font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer text-yellow-300 hover:text-white bg-red-950/50 border border-red-500/60 text-xs sm:text-sm"
+                title="Open Official LEGO.com Builder Universe & Minifigure Studio"
+              >
+                <span>🧱</span> 
+                <span>LEGO.com</span>
+              </button>
+            )}
+
+            {onOpenCountryballCreator && (
+              <button
+                type="button"
+                onClick={onOpenCountryballCreator}
+                className="mc-btn font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer text-blue-200 hover:text-white bg-blue-950/50 border border-blue-500/60 text-xs sm:text-sm"
+                title="Open Sovereign Countryball Creator Studio"
+              >
+                <span>🌐</span> 
+                <span>CB Creator</span>
+              </button>
+            )}
+
+            {onOpenCommunityHubs && (
+              <button
+                type="button"
+                onClick={onOpenCommunityHubs}
+                className="mc-btn font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer text-teal-200 hover:text-white bg-teal-950/50 border border-teal-500/60 text-xs sm:text-sm"
+                title="Open Persistent Community Event Hubs & Spatial Voice Radio"
+              >
+                <span>🏛️</span> 
+                <span>Event Hubs</span>
+              </button>
+            )}
+
+            {onOpenMiniGames && (
+              <button
+                type="button"
+                onClick={onOpenMiniGames}
+                className="mc-btn font-bold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 cursor-pointer text-purple-200 hover:text-white bg-purple-950/50 border border-purple-500/60 text-xs sm:text-sm"
+                title="Open Cross-Platform Mini-Games Arcade"
+              >
+                <span>🎮</span> 
+                <span>Mini-Games</span>
+              </button>
+            )}
 
             <button
               type="button"
@@ -196,6 +310,7 @@ export default function Dashboard({
           user={user}
           onImportBuild={onImportBuild}
           onWarpToCoordinates={onWarpToCoordinates}
+          onSelectRobloxExperience={onSelectRobloxExperience}
         />
       </section>
     </main>

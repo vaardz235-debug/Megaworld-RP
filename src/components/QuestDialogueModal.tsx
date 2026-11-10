@@ -217,7 +217,7 @@ export const NPCS_DATA: NPC[] = [
   {
     id: 'npc_verity',
     name: 'Oracle Verity',
-    title: 'Celestial Oracle of Starlight & Truth (The Verity Update)',
+    title: 'Celestial Oracle of Starlight & Truth',
     biome: 'Celestial Amethyst Shrine',
     avatarColor: 'bg-purple-600',
     emoji: '🔮',
@@ -521,6 +521,62 @@ export const NPCS_DATA: NPC[] = [
         xpReward: 380,
       }
     ]
+  },
+  {
+    id: 'npc_jeremy',
+    name: 'Jeremy the Jet Plane (Steremy)',
+    title: 'Chief Aviator of Sodor Airport & Multiverse Airdrops',
+    biome: 'Sodor Airport & Runway',
+    avatarColor: 'bg-sky-400',
+    emoji: '✈️',
+    x: 400,
+    y: 5,
+    greeting: "Whoosh! Hello down there! I'm Jeremy the Jet Plane, but everyone calls me Steremy! The skies over Sodor and the Multiverse are magnificent today! Ready for takeoff?",
+    lore: "Jeremy loves flying high above the Island of Sodor and delivering holiday gifts across the multiverse. He keeps the Sodor Airport runway pristine and ready for supersonic launches.",
+    quests: [
+      {
+        id: 'q_sodor_runway_lights',
+        npcId: 'npc_jeremy',
+        npcName: 'Jeremy the Jet Plane (Steremy)',
+        title: "Sodor Runway Illumination",
+        description: "Bring 4 Glowstone blocks to illuminate the Sodor Airport night airstrip for safe supersonic landings.",
+        requiredItem: 'glowstone',
+        requiredCount: 4,
+        rewardItem: 'jeremy_flight_token',
+        rewardCount: 1,
+        rewardItem2: 'diamond',
+        rewardCount2: 4,
+        xpReward: 350,
+      },
+      {
+        id: 'q_multiverse_airdrop',
+        npcId: 'npc_jeremy',
+        npcName: 'Jeremy the Jet Plane (Steremy)',
+        title: "Multiverse Holiday Airdrop",
+        description: "Deliver 5 Fresh Bread for high-altitude emergency supply airdrops across remote winter settlements.",
+        requiredItem: 'bread',
+        requiredCount: 5,
+        rewardItem: 'sodor_aviator_shades',
+        rewardCount: 1,
+        rewardItem2: 'golden_apple',
+        rewardCount2: 2,
+        xpReward: 420,
+      },
+      {
+        id: 'q_sound_barrier',
+        npcId: 'npc_jeremy',
+        npcName: 'Jeremy the Jet Plane (Steremy)',
+        title: "Break the Sound Barrier",
+        description: "Bring 3 Obsidian blocks to forge supersonic heat shielding for Steremy's twin turbojet turbines.",
+        requiredItem: 'obsidian',
+        requiredCount: 3,
+        rewardItem: 'jet_turbine_booster',
+        rewardCount: 1,
+        rewardItem2: 'netherite',
+        rewardCount2: 3,
+        xpReward: 500,
+      }
+    ]
   }
 ];
 
@@ -529,6 +585,7 @@ interface QuestDialogueModalProps {
   inventory: Record<string, { count: number; durability?: number }>;
   activeQuestIds: string[];
   completedQuestIds: string[];
+  playerTrait?: 'diplomatic' | 'clay_hungry' | 'industrious' | 'jovial' | 'stoic' | 'space_dreamer';
   onAcceptQuest: (questId: string) => void;
   onTurnInQuest: (quest: Quest) => void;
   onClose: () => void;
@@ -539,6 +596,7 @@ export default function QuestDialogueModal({
   inventory,
   activeQuestIds,
   completedQuestIds,
+  playerTrait,
   onAcceptQuest,
   onTurnInQuest,
   onClose
@@ -589,6 +647,20 @@ export default function QuestDialogueModal({
               <p className="text-xs text-gray-400 mt-1">
                 {npc.lore}
               </p>
+              {playerTrait && (
+                <div className="mt-2 py-1 px-2.5 rounded-lg bg-yellow-500/10 border border-yellow-500/30 text-[11px] text-yellow-200 flex items-center gap-1.5 font-mono">
+                  <span>✨</span>
+                  <span>
+                    <strong>[Trait Reaction: {playerTrait.replace('_', ' ').toUpperCase()}]</strong>{' '}
+                    {playerTrait === 'diplomatic' && '"Your distinguished diplomatic charm honors our realm. Extra +25% trade reputation awarded!"'}
+                    {playerTrait === 'clay_hungry' && '"Whoa, hold your clay hunger! Point that ferocious battle drive at the Nether Citadel monsters!"'}
+                    {playerTrait === 'industrious' && '"An engineer of master efficiency! Your craftsmanship speeds up our building projects tenfold."'}
+                    {playerTrait === 'jovial' && '"Hahaha! Your cheerful holiday spirit brings warmth and festive cheer to our settlement!"'}
+                    {playerTrait === 'stoic' && '"A steadfast and immovable ally. Your unshakeable armor shields us all."'}
+                    {playerTrait === 'space_dreamer' && '"Eyes on the stars! May your rocket dreams reach deep into the cosmos!"'}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
           <button

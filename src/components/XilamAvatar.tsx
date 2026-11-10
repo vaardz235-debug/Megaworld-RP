@@ -9,8 +9,9 @@ interface XilamAvatarProps {
 
 export default function XilamAvatar({ character, isWalking = false, heldItem }: XilamAvatarProps) {
   const subtype = (character.subtype || character.name || '').toLowerCase();
-
-  const isOggy = subtype.includes('oggy') || (!subtype.includes('jack') && !subtype.includes('sharko') && !subtype.includes('zig') && !subtype.includes('marina') && !subtype.includes('joey') && !subtype.includes('dee') && !subtype.includes('marky'));
+  const isBob = subtype.includes('bob');
+  const isOlivia = subtype.includes('olivia');
+  const isBernie = subtype.includes('bernie');
   const isJack = subtype.includes('jack');
   const isJoey = subtype.includes('joey');
   const isDeeDee = subtype.includes('dee');
@@ -18,6 +19,7 @@ export default function XilamAvatar({ character, isWalking = false, heldItem }: 
   const isSharko = subtype.includes('sharko');
   const isZig = subtype.includes('zig');
   const isMarina = subtype.includes('marina');
+  const isOggy = subtype.includes('oggy') || (!isBob && !isOlivia && !isBernie && !isJack && !isSharko && !isZig && !isMarina && !isJoey && !isDeeDee && !isMarky);
 
   return (
     <div className={`relative flex flex-col items-center select-none ${isWalking ? 'animate-bounce' : ''}`}>
@@ -376,6 +378,176 @@ export default function XilamAvatar({ character, isWalking = false, heldItem }: 
             <div className="w-10 h-8 bg-teal-600 border border-teal-800 rounded-b-full flex items-center justify-center">
               <span className="text-xs">🧜‍♀️</span>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= BOB THE BULLDOG ================= */}
+      {isBob && (
+        <div className="relative flex flex-col items-center">
+          {/* Bulldog Folded Ears */}
+          <div className="flex justify-between w-16 -mb-2 z-10 px-1">
+            <div className="w-4 h-5 bg-amber-950 border-2 border-black rounded-b-lg transform -rotate-20" />
+            <div className="w-4 h-5 bg-amber-950 border-2 border-black rounded-b-lg transform rotate-20" />
+          </div>
+
+          {/* Bulldog Massive Jaw & Head */}
+          <div className="w-18 h-14 bg-amber-800 border-2 border-black rounded-2xl relative shadow-xl flex flex-col items-center justify-between p-1">
+            {/* Angry Brow & Small Eyes */}
+            <div className="w-full flex justify-between px-2 pt-1">
+              <div className="flex flex-col items-center">
+                <div className="w-4 h-1 bg-black -rotate-12 mb-0.5" />
+                <div className="w-2.5 h-2.5 bg-white border border-black rounded-full flex items-center justify-center">
+                  <div className="w-1 h-1 bg-black rounded-full" />
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-4 h-1 bg-black rotate-12 mb-0.5" />
+                <div className="w-2.5 h-2.5 bg-white border border-black rounded-full flex items-center justify-center">
+                  <div className="w-1 h-1 bg-black rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* Pug Snout & Underbite with 2 White Protruding Fangs */}
+            <div className="w-12 h-6 bg-amber-950 border border-black rounded-lg relative flex flex-col items-center justify-end pb-0.5">
+              <div className="w-3.5 h-2 bg-black rounded-full mb-0.5" />
+              <div className="w-full flex justify-between px-2">
+                <div className="w-1.5 h-2 bg-white border border-black rounded-t-xs -mt-1" />
+                <div className="w-1.5 h-2 bg-white border border-black rounded-t-xs -mt-1" />
+              </div>
+            </div>
+          </div>
+
+          {/* Spiked Dog Collar */}
+          <div className="w-16 h-3 bg-red-700 border-2 border-black rounded-sm flex items-center justify-around px-1 -mt-1 z-20 shadow">
+            <div className="w-1.5 h-2 bg-stone-200 border border-stone-800 rounded-t-full" />
+            <div className="w-1.5 h-2 bg-stone-200 border border-stone-800 rounded-t-full" />
+            <div className="w-1.5 h-2 bg-stone-200 border border-stone-800 rounded-t-full" />
+            <div className="w-1.5 h-2 bg-stone-200 border border-stone-800 rounded-t-full" />
+          </div>
+
+          {/* Heavy Boxer Muscular Torso */}
+          <div className="w-20 h-16 bg-amber-800 border-2 border-black rounded-3xl -mt-1 relative shadow-2xl flex flex-col items-center justify-center">
+            {/* Chest definition */}
+            <div className="w-12 h-10 bg-amber-700/80 border border-amber-900 rounded-2xl flex items-center justify-center">
+              <div className="w-0.5 h-8 bg-amber-950/60" />
+            </div>
+            {/* Giant Boxing Glove / Bone in Hand */}
+            <div className="absolute -right-3 top-2 text-base pointer-events-none drop-shadow">
+              🦴
+            </div>
+          </div>
+
+          {/* Heavy Paws */}
+          <div className="flex gap-4 -mt-1">
+            <div className="w-7 h-4 bg-amber-950 border-2 border-black rounded-full" />
+            <div className="w-7 h-4 bg-amber-950 border-2 border-black rounded-full" />
+          </div>
+        </div>
+      )}
+
+      {/* ================= OLIVIA (SWEET WHITE CAT) ================= */}
+      {isOlivia && (
+        <div className="relative flex flex-col items-center">
+          {/* Yellow Daisy Flower in Ear */}
+          <div className="absolute -top-3 right-0 text-base z-20 drop-shadow">
+            🌼
+          </div>
+
+          {/* White Kitty Ears with Soft Pink Inner */}
+          <div className="flex justify-between w-12 -mb-2 z-10 px-0.5">
+            <div className="w-4 h-4.5 bg-white border-2 border-stone-400 rounded-tl-full transform -rotate-12 flex items-center justify-center shadow-sm">
+              <div className="w-2 h-2.5 bg-pink-300 rounded-tl-full" />
+            </div>
+            <div className="w-4 h-4.5 bg-white border-2 border-stone-400 rounded-tr-full transform rotate-12 flex items-center justify-center shadow-sm">
+              <div className="w-2 h-2.5 bg-pink-300 rounded-tr-full" />
+            </div>
+          </div>
+
+          {/* Sweet White Face */}
+          <div className="w-13 h-11 bg-white border-2 border-stone-300 rounded-2xl relative shadow-md flex flex-col items-center justify-center">
+            {/* Joyful Emerald Eyes with Long Eyelashes */}
+            <div className="flex gap-2 z-10">
+              <div className="flex flex-col items-center">
+                <div className="w-3 h-0.5 bg-black -rotate-12" />
+                <div className="w-3.5 h-4 bg-emerald-400 border border-black rounded-full flex items-center justify-center">
+                  <div className="w-1.5 h-2 bg-black rounded-full" />
+                </div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="w-3 h-0.5 bg-black rotate-12" />
+                <div className="w-3.5 h-4 bg-emerald-400 border border-black rounded-full flex items-center justify-center">
+                  <div className="w-1.5 h-2 bg-black rounded-full" />
+                </div>
+              </div>
+            </div>
+
+            {/* Tiny Pink Nose & Smile */}
+            <div className="w-2 h-1.5 bg-pink-500 rounded-full mt-0.5" />
+            <div className="w-4 h-1 border-b-2 border-black rounded-full mt-0.5" />
+          </div>
+
+          {/* Pretty Pink Dress */}
+          <div className="w-13 h-14 bg-pink-400 border-2 border-pink-600 rounded-2xl -mt-1 relative shadow-md flex flex-col items-center justify-between p-1">
+            <div className="w-8 h-2 bg-white rounded-full border border-pink-300 shadow-xs mt-0.5" />
+            <div className="w-full flex justify-center text-xs">
+              🌸
+            </div>
+            {/* White Curled Cat Tail */}
+            <div className="absolute -left-2.5 bottom-1 w-3 h-6 border-l-2 border-b-2 border-stone-400 rounded-bl-full bg-white rotate-12" />
+          </div>
+
+          {/* Dainty White Paws */}
+          <div className="flex gap-3 -mt-0.5">
+            <div className="w-4 h-3 bg-white border-2 border-stone-300 rounded-full shadow-xs" />
+            <div className="w-4 h-3 bg-white border-2 border-stone-300 rounded-full shadow-xs" />
+          </div>
+        </div>
+      )}
+
+      {/* ================= BERNIE THE HERMIT CRAB ================= */}
+      {isBernie && (
+        <div className="relative flex flex-col items-center">
+          {/* Eyestalks with Round Spectacles */}
+          <div className="flex justify-between w-9 -mb-1 z-20">
+            <div className="flex flex-col items-center">
+              <div className="w-4 h-4 bg-cyan-100/90 border-2 border-amber-600 rounded-full flex items-center justify-center shadow">
+                <div className="w-1.5 h-1.5 bg-black rounded-full" />
+              </div>
+              <div className="w-1 h-2 bg-red-600 -mt-0.5" />
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="w-4 h-4 bg-cyan-100/90 border-2 border-amber-600 rounded-full flex items-center justify-center shadow">
+                <div className="w-1.5 h-1.5 bg-black rounded-full" />
+              </div>
+              <div className="w-1 h-2 bg-red-600 -mt-0.5" />
+            </div>
+          </div>
+
+          {/* Spiral Red/Orange Conch Shell on Back */}
+          <div className="w-14 h-12 bg-gradient-to-tr from-amber-800 via-orange-600 to-amber-500 border-2 border-black rounded-t-3xl rounded-b-xl relative shadow-lg flex items-center justify-center">
+            {/* Spiral ridges */}
+            <div className="w-10 h-8 border-2 border-amber-950/40 rounded-full" />
+            <div className="w-6 h-5 border-2 border-amber-950/40 rounded-full" />
+          </div>
+
+          {/* Front Tiny Pincers & Red Crab Legs */}
+          <div className="flex justify-between w-16 -mt-3 z-10">
+            <div className="w-4 h-4 bg-red-600 border-2 border-black rounded-full flex items-center justify-center shadow">
+              <span className="text-[10px] text-white">✂️</span>
+            </div>
+            <div className="w-4 h-4 bg-red-600 border-2 border-black rounded-full flex items-center justify-center shadow">
+              <span className="text-[10px] text-white">✂️</span>
+            </div>
+          </div>
+
+          {/* Little Walking Crab Skitter Legs */}
+          <div className="flex gap-2 -mt-1">
+            <div className="w-1.5 h-2.5 bg-red-700 rounded-b-sm" />
+            <div className="w-1.5 h-2.5 bg-red-700 rounded-b-sm" />
+            <div className="w-1.5 h-2.5 bg-red-700 rounded-b-sm" />
+            <div className="w-1.5 h-2.5 bg-red-700 rounded-b-sm" />
           </div>
         </div>
       )}

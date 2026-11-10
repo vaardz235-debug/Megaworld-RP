@@ -302,6 +302,62 @@ class SpeechEngine {
         "I found another shiny diamond for our chest! Wheeee!",
       ];
     }
+    if (key.includes('breeze')) {
+      return [
+        "Whoosh! Trial Chambers wind elemental spinning into action!",
+        "Wind charge explosion! Bouncing off the copper grates!",
+        "Swirling lilac vortex! Can you dodge my turbulent gusts?",
+      ];
+    }
+    if (key.includes('sniffer')) {
+      return [
+        "Sniff sniff... My giant prehistoric snout smells ancient torchflower seeds!",
+        "Gentle prehistoric giant with a lush mossy shell, lumbering through the meadows!",
+        "Ancient flora blooming wherever I roam! Snort!",
+      ];
+    }
+    if (key.includes('armadillo')) {
+      return [
+        "Click! Curling into a diamond-hard terracotta armor cube!",
+        "Savannah explorer on the march! Wolf scutes for everyone!",
+        "Tucked into my defensive shell! No mob claws can pierce this armor!",
+      ];
+    }
+    if (key.includes('frog')) {
+      return [
+        "Ribbit! High-velocity leaps across mangrove swamp lily pads!",
+        "Gulp! Digesting tiny magma cubes to forge glowing Ochre Froglight!",
+        "Croak! Big joyful eyes watching the sunset over the swamp!",
+      ];
+    }
+    if (key.includes('camel')) {
+      return [
+        "Snort! Dashing at lightning speed across the burning desert dunes!",
+        "Clearing 3-block-tall cactus walls with my majestic camel leaps!",
+        "Tall desert traveler with floppy ears and a colorful ceremonial saddle!",
+      ];
+    }
+    if (key.includes('ghast')) {
+      return [
+        "Wailing ghostly screech echoing through the red Nether caverns!",
+        "Shooting explosive fire charges from the brimstone ceiling!",
+        "Crying ruby tears that float across the lava lakes...",
+      ];
+    }
+    if (key.includes('bogged')) {
+      return [
+        "Rattle... Poison arrows notched and aimed from the murky bog!",
+        "Toadstool mushrooms sprouting right out of my mossy skull!",
+        "Beware the venomous swamp sniper lurking in the mangrove vines!",
+      ];
+    }
+    if (key.includes('ronald')) {
+      return [
+        "I'm lovin' it! Serving up golden arches happiness across the multiverse!",
+        "Enchanted golden silk clown suit and sparkling Big Mac boxes for all!",
+        "Crispy golden fries and warm smiles for every hungry miner!",
+      ];
+    }
 
     // Sprunki Beatboxers Quotes
     if (key.includes('oren')) {
@@ -464,6 +520,22 @@ class SpeechEngine {
         "Snoring in key... low C frequency reverberating...",
       ];
     }
+    if (key.includes('supernova')) {
+      return [
+        "Galactic starburst pulse! Ethereal dual halos resonating with cosmic energy!",
+        "Supernova harmonic blast! Synthesizing constellations across deep space!",
+        "Stellar frequencies sparkling through the infinite cosmic void!",
+        "Behold the cosmic dawn! Verity's celestial radiance illuminating the multiverse!",
+      ];
+    }
+    if (key.includes('piper')) {
+      return [
+        "Skirl of the Highland pipes! Drones humming and chanter trilling!",
+        "Glengarry bonnet cocked and tartan ribbons fluttering to the reel!",
+        "Echoing across the misty Scottish glens! A rousing jig for all travelers!",
+        "Steady rhythm on the drones, sharp snaps on the chanter!",
+      ];
+    }
     if (key.includes('verity')) {
       return [
         "Behold the celestial light! Truth resonates through cosmic crystal harmonies!",
@@ -475,6 +547,30 @@ class SpeechEngine {
     }
 
     // Trains (Thomas & Friends)
+    if (key.includes('murdoch')) {
+      return [
+        "Mighty British Railways Standard Class 9F! Ten giant driving wheels on the mainline!",
+        "Just craving a bit of peace and quiet through the Sodor countryside...",
+        "Heavy goods train in tow! No freight is too heavy for my 2-10-0 boiler!",
+        "A quiet whistle through the valleys... steady and powerful!",
+      ];
+    }
+    if (key.includes('daisy')) {
+      return [
+        "Highly-sprung diesel railcar with luxurious curved windows, thank you very much!",
+        "My fitter specifically told me that pulling trucks would damage my delicate swerves!",
+        "Fabulous emerald and yellow streamlining! Distinctly modern and elegant!",
+        "Purring along the branch line without a speck of soot!",
+      ];
+    }
+    if (key.includes('boco')) {
+      return [
+        "Metropolitan-Vickers Type 2 diesel! Edward and I keep the branch line running smoothly!",
+        "Now then, Bill and Ben, behave yourselves! No teasing the big engines!",
+        "Reliable green diesel power! Happy to work alongside both steam and diesel!",
+        "Gentle hum of my diesel engine keeping everyone on schedule!",
+      ];
+    }
     if (key.includes('thomas')) {
       return [
         "I'm Thomas, a Really Useful Engine! Peep peep! Clear the tracks!",
@@ -692,7 +788,47 @@ class SpeechEngine {
     }
 
     // Roblox Characters Quotes
-    if (type === 'roblox' || key.includes('noob') || key.includes('bacon') || key.includes('builder') || key.includes('guest') || key.includes('korblox') || key.includes('dominus') || key.includes('valkyrie')) {
+    if (type === 'roblox' || key.includes('noob') || key.includes('bacon') || key.includes('builder') || key.includes('guest') || key.includes('korblox') || key.includes('dominus') || key.includes('valkyrie') || key.includes('robot') || key.includes('shedletsky') || key.includes('1x1x1x1') || key.includes('slender')) {
+      if (key.includes('robot')) {
+        return [
+          "BEEP-BOOP! Steam pressure optimal! Iron gear joints operational!",
+          "Copper cogwheels whirring! Calculating highest jump trajectory!",
+          "Robotic laser visor focused on the next obstacle! Powering up!",
+          "Oil can equipped! No rust shall slow down this iron automaton!",
+        ];
+      }
+      if (key.includes('bacon_girl') || (key.includes('bacon') && key.includes('girl'))) {
+        return [
+          "Braided bacon hair on point! Neon pink sneakers tied and ready!",
+          "Speedrunning this obstacle course! Double-jump timing perfected!",
+          "Outfit code: 100% legendary! Let's conquer the tower tycoon!",
+          "Grab a soda, don't touch the neon lava, and follow my lead!",
+        ];
+      }
+      if (key.includes('shedletsky') || key.includes('telamon')) {
+        return [
+          "Teh Epik Duck is coming! *Nom nom nom* fried chicken restored my HP!",
+          "Telamon sword swung! Classic Roblox sword fights are the best!",
+          "Release the rubber ducks across the server! Chaos time!",
+          "Always bring a bucket of chicken to a sword fight!",
+        ];
+      }
+      if (key.includes('1x1x1x1')) {
+        return [
+          "01010011 01011001 01010011... THE CORRUPTED MATRIX AWAKENS!",
+          "Glitched code bleeding through the skybox! You cannot patch me out!",
+          "Subspace tripmines armed! The green void fractures your reality!",
+          "Corrupted scripts executing... behold infinite void power!",
+        ];
+      }
+      if (key.includes('slender')) {
+        return [
+          "Monochromatic elegance. Low-poly black fedora tipped in silence.",
+          "Walking down the neon corridor with timeless dark aesthetic.",
+          "Radio on the shoulder, bass tuned low. Cool and composed.",
+          "A silent shadow in the bustling lobby...",
+        ];
+      }
       if (key.includes('noob')) {
         return [
           "OOF! Classic yellow skin and blue shirt, ready to conquer the obby!",
@@ -740,6 +876,155 @@ class SpeechEngine {
       ];
     }
 
+    // Xilam Animation (Oggy and the Cockroaches)
+    if (type === 'xilam' || key.includes('oggy') || key.includes('jack') || key.includes('joey') || key.includes('marky') || key.includes('dee') || key.includes('bob') || key.includes('olivia') || key.includes('bernie')) {
+      if (key.includes('bob')) {
+        return [
+          "GRRR! Keep your muddy paws off my prized rose bushes!",
+          "One toe across my lawn boundary and you get the mega bulldog punch!",
+          "Spiked collar gleaming! Just trying to enjoy my marrow bone in peace!",
+          "BARRK! Don't make me put on my red boxing gloves!",
+        ];
+      }
+      if (key.includes('olivia')) {
+        return [
+          "Meow~ What a lovely sunny afternoon in the garden!",
+          "Daisy in my ear, emerald eyes sparkling! Isn't life charming?",
+          "Oggy is so sweet, but those silly roaches need to learn some manners!",
+          "Let's have a peaceful tea party and watch the butterflies!",
+        ];
+      }
+      if (key.includes('bernie')) {
+        return [
+          "Click-clack! Adjusting my spectacles to classify this rare seashell!",
+          "My spiral shell is impenetrable! Tideline scavenging in progress!",
+          "Fascinating marine flora! Careful with those pincers!",
+          "Snap snap! Deep ocean wisdom always triumphs over chaos!",
+        ];
+      }
+      if (key.includes('jack')) {
+        return [
+          "Stand back, cousin Oggy! Let Jack handle this with pure muscle!",
+          "Monster truck engine roaring! Time to build an anti-roach rocket!",
+          "Green tactical tomcat power! We're blowing this pest problem wide open!",
+          "Flex those biceps! Jack fears nothing!",
+        ];
+      }
+      if (key.includes('joey')) {
+        return [
+          "Hehehe! I'm Joey, the mastermind behind the greatest fridge heist!",
+          "Pink right eye, yellow left eye! Target acquired: the meat pie!",
+          "Attention roaches! Execute Operation: Total Living Room Chaos!",
+          "Oggy won't even know what hit his flyswatter!",
+        ];
+      }
+      if (key.includes('marky')) {
+        return [
+          "Silver-tongued charmer cockroach strumming the tiny guitar!",
+          "Singing sweet serenades to refrigerator snacks!",
+          "Smooth style, curly antenna, zero stress!",
+          "Why fight when you can dance through the kitchen pipes?",
+        ];
+      }
+      if (key.includes('dee') || key.includes('deedee')) {
+        return [
+          "HUNGRY! Sausages, whole turkeys, wedding cakes... I'll eat them all!",
+          "Blue-green tummy rumbling like thunder! Feed Dee Dee!",
+          "If it fits in the fridge, it fits in my stomach! YUM!",
+          "Chomping through the buffet at lightspeed!",
+        ];
+      }
+      if (key.includes('lucky') || key.includes('luke')) {
+        return [
+          "I'm a poor lonesome cowboy, a long way from home...",
+          "Draw! I shoot faster than my own shadow!",
+          "Back behind bars, Dalton brothers! Justice always prevails in the West!",
+          "Jolly Jumper and I have seen every desert canyon under the sun.",
+        ];
+      }
+      if (key.includes('rantanplan')) {
+        return [
+          "Woof woof! Is that a sausage or a stick of dynamite? Either way, delicious!",
+          "Chasing my tail in circles... wait, who's that handsome dog in the mirror?",
+          "I smell dinner 50 miles away! Good boy Rantanplan to the rescue!",
+          "Averell dropped a sandwich! Best day of my entire life!",
+        ];
+      }
+      if (key.includes('joe_dalton') || key.includes('joe')) {
+        return [
+          "I HATE LUCKY LUKE! I HATE HIM! I HATE HIM! GRRRR!",
+          "Averell, shut your trap and start digging the escape tunnel!",
+          "Six-shooters drawn! We're the Dalton gang and we take what we want!",
+          "My mustache is twitching with pure fury! Blast it all!",
+        ];
+      }
+      if (key.includes('averell')) {
+        return [
+          "Say, Joe... when do we eat? My tummy is rumbling like a locomotive!",
+          "I found a chocolate bar in my striped prison pocket! Want half, Joe?",
+          "Can we stop at the bakery before we rob the bank? I'm faint with hunger!",
+          "Gee, Lucky Luke is actually pretty nice when he gives us hot soup!",
+        ];
+      }
+      if (key.includes('oggy')) {
+        return [
+          "MEOOOW! JOEY! MARKY! DEE DEE! Get out of my refrigerator!",
+          "Where is my giant pink flyswatter?! My laundry is ruined!",
+          "Purr... all I wanted was to watch my favorite cooking show on the sofa...",
+          "Blue cat blues! Why does my house always get demolished?!",
+        ];
+      }
+      return [
+        "Slapstick cartoon chaos! Watch out for flying anvils and dynamite!",
+        "Cartoon chase in progress across the backyard!",
+        "Classic Xilam animation mayhem brings the laughs!",
+      ];
+    }
+
+    // Brands, Schools & Locomotives Extended Quotes
+    if (key.includes('hamburglar')) {
+      return [
+        "Robble Robble! The Golden Arches burger stash is mine!",
+        "Sneaking past Chief O'Hara with a trench coat full of cheeseburgers!",
+        "Robble! Nothing beats the taste of a fresh, hot McDonald's burger!",
+      ];
+    }
+    if (key.includes('mayor_mccheese') || key.includes('mccheese')) {
+      return [
+        "Greetings citizens of McDonaldland! Welcome to the grand banquet!",
+        "By mayoral proclamation, free french fries for all adventurers!",
+        "Dignity, prosperity, and golden deliciousness for all!",
+      ];
+    }
+    if (key.includes('birdie')) {
+      return [
+        "Early bird catches the hotcakes! Goggles strapped and flying high!",
+        "Good morning, sunshine! Breakfast is served at the Golden Arches!",
+        "Soaring through the fluffy morning clouds with egg and cheese delight!",
+      ];
+    }
+    if (key.includes('breeze')) {
+      return [
+        "WHIRRRR! Bouncing off the trial chamber copper tiles!",
+        "Wind charge unleashed! Try dodging this swirling gale!",
+        "Caught in the updraft! You can't pin down the wind!",
+      ];
+    }
+    if (key.includes('sniffer')) {
+      return [
+        "*Sniff sniff snuuuuffff*... Ancient seeds detected under the moss!",
+        "Burrowing snout into the soil! Here comes a torchflower bulb!",
+        "Gentle prehistoric giant lumbering through the prehistoric ferns.",
+      ];
+    }
+    if (key.includes('allay')) {
+      return [
+        "Chime chime! Give me an item and I'll find all its twins for you!",
+        "Fluttering to the tune of the note block! Love and cookies forever!",
+        "Singing harmonic joy across the spruce forest treetops!",
+      ];
+    }
+
     // Default Fallback
     return [
       `Hello adventurer! I am ${name}, ready for world exploration!`,
@@ -774,6 +1059,10 @@ class SpeechEngine {
       audioEngine.playMinecraftSound(character.subtype || character.heldWeapon || character.name);
     } else if (character.type === 'train') {
       audioEngine.playMinecraftSound('bell');
+    } else if (character.type === 'roblox') {
+      audioEngine.playMinecraftSound('pop');
+    } else if (character.type === 'xilam') {
+      audioEngine.playMinecraftSound('pop');
     } else {
       audioEngine.playMinecraftSound('orb');
     }

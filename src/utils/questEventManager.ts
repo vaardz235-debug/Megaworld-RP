@@ -20,7 +20,10 @@ export interface QuestDef {
   id: string;
   title: string;
   category: 'fetch' | 'combat' | 'puzzle' | 'territory' | 'interaction';
-  brand: 'Minecraft' | 'Roblox' | 'Countryballs' | 'Xilam' | 'NZ' | 'McDonald\'s' | 'BP' | 'YouTube' | 'Tarragower' | 'New World';
+  brand: 'Minecraft' | 'Roblox' | 'Countryballs' | 'Xilam' | 'NZ' | 'McDonald\'s' | 'BP' | 'YouTube' | 'Tarragower' | 'New World' | 'Multiverse';
+  participatingBrands?: string[];
+  isCrossover?: boolean;
+  collaborativeBonus?: string;
   npcName: string;
   npcAvatar: string;
   description: string;
@@ -53,10 +56,19 @@ export interface QuestDef {
   };
 }
 
+export interface EventRewardTier {
+  tierName: string;
+  requirement: string;
+  coins: number;
+  robux?: number;
+  itemReward?: string;
+  badgeTitle?: string;
+}
+
 export interface ScheduledEvent {
   id: string;
   title: string;
-  type: 'tournament' | 'festival' | 'boss_battle';
+  type: 'tournament' | 'festival' | 'boss_battle' | 'cooperative' | 'gathering';
   brand: string;
   bannerEmoji: string;
   description: string;
@@ -68,8 +80,20 @@ export interface ScheduledEvent {
   participantsCount: number;
   maxParticipants: number;
   modifiers: string[];
+  // Multi-platform accessibility tags across all 8 integrated platforms
+  accessiblePlatforms?: string[];
+  // Clear participation rules & prerequisites
+  participationRules?: string[];
+  // Structured reward mechanisms & tiers
+  rewardTiers?: EventRewardTier[];
+  // Live multiversal announcement headline
+  announcementBroadcast?: string;
   // Voice Coordination & Cross-Player Collaboration
   voiceCoordination?: string;
+  collaborativeObjective?: string;
+  collaborativeProgress?: number;
+  collaborativeTarget?: number;
+  collaborativePerk?: string;
   // Boss Battle specific state
   bossHp?: number;
   maxBossHp?: number;
@@ -613,9 +637,489 @@ export const QUESTS_CATALOG: QuestDef[] = [
       fortificationLevel: 5,
     },
   },
+
+  // 6. MULTIVERSE 3+ IP INTERACTIVE CROSSOVER QUESTS
+  {
+    id: 'q_crossover_tri_sovereign',
+    title: 'The Tri-Realm Sovereign Relic',
+    category: 'puzzle',
+    brand: 'Multiverse',
+    participatingBrands: ['Minecraft', 'Roblox', 'Countryballs'],
+    isCrossover: true,
+    collaborativeBonus: '+50% Coins & Robux when solving in a 2+ player squad!',
+    npcName: 'Polandball & Steve & Builderman',
+    npcAvatar: '🌐',
+    description: 'Polandball has designed the ultimate Inter-Realm Space Portal! To ignite its core, you must bring together Minecraft Netherite alloys, a Roblox Speed Coil frequency regulator, and the official Sovereign Clay Stamp from the United Nations delegates.',
+    instruction: 'Solve the tri-realm frequency alignment puzzle, then deposit 1 Netherite and 1 Speed Coil into the portal altar.',
+    targetKey: 'puzzle_tri_realm_matrix',
+    targetCount: 1,
+    voiceChatTip: 'Coordinate frequency puzzle node values with your teammates using voice frequency 144.20 MHz!',
+    crossPlayerInteraction: 'Requires one player on the redstone switch, one on the Roblox gravity lift, and one stamping the diplomatic visa.',
+    reward: { 
+      coins: 550, 
+      robux: 120, 
+      xp: 450, 
+      item: 'tri_realm_blade', 
+      itemCount: 1, 
+      cosmeticUnlockId: 'emblem_countryball' 
+    },
+    puzzleData: {
+      type: 'logic_circuit',
+      prompt: 'Synchronize the three cross-universe harmonic energy conduits:',
+      nodes: [
+        { id: 'node_mc_netherite', label: 'Minecraft Netherite Resonator', active: false },
+        { id: 'node_rbx_coil', label: 'Roblox Hyper-Coil Accelerator', active: false },
+        { id: 'node_cb_diplomacy', label: 'Countryballs Diplomatic Matrix', active: false },
+      ],
+      solutionOrder: ['node_mc_netherite', 'node_rbx_coil', 'node_cb_diplomacy'],
+    },
+  },
+  {
+    id: 'q_crossover_viral_banquet',
+    title: 'The 100M Viral Golden Feast Stream',
+    category: 'fetch',
+    brand: 'Multiverse',
+    participatingBrands: ['McDonald\'s', 'YouTube', 'Minecraft'],
+    isCrossover: true,
+    collaborativeBonus: 'Triggers a golden subscriber confetti shower for all players on the server upon completion!',
+    npcName: 'Chef Ronald & Streamer Nova',
+    npcAvatar: '🍟',
+    description: 'Streamer Nova is hosting a global 24-hour charity broadcast with Chef Ronald! Mine Minecraft gold to forge sparkling golden apples, bake 10 loaves of bread in the furnace, assemble Happy Meal bundles, and broadcast the feast live on the YouTube stage.',
+    instruction: 'Harvest 6 Gold Ingot ores, deliver 8 Bread to the McDonald\'s depot, and trigger the livestream broadcast on stage.',
+    targetKey: 'gold',
+    targetCount: 6,
+    voiceChatTip: 'Speak into your microphone on stage or chant "Happy Meal Viral!" to pump the livestream viewer counter!',
+    crossPlayerInteraction: 'Chef prepares provisions while the Streamer coordinates the broadcast decibel meter and audience reactions.',
+    reward: { 
+      coins: 600, 
+      xp: 500, 
+      item: 'viral_golden_mic', 
+      itemCount: 1, 
+      cosmeticUnlockId: 'aura_yt_viral' 
+    },
+  },
+  {
+    id: 'q_crossover_slapstick_fjords',
+    title: 'The Slapstick Gravity Obby Expedition',
+    category: 'puzzle',
+    brand: 'Multiverse',
+    participatingBrands: ['Roblox', 'Xilam', 'NZ'],
+    isCrossover: true,
+    collaborativeBonus: 'Grants all party members +40% jump boost and cartoon bounce physics for 15 minutes!',
+    npcName: 'Oggy Cat & Chief Tamati',
+    npcAvatar: '🐱',
+    description: 'Oggy and Jack escaped the cockroaches by vacationing in the New Zealand fjords, where Builderman built a colossal floating obby across the peaks! Dodge flying flyswatters, jump across bouncy Kiwi trampolines, and sound the sacred Pounamu gong.',
+    instruction: 'Complete the 3 fjord jump stages with slapstick flyswatter obstacles and strike the sacred Pounamu gong.',
+    targetKey: 'puzzle_fjord_obby',
+    targetCount: 1,
+    voiceChatTip: 'Call out flyswatter swing timing ("Swing... JUMP!") to guide your party past the swinging obstacles!',
+    crossPlayerInteraction: 'One player holds the pressure plate to disable the mega flyswatter while the runner sprints across the greenstone bridge.',
+    reward: { 
+      coins: 520, 
+      robux: 90, 
+      xp: 480, 
+      item: 'sharko_bloxy_swatter', 
+      itemCount: 1, 
+      cosmeticUnlockId: 'back_allblacks_cape' 
+    },
+    puzzleData: {
+      type: 'logic_circuit',
+      prompt: 'Activate the three fjord obstacle mechanisms in order:',
+      nodes: [
+        { id: 'gate_roblox_pad', label: 'Roblox Neon Bounce Pad', active: false },
+        { id: 'gate_xilam_spring', label: 'Xilam Slapstick Trapdoor', active: false },
+        { id: 'gate_nz_pounamu', label: 'Waitangi Pounamu Beacon', active: false },
+      ],
+      solutionOrder: ['gate_roblox_pad', 'gate_xilam_spring', 'gate_nz_pounamu'],
+    },
+  },
+  {
+    id: 'q_crossover_continental_express',
+    title: 'The Continental Melody Express',
+    category: 'interaction',
+    brand: 'Multiverse',
+    participatingBrands: ['Thomas & Friends', 'Sprunki', 'Countryballs'],
+    isCrossover: true,
+    collaborativeBonus: 'Unlocks the Conductor\'s Celestial Whistle emote that plays rhythmic steam chords!',
+    npcName: 'Thomas The Tank Engine & Oren',
+    npcAvatar: '🚂',
+    description: 'Thomas is pulling an international VIP express carrying Sprunki beatboxers to the Countryballs Peace Summit! Switch the railway track points, harmonize Thomas\'s steam whistle with Oren\'s 808 beat drop, and clear border customs.',
+    instruction: 'Complete the branching dialogue with the customs border guard and Thomas to clear the musical express.',
+    targetKey: 'dialogue_melody_express',
+    targetCount: 1,
+    voiceChatTip: 'Whistle or beatbox in Proximity Voice Chat to activate the locomotive\'s supercharged acoustic boiler!',
+    crossPlayerInteraction: 'Driver controls the boiler pressure while passenger squad members synchronize rhythmic track signals.',
+    reward: { 
+      coins: 580, 
+      xp: 460, 
+      item: 'celestial_steam_whistle', 
+      itemCount: 1, 
+      cosmeticUnlockId: 'emblem_countryball' 
+    },
+    dialogueData: {
+      speakerGreeting: 'Peep peep! The Continental Melody Express is on schedule, but we need border clearance and proper tempo synchronization!',
+      loreNotes: 'This cross-realm locomotive journey connects the Island of Sodor with the Incredibox Beat Studios and sovereign capitols.',
+      options: [
+        { label: 'Present UN Diplomatic Passport to the border guard.', reply: 'Visa stamped! Polandball salutes your diplomatic passage!', progressGranted: 1 },
+        { label: 'Tune Thomas\'s whistle to the key of C with Oren\'s beatbox.', reply: 'The steam pressure matches the beat drop perfectly! Track switches are cleared!', progressGranted: 1 },
+        { label: 'Blow the double whistle and accelerate to full speed!', reply: 'Full steam ahead! The crowd at the summit is cheering for the musical arrival!', progressGranted: 1 },
+      ],
+    },
+  },
+  {
+    id: 'q_crossover_clean_energy_tycoon',
+    title: 'The Eco-Automaton Power Grid',
+    category: 'puzzle',
+    brand: 'Multiverse',
+    participatingBrands: ['BP', 'Minecraft', 'Roblox'],
+    isCrossover: true,
+    collaborativeBonus: 'Provides infinite furnace fuel and electrified conveyer speed for all allied players.',
+    npcName: 'Engineer Sarah & Builderman',
+    npcAvatar: '⚡',
+    description: 'A revolutionary power grid uniting BP Solar Photon Collectors, Minecraft Redstone Repeater Circuits, and Roblox Industrial Tycoon Conveyors needs calibration to power the central server metropolis.',
+    instruction: 'Solve the solar capacitor circuit and route renewable power to the industrial conveyors.',
+    targetKey: 'puzzle_eco_grid',
+    targetCount: 1,
+    voiceChatTip: 'Read out the solar voltage values over Voice Chat to sync capacitor breakers in real time!',
+    crossPlayerInteraction: 'One player manages redstone logic gates while the other calibrates the solar photon intake valves.',
+    reward: { 
+      coins: 500, 
+      robux: 80, 
+      xp: 450, 
+      item: 'helios_solar_core', 
+      itemCount: 1, 
+      cosmeticUnlockId: 'emblem_bp' 
+    },
+    puzzleData: {
+      type: 'solar_valves',
+      prompt: 'Calibrate the three renewable energy converters to stabilize grid frequency:',
+      nodes: [
+        { id: 'bp_solar_intake', label: 'BP Photovoltaic Collector Alpha', active: false },
+        { id: 'mc_redstone_relay', label: 'Minecraft Redstone Comparator Beta', active: false },
+        { id: 'rbx_tycoon_capacitor', label: 'Roblox Industrial Power Capacitor Gamma', active: false },
+      ],
+      solutionOrder: ['bp_solar_intake', 'mc_redstone_relay', 'rbx_tycoon_capacitor'],
+    },
+  },
+  {
+    id: 'q_crossover_aeternum_space_defense',
+    title: 'The Azoth Space Bastion Incursion',
+    category: 'territory',
+    brand: 'Multiverse',
+    participatingBrands: ['New World', 'Countryballs', 'Minecraft'],
+    isCrossover: true,
+    collaborativeBonus: 'Awards the legendary Aeternum Sovereign Aegis Shield and grants +35% fort defense.',
+    npcName: 'Commander Thorne & Polandball',
+    npcAvatar: '⚔️',
+    description: 'Corrupted Void Rifts have breached the perimeter of Polandball\'s celestial space observatory! New World vanguard warriors and Minecraft master builders must form a united front, erect obsidian barricades, and hold the perimeter.',
+    instruction: 'Fortify the Space Bastion boundary and hold the territory until purification reaches 100%.',
+    targetKey: 'territory_space_bastion',
+    targetCount: 1,
+    voiceChatTip: 'Issue tactical shieldwall commands over the raid voice radio channel [C] to repel elite void specters!',
+    crossPlayerInteraction: 'Vanguard warriors taunt incoming bosses while builders place defensive obsidian blocks to seal breaches.',
+    reward: { 
+      coins: 650, 
+      xp: 520, 
+      item: 'aeternum_sovereign_shield', 
+      itemCount: 1, 
+      cosmeticUnlockId: 'aura_newworld_azoth' 
+    },
+    territoryData: {
+      locationName: 'Polandball Observatory & Azoth Caldera',
+      faction: 'United Sovereign Vanguard',
+      targetProgress: 100,
+      fortificationLevel: 5,
+    },
+  },
+
+  // 7. BRAND-SPECIFIC EXPANDED MULTIVERSE QUESTS
+  {
+    id: 'q_mc_netherite_watchtower',
+    title: 'Construct the Netherite Fortress Watchtower',
+    category: 'fetch',
+    brand: 'Minecraft',
+    npcName: 'Alex Master Architect',
+    npcAvatar: '⛏️',
+    description: 'The Overworld fortress requires a fortified watchtower to defend against void incursion raiders. Mine obsidian blocks, craft diamond reinforcement trusses, and assemble the bedrock foundation.',
+    instruction: 'Gather 12 Stone and 6 Wood from the overworld to assemble the watchtower scaffold.',
+    targetKey: 'stone',
+    targetCount: 12,
+    reward: { coins: 380, xp: 320, item: 'netherite', itemCount: 2, cosmeticUnlockId: 'emblem_mc_nether_star' },
+  },
+  {
+    id: 'q_rbx_cloud_100_tier_obby',
+    title: 'Conquer the 100-Tier Cloud Obby',
+    category: 'puzzle',
+    brand: 'Roblox',
+    npcName: 'Builderman (Crossroads Admin)',
+    npcAvatar: '🟥',
+    description: 'The Bloxian high-altitude parkour spire is swaying in the upper clouds. Speedrunners and jumpers must navigate spring pads, disappearing platforms, and laser grids to reach the apex.',
+    instruction: 'Complete the neon parkour stage sequence without falling to unlock the Bloxian Trophy.',
+    targetKey: 'puzzle_cloud_obby',
+    targetCount: 1,
+    puzzleData: {
+      type: 'logic_circuit',
+      prompt: 'Activate the neon leap triggers in sequence:',
+      nodes: [
+        { id: 'pad_spring', label: 'Bouncy Neon Trampoline', active: false },
+        { id: 'pad_speed', label: 'Speed Coil Railing', active: false },
+        { id: 'pad_apex', label: 'Apex Winner Star', active: false },
+      ],
+      solutionOrder: ['pad_spring', 'pad_speed', 'pad_apex'],
+    },
+    reward: { coins: 420, robux: 100, xp: 380, cosmeticUnlockId: 'hat_dominus' },
+  },
+  {
+    id: 'q_xilam_missing_mallet',
+    title: 'Solve the Case of the Missing 10-Ton Mallet',
+    category: 'interaction',
+    brand: 'Xilam',
+    npcName: 'Oggy & Jack Detective Agency',
+    npcAvatar: '🐱',
+    description: 'Jack\'s prized 10-ton squeaking cartoon hammer has vanished from the tool shed! Interrogate the cockroach trio and search the kitchen cupboards to recover the comedy relic.',
+    instruction: 'Speak with Jack and question Joey about the missing mallet hiding spot.',
+    targetKey: 'dialogue_missing_mallet',
+    targetCount: 1,
+    dialogueData: {
+      speakerGreeting: 'Meow! Someone pinched my favorite 10-ton comedy mallet right off the tool workbench!',
+      loreNotes: 'Xilam slapstick comedy relics are indestructible and cause loud cartoon squeaks on impact.',
+      options: [
+        { label: 'Check inside the giant refrigerator behind the cheese block.', reply: 'Bingo! Joey hid it right behind the cheddar! Here is your finder reward!', progressGranted: 1 },
+        { label: 'Ask Dee Dee if he traded it for a pizza slice.', reply: 'Dee Dee confessed! The mallet has been safely recovered!', progressGranted: 1 },
+      ],
+    },
+    reward: { coins: 350, xp: 280, item: 'sharko_bloxy_swatter', itemCount: 1, cosmeticUnlockId: 'back_xilam_mallet' },
+  },
+  {
+    id: 'q_bp_winter_solar_inverters',
+    title: 'Calibrate the Winter Solstice Solar Inverters',
+    category: 'puzzle',
+    brand: 'BP',
+    npcName: 'Chief Engineer Sarah (Helios Grid)',
+    npcAvatar: '⚡',
+    description: 'Low winter sun angles demand maximum photon capture efficiency. Synchronize the photovoltaic tilt inverters and balance thermal storage buffers to prevent blackout in Sodor and Tarragower.',
+    instruction: 'Align the three solar tracking arrays with the winter solstice azimuth.',
+    targetKey: 'puzzle_bp_solstice',
+    targetCount: 1,
+    puzzleData: {
+      type: 'solar_valves',
+      prompt: 'Rotate the three solar arrays to capture maximum photon flux:',
+      nodes: [
+        { id: 'array_dawn', label: 'East Photovoltaic Tracker', active: false },
+        { id: 'array_noon', label: 'Zenith Fresnel Collector', active: false },
+        { id: 'array_dusk', label: 'West Geothermal Radiator', active: false },
+      ],
+      solutionOrder: ['array_dawn', 'array_noon', 'array_dusk'],
+    },
+    reward: { coins: 400, xp: 350, item: 'helios_solar_core', itemCount: 2, cosmeticUnlockId: 'emblem_bp_sunburst' },
+  },
+  {
+    id: 'q_tarragower_wayfinder_chart',
+    title: 'Solve the Ancient Māori Wayfinding Star Chart',
+    category: 'interaction',
+    brand: 'Tarragower',
+    npcName: 'Headmaster Vance & Scholar Tama',
+    npcAvatar: '🏛️',
+    description: 'Tarragower Academy researchers have unearthed an ancient Polynesian celestial navigation chart connecting the Southern Cross stars to the multiversal leyline coordinates.',
+    instruction: 'Decipher the astronomical star positions with the academy scholars.',
+    targetKey: 'dialogue_star_chart',
+    targetCount: 1,
+    dialogueData: {
+      speakerGreeting: 'Greetings, scholar. The Southern Cross (Crux) aligns directly with the Aeternum rift and Sodor mainline.',
+      loreNotes: 'Traditional voyagers navigated vast oceans without compasses, using bird flights, currents, and stars.',
+      options: [
+        { label: 'Align the Southern Cross pointers Alpha and Beta Centauri.', reply: 'The celestial bearings lock in! True south coordinates revealed!', progressGranted: 1 },
+        { label: 'Cross-reference the star bearings with the Sodor railway timetable.', reply: 'Incredible! The rail lines follow the ancient voyaging trade winds!', progressGranted: 1 },
+      ],
+    },
+    reward: { coins: 450, xp: 380, cosmeticUnlockId: 'aura_tarragower_runes' },
+  },
+  {
+    id: 'q_mcd_holiday_feast_sodor',
+    title: 'Deliver 50 Holiday Happy Meals to Sodor Hub',
+    category: 'fetch',
+    brand: 'McDonald\'s',
+    npcName: 'Chef Ronald & Conductor',
+    npcAvatar: '🍟',
+    description: 'The Knapford station crowd is famished after holiday train delays! Pack up steaming fresh Happy Meals, golden crispy fries, and holiday milkshakes, then load them aboard Thomas\'s express freight cars.',
+    instruction: 'Deliver 15 Wood and 5 Apples to Chef Ronald to assemble the holiday banquet crates.',
+    targetKey: 'wood',
+    targetCount: 15,
+    reward: { coins: 480, xp: 360, item: 'apple', itemCount: 10, cosmeticUnlockId: 'shirt_mcdonalds_holiday' },
+  },
+  {
+    id: 'q_yt_10m_charity_stream',
+    title: 'Host the 10M Subscriber Multiverse Charity Livestream',
+    category: 'interaction',
+    brand: 'YouTube',
+    npcName: 'Streamer Nova',
+    npcAvatar: '▶️',
+    description: 'The annual 24-hour holiday charity marathon is live! Shout out donor names, switch 4K cameras, and trigger confetti cannons to hit the 10 Million Coin community goal.',
+    instruction: 'Complete the interactive streaming dialogue options to raise holiday charity funds.',
+    targetKey: 'dialogue_charity_stream',
+    targetCount: 1,
+    dialogueData: {
+      speakerGreeting: 'Chat is going wild! We are only 500,000 views away from hitting our multiverse hospital charity milestone!',
+      loreNotes: 'YouTube streaming studios broadcast across all 11 dimensions with zero packet drop.',
+      options: [
+        { label: 'Drop a 1,000-subscriber hype train with golden fireworks!', reply: 'Chat explodes! $100,000 raised in seconds! Viewer meter is glowing red!', progressGranted: 1 },
+        { label: 'Invite Polandball and Thomas to do a duet on stream!', reply: 'The stream peaked at 12 million concurrent viewers! Goal shattered!', progressGranted: 1 },
+      ],
+    },
+    reward: { coins: 600, robux: 150, xp: 500, cosmeticUnlockId: 'back_yt_play_shield' },
+  },
+  {
+    id: 'q_newworld_azoth_rift_purge',
+    title: 'Purge the Corrupted Azoth Rift at Bastion Keep',
+    category: 'fetch',
+    brand: 'New World',
+    npcName: 'Commander Thorne',
+    npcAvatar: '⚔️',
+    description: 'Red corrupted rifts are spewing forth frost fiends and shadowy void stalkers near Bastion Keep. Equip your enchanted battle gear, rally your guild squad, and collect corrupted catalyst cores to seal the dimensional tear!',
+    instruction: 'Gather 10 Stone blocks from the Bastion ruins to reinforce the perimeter seal.',
+    targetKey: 'stone',
+    targetCount: 10,
+    reward: { coins: 520, xp: 460, item: 'netherite', itemCount: 3, cosmeticUnlockId: 'shirt_newworld_gleamite' },
+  },
+
+  // ================= SPRUS ECONOMY QUESTS =================
+  {
+    id: 'q_tarragower_science_fair_prep',
+    title: 'Tarragower School Science Fair & Redstone Exhibition',
+    category: 'puzzle',
+    brand: 'Tarragower',
+    npcName: 'Headmaster Vance',
+    npcAvatar: '🏛️',
+    description: 'The annual Tarragower School Science Exhibition is underway! Help student scholars assemble logic sensors, calibrate solar converters, and earn official Sprus currency scholarships.',
+    instruction: 'Solve the Tarragower laboratory logic schematic to power the exhibition hall.',
+    targetKey: 'dialogue_tarragower_science',
+    targetCount: 1,
+    dialogueData: {
+      speakerGreeting: 'Welcome to the Tarragower Academy Quadrangle! The science exhibition opens at noon, but the redstone clock circuit is uncalibrated.',
+      loreNotes: 'Tarragower School awards accredited Sprus coin grants to students who master inter-dimensional engineering.',
+      options: [
+        { label: 'Connect the quartz comparator to the solar photovoltaic array.', reply: 'Brilliant logic! The power output is stabilized at 100%. Here is your Sprus grant!', progressGranted: 1 },
+        { label: 'Re-align the acoustic harmonic sensor to 440 Hz.', reply: 'Splendid calibration! The clock tower is chiming with perfect resonance!', progressGranted: 1 },
+      ],
+    },
+    reward: { coins: 450, xp: 320, cosmeticUnlockId: 'hat_tarragower_mortarboard' },
+  },
+  {
+    id: 'q_roblox_minecraft_minigame_dash',
+    title: 'Cross-Platform Mini-Game Championship: Obby & Resource Race',
+    category: 'interaction',
+    brand: 'Multiverse',
+    participatingBrands: ['Roblox', 'Minecraft'],
+    isCrossover: true,
+    npcName: 'Builderman & Alex',
+    npcAvatar: '🎮',
+    description: 'Compete in high-energy cross-platform mini-games! Leap across floating neon obby platforms and mine speed blocks in the Resource Race to hoard massive Sprus payouts.',
+    instruction: 'Participate in any cross-platform mini-game session to claim your Sprus purse.',
+    targetKey: 'dialogue_minigame_dash',
+    targetCount: 1,
+    dialogueData: {
+      speakerGreeting: 'Ready for the ultimate speedrun showdown? Bloxian parkour meets voxel mining!',
+      loreNotes: 'Players across all connected platforms compete on unified servers for real Sprus rewards.',
+      options: [
+        { label: 'Equip speed coil and sprint through the Cloud Obby checkpoints!', reply: 'New record time! Crowd goes wild! You earned 500 Sprus coins and 50 Robux!', progressGranted: 1 },
+        { label: 'Mine the gold trial nodes in the subterranean Resource Race!', reply: 'Full cart of raw ores! Master miner payout credited to your wallet!', progressGranted: 1 },
+      ],
+    },
+    reward: { coins: 500, robux: 50, xp: 400, item: 'diamond', itemCount: 3 },
+  },
+  {
+    id: 'q_youtube_sponsored_showcase',
+    title: 'Watch Sponsored YouTube Creator Livestream & Community Builds',
+    category: 'interaction',
+    brand: 'YouTube',
+    npcName: 'Streamer Nova',
+    npcAvatar: '▶️',
+    description: 'Tune into official in-game sponsored YouTube community livestreams! Watch builder showcases, learn speed-building tips, and earn passive Sprus drops every 5 minutes.',
+    instruction: 'Watch the sponsored showcase broadcast in the YouTube Creator Studio Amphitheater.',
+    targetKey: 'dialogue_youtube_sponsored',
+    targetCount: 1,
+    dialogueData: {
+      speakerGreeting: 'Hey chat! Today our sponsor is BP Clean Solar Energy and the Tarragower Academy. Watch the build showcase to claim your viewer loot drop!',
+      loreNotes: 'Watching verified sponsored content generates active Sprus ad-revenue share directly to player accounts.',
+      options: [
+        { label: 'Like the video, subscribe, and share the stream to the community feed!', reply: 'Superchat unlocked! 400 Sprus coins and 100 Robux Gems transferred to your balance!', progressGranted: 1 },
+        { label: 'Clip the 360-no-scope building trick and post to social media!', reply: 'Viral clip hit #1 trending! Bonus viral creator aura awarded!', progressGranted: 1 },
+      ],
+    },
+    reward: { coins: 400, robux: 100, xp: 350, cosmeticUnlockId: 'aura_yt_superchat_rain' },
+  },
 ];
 
 export const INITIAL_EVENTS: ScheduledEvent[] = [
+  {
+    id: 'evt_winter_convergence_boss_raid',
+    title: 'The Great Multiverse Winter Convergence Boss Raid',
+    type: 'boss_battle',
+    brand: 'Multiverse & Christmas',
+    bannerEmoji: '❄️',
+    description: 'Jack Frost and the Ancient Permafrost Titan have frozen the central dimensional rifts! Players from all 11 brands (Minecraft builders, Roblox jumpers, Sodor steam engines, Countryball delegates, and New World crusaders) must join the server-wide raid pool and shatter the 15,000 HP Frost Shield!',
+    serverTheme: 'Sub-Zero Aurora Glacier',
+    hostName: 'Santa Steve & Frost Warden',
+    status: 'LIVE_NOW',
+    scheduledTime: 'Active Holiday Raid',
+    countdownSeconds: 2400,
+    participantsCount: 88,
+    maxParticipants: 120,
+    modifiers: ['Server-Wide Team Health Pool', 'Frostbite Resistance Buff', 'Candy Cane Weapon 2x Damage', 'Mythic Winter Loot Chests'],
+    voiceCoordination: 'Voice Channel 144.90 MHz: Call out ice crystal vulnerability phases and coordinate firework artillery!',
+    collaborativeObjective: 'Shatter the Permafrost Titan\'s 15,000 HP ice armor before the winter solstice timer expires!',
+    collaborativeProgress: 11420,
+    collaborativeTarget: 15000,
+    collaborativePerk: 'Awards 800 MegaCoins, 200 Robux, and the Mythic Glacial Crystal Ice Crown to all participants!',
+    bossHp: 3580,
+    maxBossHp: 15000,
+    bossName: 'Jack Frost Permafrost Titan',
+  },
+  {
+    id: 'evt_tri_multiverse_boss_raid',
+    title: 'Grand Multiverse Convergence: The Corrupted 1x1x1x1 Wither Titan',
+    type: 'boss_battle',
+    brand: 'Minecraft, Roblox, Countryballs & Xilam',
+    bannerEmoji: '👾',
+    description: 'The legendary corrupted glitch lord 1x1x1x1 has merged with a Three-Headed Nether Wither and stolen the golden slapstick swatters! All players across all platforms must assemble, coordinate target calls, break the corrupted matrix shields, and conquer this multiversal calamity!',
+    serverTheme: 'Fractured Glitch Void Caldera',
+    hostName: 'Builderman & Steve & Polandball (Admins)',
+    status: 'LIVE_NOW',
+    scheduledTime: 'Active Multiverse Raid',
+    countdownSeconds: 1440,
+    participantsCount: 46,
+    maxParticipants: 60,
+    modifiers: ['Server-Wide Team Health Pool', 'Collaborative Shield Generation', '3x Enchanted Weapon Damage', 'Legendary Matrix Drops'],
+    voiceCoordination: 'Voice frequency 144.50 MHz: Call out shield vulnerability phases (Void, Fire, Glitch) and focus-fire with your squad!',
+    collaborativeObjective: 'Collaborative Server Damage Pool: Break the 10,000 HP matrix barrier before the rift timer expires!',
+    collaborativeProgress: 6850,
+    collaborativeTarget: 10000,
+    collaborativePerk: 'When defeated, all participants unlock 500 MegaCoins, 150 Robux Gems, and the Mythic Glitch Titan Trophy!',
+    bossHp: 3150,
+    maxBossHp: 10000,
+    bossName: 'Corrupted 1x1x1x1 Wither Matrix Titan',
+  },
+  {
+    id: 'evt_mcdonalds_youtube_collab_relay',
+    title: 'The Global 24-Hour Charity Stream & Drive-Thru Relay',
+    type: 'festival',
+    brand: 'McDonald\'s, YouTube & Minecraft',
+    bannerEmoji: '🌟',
+    description: 'Chef Ronald and Streamer Nova are hosting a global collaborative charity stream! The entire server works together to deliver 500 gourmet Happy Meals to needy overworld villagers. Live cheering and singing in spatial voice chat boosts the server-wide hype meter!',
+    serverTheme: 'Golden Arches Broadcast Amphitheater',
+    hostName: 'Chef Ronald & Streamer Nova',
+    status: 'LIVE_NOW',
+    scheduledTime: 'Active Collaborative Festival',
+    countdownSeconds: 1800,
+    participantsCount: 128,
+    maxParticipants: 200,
+    modifiers: ['Collaborative Server Delivery Meter', 'Voice Hype Decibel Multipliers', 'Golden Balloon Supply Drops', 'Global 3x Coin & XP Server Buff'],
+    voiceCoordination: 'Join Voice Chat [C] or call out order tickets to increase the server-wide charity viewer count!',
+    collaborativeObjective: 'Server Community Goal: Deliver 500 Happy Meals collectively across all biomes!',
+    collaborativeProgress: 365,
+    collaborativeTarget: 500,
+    collaborativePerk: 'Reaching 500 delivers server-wide 3x Coin & XP multiplier and Diamond Play Button Auras for everyone!',
+  },
   {
     id: 'evt_bloxy_parkour',
     title: 'MegaWorld Bloxy Parkour Championship',
@@ -833,9 +1337,91 @@ export const INITIAL_EVENTS: ScheduledEvent[] = [
     modifiers: ['Infinite Golden Fry Saturation', 'Balloon Crate Air Drops', 'Speed Boost Trampolines', 'Voice Welcoming Gift Boxes'],
     voiceCoordination: 'Welcome newcomers via Voice Chat [C] or say "Happy Meal Welcome!" to receive Golden Fry Wings!',
   },
+  {
+    id: 'evt_mcdonalds_invasion',
+    title: 'Sudden McDonald\'s Fry Invasion & Giant Grimace Raid',
+    type: 'boss_battle',
+    brand: 'McDonald\'s & Xilam',
+    bannerEmoji: '🍟',
+    description: 'Giant mechanized burger crates and golden fry invaders are descending on Landmark 4! Coordinate over Voice Radar (146.50 MHz) to dismantle the invading fleet and defeat Giant Grimace!',
+    serverTheme: 'Landmark 4 Golden Arches Plaza',
+    hostName: 'Chef Ronald & Oggy Defense Guard',
+    status: 'LIVE_NOW',
+    scheduledTime: 'Active World Invasion',
+    countdownSeconds: 1100,
+    participantsCount: 34,
+    maxParticipants: 45,
+    modifiers: ['Golden Fry Rain', 'Voice Radar Target Callouts', 'Sizzling Spatula Knockback', 'Legendary Grimace Shake Drops'],
+    voiceCoordination: 'Voice channel 146.50 MHz: Call out incoming fry bombs and coordinate focus-fire on Giant Grimace!',
+    bossHp: 4200,
+    maxBossHp: 5000,
+    bossName: 'Giant Mechanized Grimace & The Fry Legion',
+  },
+  {
+    id: 'evt_roblox_build_comp',
+    title: 'Roblox Crossroads 200B Block Building Championship',
+    type: 'tournament',
+    brand: 'Roblox & Minecraft',
+    bannerEmoji: '🏗️',
+    description: 'Live cross-platform building competition! Players have 15 minutes to construct the most creative sky obby or monument using stud blocks and redstone. Voice commentary is live on 145.80 MHz!',
+    serverTheme: 'Crossroads Creative Baseplate',
+    hostName: 'Builderman (Lead Admin)',
+    status: 'UPCOMING',
+    scheduledTime: 'In 15 Minutes',
+    countdownSeconds: 900,
+    participantsCount: 48,
+    maxParticipants: 64,
+    modifiers: ['Infinite Stud Blocks', 'Fly Mode Enabled', 'Judge Scoring System', 'Mythic Linked Hyper-Sword Prize'],
+    voiceCoordination: 'Voice frequency 145.80 MHz: Live commentary, judge ratings, and team builder voice channels!',
+  },
 ];
 
 export const INITIAL_RANDOM_OCCURRENCES: RandomOccurrence[] = [
+  {
+    id: 'rnd_mcdonalds_fry_shower',
+    name: 'Sudden McDonald\'s Golden Fry Meteor Shower',
+    brand: 'McDonald\'s',
+    icon: '🍟',
+    description: 'Glowing golden french fry meteors are raining across wilderness biomes! Gather them before they dissolve to claim rare Golden Arches Spatulas!',
+    objective: 'Gather 5 Golden Fry meteors in the wilderness zone',
+    remainingSeconds: 240,
+    totalSeconds: 240,
+    reward: { coins: 300, xp: 250, item: 'mcdonalds_spatula' },
+    crossServerParticipants: 182,
+    activeStatus: 'ACTIVE',
+    progressCount: 2,
+    targetCount: 5,
+  },
+  {
+    id: 'rnd_roblox_stud_storm',
+    name: 'Roblox Glitch Storm & Falling Studs',
+    brand: 'Roblox',
+    icon: '⚡',
+    description: 'A matrix glitch is causing gravity coils and neon studs to rain across the baseplate! Catch floating coils!',
+    objective: 'Capture 4 floating gravity coils before despawn',
+    remainingSeconds: 310,
+    totalSeconds: 320,
+    reward: { coins: 250, robux: 100, xp: 200, item: 'gravity_coil_rig' },
+    crossServerParticipants: 140,
+    activeStatus: 'ACTIVE',
+    progressCount: 1,
+    targetCount: 4,
+  },
+  {
+    id: 'rnd_sprunki_void_outbreak',
+    name: 'Sprunki Void Resonance Alert',
+    brand: 'Sprunki',
+    icon: '🎶',
+    description: 'Corrupted void frequencies detected! Play any Jukebox disc to counter the harmonic resonance and protect the realm!',
+    objective: 'Play a music disc or strike 3 void echoes',
+    remainingSeconds: 280,
+    totalSeconds: 280,
+    reward: { coins: 350, xp: 300, item: 'sprunki_sword' },
+    crossServerParticipants: 195,
+    activeStatus: 'ACTIVE',
+    progressCount: 0,
+    targetCount: 3,
+  },
   {
     id: 'rnd_roblox_party',
     name: 'Roblox Block Party',
@@ -1106,5 +1692,163 @@ export const questEventManager = {
     const updated = [newServer, ...current];
     this.saveServers(updated);
     return updated;
+  },
+
+  // GLOBAL EVENT SCHEDULING, ANNOUNCEMENT & MANAGEMENT
+  getEvents(): ScheduledEvent[] {
+    const EVENTS_STORAGE_KEY = 'megaworld_scheduled_events_v2';
+    try {
+      const stored = localStorage.getItem(EVENTS_STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed.map((e: ScheduledEvent) => ({
+            ...e,
+            accessiblePlatforms: e.accessiblePlatforms || ['Minecraft', 'Roblox', 'Xilam', 'NZ Tarragower School', 'BP', 'McDonald\'s', 'YouTube', 'New World'],
+            participationRules: e.participationRules || [
+              'Open to all verified server wanderers and faction champions.',
+              'Cross-platform voice chat coordination enabled on frequency 144.50 MHz.',
+              'No forbidden exploit items or griefing in event neutral zones.',
+              'Fair loot distribution governed by smart escrow contracts.'
+            ],
+            rewardTiers: e.rewardTiers || [
+              { tierName: 'Champion (Gold)', requirement: 'Top 1% or Victory Boss Finisher', coins: 1000, robux: 250, badgeTitle: 'Grand Multiverse Champion' },
+              { tierName: 'Elite (Silver)', requirement: 'Top 25% Objective Contribution', coins: 500, robux: 100, badgeTitle: 'Silver Vanguard' },
+              { tierName: 'Hero (Bronze)', requirement: 'Completed Core Event Checklist', coins: 250, robux: 50, badgeTitle: 'Cross-Brand Contributor' },
+              { tierName: 'Participant', requirement: 'Checked in & Logged Attendance', coins: 100, badgeTitle: 'Event Attendee' },
+            ]
+          }));
+        }
+      }
+    } catch (e) {
+      console.warn('Error reading scheduled events:', e);
+    }
+
+    return INITIAL_EVENTS.map((e) => ({
+      ...e,
+      accessiblePlatforms: e.accessiblePlatforms || ['Minecraft', 'Roblox', 'Xilam', 'NZ Tarragower School', 'BP', 'McDonald\'s', 'YouTube', 'New World'],
+      participationRules: e.participationRules || [
+        'Open to players across all 8 integrated platforms.',
+        'Proximity Voice Chat enabled with team tactical radio callouts.',
+        'Cooperative objectives reward all active squad members equally.',
+        'PvP rules adapt dynamically based on server region.'
+      ],
+      rewardTiers: e.rewardTiers || [
+        { tierName: 'Grand Champion', requirement: '1st Place or Final Raid Strike', coins: 800, robux: 200, badgeTitle: 'Multiverse Grand Master' },
+        { tierName: 'Honorary Vanguard', requirement: 'High Damage / Delivery Output', coins: 450, robux: 80, badgeTitle: 'Vanguard Hero' },
+        { tierName: 'All-Star Participant', requirement: 'Active Participation in Event Pool', coins: 200, robux: 25, badgeTitle: 'Event Veteran' },
+      ]
+    }));
+  },
+
+  saveEvents(events: ScheduledEvent[]) {
+    const EVENTS_STORAGE_KEY = 'megaworld_scheduled_events_v2';
+    try {
+      localStorage.setItem(EVENTS_STORAGE_KEY, JSON.stringify(events));
+      window.dispatchEvent(new CustomEvent('megaworld_events_updated', { detail: events }));
+    } catch (e) {
+      console.warn('Error saving events:', e);
+    }
+  },
+
+  scheduleEvent(eventData: Omit<ScheduledEvent, 'id' | 'countdownSeconds' | 'status'>): ScheduledEvent {
+    const newId = `evt_custom_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const newEvent: ScheduledEvent = {
+      ...eventData,
+      id: newId,
+      status: 'UPCOMING',
+      countdownSeconds: 1800,
+      participantsCount: 1,
+      announcementBroadcast: eventData.announcementBroadcast || `📢 NEW GLOBAL EVENT SCHEDULED: "${eventData.title}" hosted by ${eventData.hostName}!`,
+      accessiblePlatforms: eventData.accessiblePlatforms && eventData.accessiblePlatforms.length > 0 
+        ? eventData.accessiblePlatforms 
+        : ['Minecraft', 'Roblox', 'Xilam', 'NZ Tarragower School', 'BP', 'McDonald\'s', 'YouTube', 'New World'],
+      participationRules: eventData.participationRules && eventData.participationRules.length > 0
+        ? eventData.participationRules
+        : [
+            'All registered player avatars may enter regardless of home realm.',
+            'Maintain sportsmanship in global text and proximity voice chat.',
+            'Rewards sent directly to cross-platform inventory upon conclusion.'
+          ],
+      rewardTiers: eventData.rewardTiers && eventData.rewardTiers.length > 0
+        ? eventData.rewardTiers
+        : [
+            { tierName: '1st Place / MVP', requirement: 'Top Score or Boss Elimination', coins: 600, robux: 150, badgeTitle: 'Event MVP' },
+            { tierName: 'Runner Up', requirement: 'Top 10% Score', coins: 350, robux: 75, badgeTitle: 'Silver Contender' },
+            { tierName: 'Participation', requirement: 'Complete at least 1 objective', coins: 150, badgeTitle: 'Verified Entrant' },
+          ],
+    };
+
+    const currentEvents = this.getEvents();
+    const updated = [newEvent, ...currentEvents];
+    this.saveEvents(updated);
+    this.broadcastAnnouncement(newEvent.id, newEvent.announcementBroadcast);
+    return newEvent;
+  },
+
+  broadcastAnnouncement(eventId: string, message?: string) {
+    const current = this.getEvents();
+    const event = current.find((e) => e.id === eventId);
+    const title = event?.title || 'Global Multiverse Event';
+    const broadcastText = message || `📢 MULTIVERSE BROADCAST: "${title}" is officially live across all connected platforms!`;
+
+    try {
+      audioEngine.playRobloxSound('badge');
+    } catch {
+      // Audio fallback
+    }
+
+    window.dispatchEvent(new CustomEvent('megaworld_global_announcement', {
+      detail: {
+        eventId,
+        title,
+        message: broadcastText,
+        timestamp: Date.now(),
+      }
+    }));
+  },
+
+  deleteEvent(eventId: string): boolean {
+    const current = this.getEvents();
+    const filtered = current.filter((e) => e.id !== eventId);
+    this.saveEvents(filtered);
+    return true;
+  },
+
+  joinEvent(eventId: string): { success: boolean; message: string; event: ScheduledEvent } {
+    const current = this.getEvents();
+    const idx = current.findIndex((e) => e.id === eventId);
+    if (idx === -1) {
+      throw new Error('Event not found');
+    }
+
+    const event = current[idx];
+    if (event.participantsCount >= event.maxParticipants) {
+      return { success: false, message: 'Event is already full at maximum capacity!', event };
+    }
+
+    const updatedEvent: ScheduledEvent = {
+      ...event,
+      participantsCount: event.participantsCount + 1,
+    };
+    current[idx] = updatedEvent;
+    this.saveEvents(current);
+
+    try {
+      audioEngine.playRobloxSound('click');
+    } catch {
+      // Audio fallback
+    }
+
+    const platformsText = event.accessiblePlatforms && event.accessiblePlatforms.length > 0
+      ? event.accessiblePlatforms.join(', ')
+      : 'All Connected Platforms';
+
+    return { 
+      success: true, 
+      message: `Successfully joined ${event.title}! Cross-platform sync active across ${platformsText}.`,
+      event: updatedEvent 
+    };
   }
 };
+

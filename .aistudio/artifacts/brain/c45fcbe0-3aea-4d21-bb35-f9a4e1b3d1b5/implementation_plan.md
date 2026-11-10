@@ -183,3 +183,110 @@ Each class features a thematic Role, Starting Active Ability (with live in-game 
   - **Share 2D Minecraft Build**: Specify schematic title, brand theme, story, materials, and tags.
   - **Share Community Screenshot**: Specify camera angle, coordinate landmarks, resolution, and caption.
   - Persists directly to Firebase Firestore collection `social_feed_posts` with automatic offline local fallback.
+
+---
+
+## 5. Halloween Spooktacular Update 🎃 (Characters in Costumes, Spooky Items & Blocks)
+
+### 11 Halloween Costumed Crossover Icons:
+1. **Halloween Vampire Steve** (ID: 901) - Dracula crimson velvet capelet, slick widow's peak, bats, and held torch.
+2. **Halloween Witch Alex** (ID: 902) - Pointed buckled witch hat, bubbling cauldron, starlight halo, and potion flacons.
+3. **Halloween Pumpkin Creeper** (ID: 903) - Illuminated glowing carved jack-o'-lantern helm, spooky ghost wisp aura.
+4. **Halloween Skeleton Knight** (ID: 904) - Catacomb skull visor, crossed soul reaper scythes, and spectral aura.
+5. **Halloween Ghost Polandball** (ID: 905) - Translucent spectral white sheet wisp floating across sovereign borders.
+6. **Halloween Frankenstein Oggy** (ID: 906) - Stitched monster brow with dual high-voltage neck bolts and lightning spark aura.
+7. **Halloween Werewolf Noob** (ID: 907) - Full-moon ragged lumberjack flannel, sharp werewolf claws, and howling blood moon mist.
+8. **Halloween Grim Reaper Ronald** (ID: 908) - Black cowl hood, twin soul harvesting scythes, and golden fry bag lantern.
+9. **Halloween Headless Engine Thomas** (ID: 909) - Spooky Blue Engine with carved jack-o'-lantern smoke-box wisp echoes.
+10. **Halloween Mummy Brenda BP** (ID: 910) - Solar-powered hieroglyphic mummy gauze wrap with torch illumination.
+11. **Halloween Jack-o'-Lantern Verity** (ID: 911) - Purple witch robes, orbiting mini carved pumpkins, and sweet star candies.
+
+### Halloween Items & Blocks:
+- **Carved Pumpkin** (`carved_pumpkin`): Orange carved gourd block with triangular eyes and jagged tooth smile.
+- **Jack-o'-Lantern** (`jack_o_lantern`): Glowing carved pumpkin illuminated by internal candle, casting level-15 light.
+- **Spooky Candy Corn** (`candy_corn`): Consumable food item restoring +25 hunger, +15 health, and triggering a 5-second sugar rush sprint boost.
+- **Soul Reaper Scythe** (`reaper_scythe`): Dark obsidian-handled scythe with curved spectral blade.
+- **Witch's Cauldron** (`witch_cauldron`): Cast-iron bubbling cauldron filled with glowing green bewitched elixir and bubbles.
+- **Haunted Cobweb** (`spooky_cobweb`): Sticky spider silk strands slowing walking entities.
+- **Catacomb Tombstone** (`tombstone`): Weathered stone gravestone with R.I.P engraving.
+- **Ghost Wisp Lantern** (`ghost_lantern`): Ethereal purple lantern housing a dancing spirit wisp.
+- **Trick-or-Treat Bag** (`trick_or_treat_bag`): Festive canvas treat bag giving bonus candies and pumpkin drops on use.
+
+### Avatar Customization & Cosmetics Catalog:
+- **Hats**: Wicked Witch Hat (`hat_witch`), Carved Jack-o'-Lantern Helm (`hat_pumpkin`), Frankenstein Stitched Brow & Neck Bolts (`hat_frankenstein`), Vampire Widow's Peak (`hat_vampire`), Catacomb Skull Visor (`hat_skeleton_skull`).
+- **Back Accessories**: Flapping Midnight Bat Wings (`back_bat_wings`), Crossed Soul Scythes (`back_reaper_scythe`), Floating Companion Ghost (`back_ghost_float`).
+- **Auras**: Dancing Jack-o'-Lantern & Spirit Aura (`aura_halloween_spooky`), Blood Moon Crimson Mist & Bats (`aura_blood_mist`).
+- **Emotes**: Trick-or-Treat Candy Shower (`emote_halloween_trick_or_treat`), Spooky Monster Thriller Dance (`emote_halloween_thriller`), Ghostly "BOO!" Jumpscare (`emote_halloween_ghost_boo`).
+- **Preset**: Halloween Soul Reaper Steve (`preset_halloween_reaper`) ready for instant one-click equipping.
+- **Store Showcase**: Featured Halloween Spooktacular skins and emotes added to `STORE_CATALOG` in `CosmeticStoreModal.tsx`.
+
+---
+
+## 6. World & Level Editor Architecture (`src/components/WorldEditor.tsx`)
+
+### Overview
+A comprehensive, interactive 2D Voxel Level Editor empowering players to design, paint, test, save, export, and publish custom levels across all 10 universes with full Halloween block support.
+
+### Features & Capabilities:
+1. **Interactive Editing Canvas**:
+   - Custom dynamic matrix sizes: `15x10` (Classic Mini Canvas), `24x14`, `36x18`, `48x24`, and custom grids.
+   - Live block and coordinate inspection cursor (`X, Y`).
+   - 40-step Undo (`Ctrl+Z`) & Redo (`Ctrl+Y`) history buffer.
+2. **Full Creative Toolkit**:
+   - ✏️ **Pencil**: Precise single-block placement.
+   - 🖌️ **Brush**: Adjustable radius (1x1, 2x2, 3x3).
+   - 🪣 **Bucket (Flood Fill)**: Fast contiguous region filling.
+   - 📏 **Line Tool**: Bresenham line drawer.
+   - 🔲 **Box / Rect Tool**: Wall and structure enclosure creator.
+   - 🧹 **Eraser**: Sets tiles back to sky atmosphere.
+   - 💧 **Eyedropper**: Sample blocks directly from the canvas.
+   - 🔀 **Replace All**: Instant global block replacement.
+3. **Categorized Block Palette (35+ Blocks)**:
+   - *Halloween*: Carved Pumpkin, Jack-o'-Lantern, Witch Cauldron, Spooky Cobweb, Tombstone, Ghost Lantern.
+   - *Terrain*: Grass, Dirt, Stone, Cobblestone, Sand, Sandstone, Snow, Ice, Magma, Mycelium.
+   - *Building*: Oak Wood, Oak Planks, Clay Bricks, Glass, Bookshelf, Obsidian, Crying Obsidian.
+   - *Ores*: Coal, Raw Iron, Gold, Diamond, Emerald, Netherite, Amethyst.
+   - *Functional*: Impulse, Chain & Repeating Command Blocks, Wooden Door, Torch, Jukebox, Sponge, Sculk Sensor.
+   - *Fluids & Nature*: Water, Lava, Leaves, Poppy Flower, Cactus, Red Mushroom.
+4. **Procedural Terrain Presets & Structure Prefabs**:
+   - Generators: *Flat Plains*, *Haunted Halloween Catacombs*, *Nether Caldera*, *Floating Sky Islands*, *Clear Canvas*.
+   - Prefab Stamps: *7x5 Cozy Wood Cabin*, *5x6 Nether Portal Altar*, *6x4 Spooky Pumpkin Crypt*.
+5. **Built-In Instant Playtest Mode**:
+   - Jump directly onto the level inside the editor with Steve or custom avatar.
+   - Gravity, block collision, jumping (Space / W), walking (A / D).
+6. **Cross-Platform Persistence & Social Sharing**:
+   - Local & Cloud Level Saving with metadata (author, theme, block counts).
+   - JSON Blueprint Export (Copy to clipboard) and Import (JSON schematic reader).
+   - 1-Click **"Publish to UGC Feed"** publishing directly to the Community Social Feed.
+
+
+
+---
+
+## 7. Jeremy the Jet Plane ("Steremy") & Sodor Airport Expansion ✈️
+
+### Overview
+Integration of Jeremy the Jet Plane (the iconic jet plane of Sodor Airport from Thomas & Friends, affectionately known as "Steremy") as both a high-speed mount and fully customizable character avatar, accompanied by the Sodor International Airport & Runway landmark, aviation equipment, and supersonic holiday quests.
+
+### Features & Capabilities:
+1. **Sodor Airport & Runway Biome**:
+   - Location: Coordinates `worldX: 392 - 415`.
+   - Laser-leveled smooth tarmac runway with illuminated `glowstone` runway edge lights.
+   - High-speed supersonic launch pad with repeating command block thruster boost.
+   - Dedicated roaming NPCs: Jeremy the Jet Plane (Steremy) and Holiday Steremy.
+2. **Playable Avatar & High-Speed Mount**:
+   - Character ID 850: `Jeremy the Jet Plane (Steremy)` with glossy white fuselage, blue/yellow Sodor livery, twin jet turbines, cockpit smile, and contrail vapors.
+   - Character ID 851: `Holiday Steremy the Christmas Jet` with Santa aviator hat, candy cane exhaust flares, and gift bays.
+   - Vehicles in `VEHICLE_CATALOG`: `jeremy_jet` (220 km/h, 4.2x multiplier, canFly) and `jeremy_xmas` (240 km/h, 4.6x multiplier).
+3. **Aviation & Steremy Items**:
+   - `jeremy_flight_token`: Steremy Flight Remote & Plane Summoner
+   - `sodor_aviator_shades`: Sodor Airport Supersonic Aviator Shades
+   - `jet_turbine_booster`: Twin Turbojet Sound-Barrier Booster
+   - `aviation_jet_fuel`: Sodor Airport High-Octane Jet Fuel
+   - `airport_radar_beacon`: Sodor Airport Radar Transponder
+4. **Interactive Quests (`npc_jeremy`)**:
+   - *Sodor Runway Illumination*: Provide glowstones to light the night airstrip.
+   - *Multiverse Holiday Airdrop*: Supply food rations for high-altitude emergency airdrops.
+   - *Break the Sound Barrier*: Reinforce turbojet heat shielding with obsidian blocks.
+5. **Instant Quick-Travel Button**:
+   - Top action bar button `✈️ Sodor Airport & Steremy` instantly teleports the player to x: 400 and mounts Jeremy the Jet Plane for immediate supersonic flight.

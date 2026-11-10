@@ -26,6 +26,36 @@ export interface StoreBrandSkin {
 }
 
 export const STORE_CATALOG: StoreBrandSkin[] = [
+  // HALLOWEEN SPOOKTACULAR SPECIALS 🎃
+  {
+    id: 'skin_halloween_reaper_steve',
+    name: 'Halloween Soul Reaper Steve',
+    brand: 'Minecraft',
+    category: 'skin',
+    priceCoins: 550,
+    priceRobux: 90,
+    icon: '🎃',
+    rarity: 'mythic',
+    description: 'Festive Halloween costume featuring glowing Carved Jack-o\'-Lantern Helm, crossed Soul Scythes, and dancing spirit aura.',
+    features: ['Glowing Jack-o\'-Lantern Eyes', 'Spectral Soul Reaper Scythes', 'Ectoplasm Ghost Mist Aura'],
+    associatedCosmeticId: 'hat_pumpkin',
+    associatedEmoteId: 'emote_halloween_trick_or_treat',
+  },
+  {
+    id: 'skin_halloween_witch_alex',
+    name: 'Halloween Midnight Witch Alex',
+    brand: 'Minecraft',
+    category: 'skin',
+    priceCoins: 480,
+    priceRobux: 85,
+    icon: '🧙',
+    rarity: 'legendary',
+    description: 'Pointed buckled witch hat with bubbling cauldron and dancing purple potion bubbles.',
+    features: ['Pointed Midnight Witch Hat', 'Bubbling Green Cauldron Brew', 'Dancing Star Candies VFX'],
+    associatedCosmeticId: 'hat_witch',
+    associatedEmoteId: 'emote_halloween_thriller',
+  },
+
   // MINECRAFT BRAND
   {
     id: 'skin_mc_netherite_titan',
@@ -810,7 +840,7 @@ export default function CosmeticStoreModal({
                   { icon: <Monitor size={22} className="text-sky-400" />, title: 'PC Client', desc: 'Windows / Mac / Linux (Chrome, Electron)' },
                   { icon: <Gamepad2 size={22} className="text-emerald-400" />, title: 'Console Edition', desc: 'Xbox, PlayStation & Switch web runtime' },
                   { icon: <Smartphone size={22} className="text-purple-400" />, title: 'Mobile Client', desc: 'iOS & Android responsive touch client' },
-                  { icon: <Globe size={22} className="text-amber-400" />, title: 'Web Studio App', desc: 'AI Studio live hosted cloud instance' },
+                  { icon: <Globe size={22} className="text-amber-400" />, title: 'Web App', desc: 'Live hosted high-speed cloud instance' },
                 ].map((plat, idx) => (
                   <div key={idx} className="bg-stone-950/90 border border-stone-800 p-4 rounded-2xl text-center space-y-1.5">
                     <div className="w-10 h-10 mx-auto bg-stone-900 rounded-xl flex items-center justify-center border border-stone-800">

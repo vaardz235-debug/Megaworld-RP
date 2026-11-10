@@ -80,12 +80,109 @@ export const ALL_CREATIVE_BLOCKS = [
   { id: 'apple', name: 'Red Apple', icon: '🍎', category: 'Food' },
   { id: 'golden_apple', name: 'Golden Apple', icon: '🍏', category: 'Food' },
   { id: 'bread', name: 'Fresh Bread', icon: '🍞', category: 'Food' },
+
+  // Halloween Spooktacular Update 🎃
+  { id: 'carved_pumpkin', name: 'Carved Pumpkin', icon: '🎃', category: 'Halloween' },
+  { id: 'jack_o_lantern', name: 'Jack-o\'-Lantern (Glowing)', icon: '🏮', category: 'Halloween' },
+  { id: 'candy_corn', name: 'Spooky Candy Corn', icon: '🍬', category: 'Halloween' },
+  { id: 'reaper_scythe', name: 'Soul Reaper Scythe', icon: '🗡️', category: 'Halloween' },
+  { id: 'witch_cauldron', name: 'Witch\'s Cauldron', icon: '🧙', category: 'Halloween' },
+  { id: 'spooky_cobweb', name: 'Haunted Cobweb', icon: '🕸️', category: 'Halloween' },
+  { id: 'tombstone', name: 'Catacomb Tombstone', icon: '🪦', category: 'Halloween' },
+  { id: 'ghost_lantern', name: 'Ghost Wisp Lantern', icon: '👻', category: 'Halloween' },
+  // Brand Gear & Weapon Sets (Crossover Multi-Brand RPG)
+  { id: 'sprunki_sword', name: "Sprunki's Sword of Friendship", icon: '🎶', category: 'Brand Gear' },
+  { id: 'sprunki_headphones', name: 'Sprunki Studio DJ Headphones', icon: '🎧', category: 'Brand Gear' },
+  { id: 'new_world_boots', name: "New World Explorer's Boots", icon: '🥾', category: 'Brand Gear' },
+  { id: 'new_world_satchel', name: 'New World Harvest Satchel', icon: '🎒', category: 'Brand Gear' },
+  { id: 'mcdonalds_spatula', name: 'Golden Arches Battle Spatula', icon: '🍳', category: 'Brand Gear' },
+  { id: 'grimace_shake', name: 'Cosmic Grimace Elixir', icon: '🥤', category: 'Brand Gear' },
+  { id: 'blox_hyper_sword', name: 'Bloxian Linked Hyper-Sword', icon: '⚔️', category: 'Brand Gear' },
+  { id: 'gravity_coil_rig', name: 'Master Gravity Coil Jump Rig', icon: '🌀', category: 'Brand Gear' },
+  { id: 'youtube_shield', name: 'Diamond Play Button Aegis', icon: '🛡️', category: 'Brand Gear' },
+  { id: 'streamer_mic', name: 'Studio Condenser Mic Wand', icon: '🎙️', category: 'Brand Gear' },
+  { id: 'oggy_swatter', name: "Oggy's Colossal Flyswatter", icon: '🪰', category: 'Brand Gear' },
+  { id: 'bp_jetpack', name: 'BP High-Octane Fuel Jetpack', icon: '🚀', category: 'Brand Gear' },
+  { id: 'poland_helmet', name: 'Polandball Space Pioneer Helmet', icon: '🪖', category: 'Brand Gear' },
+  { id: 'tarragower_chronicle', name: 'Tarragower Master Chronicle', icon: '📜', category: 'Brand Gear' },
+  { id: 'bp_solar_snowblower', name: 'BP Solar Thermal Snowblower', icon: '🔋', category: 'Brand Gear' },
+  { id: 'mcdonalds_festive_burger', name: 'Holiday Mega Feast Burger', icon: '🍔', category: 'Brand Gear' },
+  { id: 'youtube_ruby_play', name: '50M Ruby Creator Beacon', icon: '💎', category: 'Brand Gear' },
+  { id: 'newworld_gleamite_crystal', name: 'Aeternum Gleamite Comet Shard', icon: '✨', category: 'Brand Gear' },
+  { id: 'xilam_cartoon_spring', name: 'Xilam Slapstick Bouncy Coil', icon: '🌀', category: 'Brand Gear' },
+  { id: 'roblox_speed_coil_frost', name: 'Frost Speed Coil V2', icon: '🔵', category: 'Brand Gear' },
+  { id: 'netherite_frost_blade', name: 'Permafrost Netherite Claymore', icon: '⚔️', category: 'Brand Gear' },
+
+  // 🎄 Christmas & Holiday Update Items
+  { id: 'candy_cane_blade', name: 'Peppermint Candy Cane Blade', icon: '🍭', category: 'Christmas' },
+  { id: 'santa_gift_box', name: 'Santa Holiday Surprise Gift', icon: '🎁', category: 'Christmas' },
+  { id: 'gingerbread_shield', name: 'Frosted Gingerbread Aegis', icon: '🍪', category: 'Christmas' },
+  { id: 'peppermint_pickaxe', name: 'Peppermint Silk Pickaxe', icon: '⛏️', category: 'Christmas' },
+  { id: 'aurora_snowglobe', name: 'Northern Aurora Snowglobe', icon: '🔮', category: 'Christmas' },
+  { id: 'nutcracker_musket', name: 'Nutcracker Toy Blaster', icon: '🎺', category: 'Christmas' },
+  { id: 'polar_star_wand', name: 'North Pole Polaris Star Wand', icon: '⭐', category: 'Christmas' },
+  { id: 'holiday_hot_cocoa', name: 'Steaming Holiday Hot Cocoa', icon: '☕', category: 'Christmas' },
+  { id: 'reindeer_bell', name: 'Golden Reindeer Harness Bell', icon: '🔔', category: 'Christmas' },
+  { id: 'frostmourne_icicle', name: 'Glacier Frost Dagger', icon: '🗡️', category: 'Christmas' },
+  { id: 'christmas_wreath', name: 'Holiday Pine Wreath', icon: '🎄', category: 'Christmas' },
+  { id: 'festive_light_string', name: 'Multicolour Twinkle Lights', icon: '💡', category: 'Christmas' },
+  { id: 'mistletoe_charm', name: 'Mistletoe Friendship Charm', icon: '🌿', category: 'Christmas' },
+  { id: 'winter_festive_tree', name: 'Decorated Holiday Pine Tree', icon: '🎄', category: 'Christmas' },
+  { id: 'eggnog_potion', name: 'Spiced Holiday Eggnog', icon: '🥛', category: 'Christmas' },
+
+  // ✈️ Jeremy the Jet Plane (Steremy) & Sodor Airport Aviation Gear
+  { id: 'jeremy_flight_token', name: 'Steremy Flight Remote & Plane Summoner', icon: '✈️', category: 'Brand Gear' },
+  { id: 'sodor_aviator_shades', name: 'Sodor Airport Supersonic Aviator Shades', icon: '🕶️', category: 'Brand Gear' },
+  { id: 'jet_turbine_booster', name: 'Twin Turbojet Sound-Barrier Booster', icon: '🚀', category: 'Brand Gear' },
+  { id: 'aviation_jet_fuel', name: 'Sodor Airport High-Octane Jet Fuel', icon: '⛽', category: 'Brand Gear' },
+  { id: 'airport_radar_beacon', name: 'Sodor Airport Radar Transponder', icon: '📡', category: 'Brand Gear' },
 ];
 
 export const getItemIcon = (name: string) => {
   const match = ALL_CREATIVE_BLOCKS.find(b => b.id === name);
   if (match) return match.icon;
   switch (name) {
+    case 'jeremy_flight_token': return '✈️';
+    case 'sodor_aviator_shades': return '🕶️';
+    case 'jet_turbine_booster': return '🚀';
+    case 'aviation_jet_fuel': return '⛽';
+    case 'airport_radar_beacon': return '📡';
+    case 'candy_cane_blade': return '🍭';
+    case 'santa_gift_box': return '🎁';
+    case 'gingerbread_shield': return '🍪';
+    case 'peppermint_pickaxe': return '⛏️';
+    case 'aurora_snowglobe': return '🔮';
+    case 'nutcracker_musket': return '🎺';
+    case 'polar_star_wand': return '⭐';
+    case 'holiday_hot_cocoa': return '☕';
+    case 'reindeer_bell': return '🔔';
+    case 'frostmourne_icicle': return '🗡️';
+    case 'christmas_wreath': return '🎄';
+    case 'festive_light_string': return '💡';
+    case 'mistletoe_charm': return '🌿';
+    case 'winter_festive_tree': return '🎄';
+    case 'eggnog_potion': return '🥛';
+    case 'tarragower_chronicle': return '📜';
+    case 'bp_solar_snowblower': return '🔋';
+    case 'mcdonalds_festive_burger': return '🍔';
+    case 'youtube_ruby_play': return '💎';
+    case 'newworld_gleamite_crystal': return '✨';
+    case 'xilam_cartoon_spring': return '🌀';
+    case 'roblox_speed_coil_frost': return '🔵';
+    case 'netherite_frost_blade': return '⚔️';
+    case 'sprunki_sword': return '🎶';
+    case 'sprunki_headphones': return '🎧';
+    case 'new_world_boots': return '🥾';
+    case 'new_world_satchel': return '🎒';
+    case 'mcdonalds_spatula': return '🍳';
+    case 'grimace_shake': return '🥤';
+    case 'blox_hyper_sword': return '⚔️';
+    case 'gravity_coil_rig': return '🌀';
+    case 'youtube_shield': return '🛡️';
+    case 'streamer_mic': return '🎙️';
+    case 'oggy_swatter': return '🪰';
+    case 'bp_jetpack': return '🚀';
+    case 'poland_helmet': return '🪖';
     case 'verity_crystal': return '🔮';
     case 'starlight_halo': return '👑';
     case 'celestial_blade': return '🗡️';
@@ -118,7 +215,15 @@ export const getItemIcon = (name: string) => {
     case 'sandstone': return '🏛️';
     case 'amethyst': return '💜';
     case 'crying_obsidian': return '🌌';
-    case 'sculk': return '🔷';
+    case 'carved_pumpkin': return '🎃';
+    case 'jack_o_lantern': return '🏮';
+    case 'candy_corn': return '🍬';
+    case 'reaper_scythe': return '🗡️';
+    case 'witch_cauldron': return '🧙';
+    case 'spooky_cobweb': return '🕸️';
+    case 'tombstone': return '🪦';
+    case 'ghost_lantern': return '👻';
+    case 'trick_or_treat_bag': return '🛍️';
     default: return '📦';
   }
 };
@@ -133,7 +238,7 @@ export default function Inventory({
   const [showCreativePalette, setShowCreativePalette] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
-  const categories = ['All', 'Building', 'Ores', 'Functional', 'Food', 'Equipment'];
+  const categories = ['All', 'Christmas', 'Brand Gear', 'Halloween', 'Building', 'Ores', 'Functional', 'Food', 'Equipment'];
   const filteredCreativeBlocks = ALL_CREATIVE_BLOCKS.filter(b => 
     selectedCategory === 'All' ? true : b.category === selectedCategory
   );

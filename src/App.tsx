@@ -34,13 +34,30 @@ import MarketplaceModal from './components/MarketplaceModal';
 import CosmeticStoreModal from './components/CosmeticStoreModal';
 import ProgressionModal from './components/ProgressionModal';
 import VoiceChatConsole from './components/VoiceChatConsole';
+import WorldEditor from './components/WorldEditor';
+import MegaWorldVideosModal from './components/MegaWorldVideosModal';
+import GuildFactionModal from './components/GuildFactionModal';
+import DailyMissionsModal from './components/DailyMissionsModal';
+import UnifiedLoreCodexModal from './components/UnifiedLoreCodexModal';
+import InteractiveWorldMapModal from './components/InteractiveWorldMapModal';
+import LegoWebsiteModal from './components/LegoWebsiteModal';
+import CountryballCreatorModal from './components/CountryballCreatorModal';
+import CommunityEventHubsModal from './components/CommunityEventHubsModal';
+import CrossPlatformMiniGamesModal from './components/CrossPlatformMiniGamesModal';
+import ChristmasMegaModal from './components/ChristmasMegaModal';
+import BrandHubModal from './components/BrandHubModal';
 import { avatarManager } from './utils/avatarManager';
+import { dailyMissionManager } from './utils/dailyMissionManager';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   // Default to the iconic Minecraft 'menu'
-  const [activeView, setActiveView] = useState<'menu' | 'game' | 'gallery' | 'dashboard' | 'roblox'>('menu');
+  const [activeView, setActiveView] = useState<'menu' | 'game' | 'gallery' | 'dashboard' | 'roblox' | 'editor'>('menu');
+  // Selected Roblox Experience to launch or preview
+  const [selectedRobloxExperienceId, setSelectedRobloxExperienceId] = useState<any>('verity_rp');
+  // Custom level/schematic passed to or from WorldEditor
+  const [customEditorLevel, setCustomEditorLevel] = useState<any>(null);
   // Default to Steve with his full Minecraft body
   const [selectedAvatar, setSelectedAvatar] = useState<any>(ALL_CHARACTERS[0]);
   // Game Mode State: 'survival' | 'creative'
@@ -59,6 +76,51 @@ export default function App() {
   const [isProgressionOpen, setIsProgressionOpen] = useState(false);
   // Integrated Proximity Voice Chat Modal State
   const [isVoiceChatOpen, setIsVoiceChatOpen] = useState(false);
+  // MegaWorld RP Cinema & Video Vault Modal State
+  const [isVideosOpen, setIsVideosOpen] = useState(false);
+  // Guilds & Factions Modal State
+  const [isGuildsOpen, setIsGuildsOpen] = useState(false);
+  // Daily Missions & Bounties Modal State
+  const [isDailyMissionsOpen, setIsDailyMissionsOpen] = useState(false);
+  // Unified Multiverse Lore Codex Modal State
+  const [isLoreModalOpen, setIsLoreModalOpen] = useState(false);
+  // Interactive Multiverse World Map Modal State
+  const [isWorldMapOpen, setIsWorldMapOpen] = useState(false);
+  // Official LEGO Website & Builder Portal State
+  const [isLegoWebsiteOpen, setIsLegoWebsiteOpen] = useState(false);
+  // Detailed Countryball Creator Modal State
+  const [isCountryballCreatorOpen, setIsCountryballCreatorOpen] = useState(false);
+  // Persistent Community Event Hubs Modal State
+  const [isCommunityHubsOpen, setIsCommunityHubsOpen] = useState(false);
+  // Cross-Platform Arcade & Mini-Games Modal State
+  const [isMiniGamesOpen, setIsMiniGamesOpen] = useState(false);
+  // 1,000 Christmas Mega Edition Modal State
+  const [isChristmasMegaModalOpen, setIsChristmasMegaModalOpen] = useState(false);
+  // Multiverse Brand Hubs Modal State
+  const [isBrandHubOpen, setIsBrandHubOpen] = useState(false);
+  // Track player coordinates for World Map
+  const [playerCoords, setPlayerCoords] = useState({ x: 25, y: 7 });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === 'm' || e.key === 'M') {
+        setIsWorldMapOpen(prev => !prev);
+      }
+    };
+    const handlePosUpdate = (e: any) => {
+      if (e.detail && typeof e.detail.x === 'number') {
+        setPlayerCoords({ x: e.detail.x, y: e.detail.y || 7 });
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('megaworld_pos_update', handlePosUpdate);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('megaworld_pos_update', handlePosUpdate);
+    };
+  }, []);
 
   useEffect(() => {
     const syncAvatar = async (uid?: string) => {
@@ -292,6 +354,20 @@ export default function App() {
             <span>Roblox</span>
           </button>
 
+          {/* World & Level Editor Button */}
+          <button
+            onClick={() => setActiveView('editor')}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono ${
+              activeView === 'editor'
+                ? 'bg-amber-500 text-black shadow ring-2 ring-amber-400 font-black'
+                : 'bg-stone-800 hover:bg-stone-700 text-amber-300 border border-stone-700 hover:border-amber-400'
+            }`}
+            title="Open World & Level Editor (Create, Edit & Publish Custom Multiverse Levels)"
+          >
+            <span>🛠️</span>
+            <span>Editor</span>
+          </button>
+
           {/* Community Social Feed & Dashboard Tab */}
           <button
             onClick={() => setActiveView('dashboard')}
@@ -324,6 +400,116 @@ export default function App() {
           >
             <Mic size={14} className="text-emerald-400" />
             <span className="hidden md:inline">Voice</span>
+          </button>
+
+          {/* MegaWorld RP Videos Shortcut */}
+          <button
+            onClick={() => setIsVideosOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-red-300 hover:text-white border border-stone-700 hover:border-red-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open MegaWorld RP Cinema & Video Vault"
+          >
+            <span className="text-sm">🎬</span>
+            <span className="hidden md:inline">Videos</span>
+          </button>
+
+          {/* Guilds & Factions Shortcut */}
+          <button
+            onClick={() => setIsGuildsOpen(true)}
+            className="bg-stone-800 hover:bg-stone-700 text-indigo-300 hover:text-white border border-stone-700 hover:border-indigo-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Guilds & Major Factions Hub"
+          >
+            <span className="text-sm">🛡️</span>
+            <span className="hidden md:inline">Guilds</span>
+          </button>
+
+          {/* Daily Missions & Bounties Shortcut */}
+          <button
+            onClick={() => setIsDailyMissionsOpen(true)}
+            className="bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 hover:text-white border border-amber-500/50 hover:border-amber-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Daily Missions & Bounties (Randomized Tasks: Mine 50 Diamonds, Defeat Zombies, etc.) [Hotkey: J]"
+          >
+            <span className="text-sm animate-pulse">🎯</span>
+            <span className="hidden sm:inline">Daily</span>
+          </button>
+
+          {/* Interactive World Map Button */}
+          <button
+            onClick={() => setIsWorldMapOpen(true)}
+            className="bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300 hover:text-white border border-emerald-500/50 hover:border-emerald-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Interactive Multiverse World Map (13 Brand Zones, Fast Travel, Dynamic Routes) [Hotkey: M]"
+          >
+            <span className="text-sm">🗺️</span>
+            <span className="hidden sm:inline">World Map</span>
+          </button>
+
+          {/* Official LEGO Website Button */}
+          <button
+            onClick={() => setIsLegoWebsiteOpen(true)}
+            className="bg-red-950/60 hover:bg-red-900/80 text-yellow-300 hover:text-white border border-red-500/50 hover:border-yellow-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Official LEGO.com Builder Universe & Minifigure Customizer"
+          >
+            <span className="text-sm">🧱</span>
+            <span className="hidden sm:inline">LEGO.com</span>
+          </button>
+
+          {/* 1,000 Christmas Mega Edition Button */}
+          <button
+            onClick={() => setIsChristmasMegaModalOpen(true)}
+            className="bg-red-950/60 hover:bg-red-900/80 text-red-200 hover:text-white border border-red-500/60 hover:border-red-400 px-2.5 py-1.5 rounded-xl text-xs font-black transition shadow flex items-center gap-1.5 cursor-pointer font-mono animate-pulse"
+            title="Open 1,000 Christmas Characters, Items, and Settings"
+          >
+            <span className="text-sm">🎅</span>
+            <span className="hidden sm:inline">1,000 Xmas</span>
+          </button>
+
+          {/* Multiverse Brand Hubs Button */}
+          <button
+            onClick={() => setIsBrandHubOpen(true)}
+            className="bg-amber-950/50 hover:bg-amber-900/70 text-amber-300 hover:text-white border border-amber-500/50 hover:border-amber-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Multiverse Brand Hubs (McDonald's, Roblox, Xilam, Tarragower, BP, New World, YouTube)"
+          >
+            <span className="text-sm">🏢</span>
+            <span className="hidden sm:inline">Brand Hubs</span>
+          </button>
+
+          {/* Detailed Countryball Creator Button */}
+          <button
+            onClick={() => setIsCountryballCreatorOpen(true)}
+            className="bg-blue-950/50 hover:bg-blue-900/70 text-blue-300 hover:text-white border border-blue-500/50 hover:border-blue-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Detailed Polandball & Countryball Creator Studio"
+          >
+            <span className="text-sm">🌐</span>
+            <span className="hidden sm:inline">CB Creator</span>
+          </button>
+
+          {/* Community Event Hubs Button */}
+          <button
+            onClick={() => setIsCommunityHubsOpen(true)}
+            className="bg-teal-950/50 hover:bg-teal-900/70 text-teal-300 hover:text-white border border-teal-500/50 hover:border-teal-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Persistent Community Event Hubs & Spatial Voice Radio"
+          >
+            <span className="text-sm">🏛️</span>
+            <span className="hidden sm:inline">Hubs</span>
+          </button>
+
+          {/* Cross-Platform Mini-Games Button */}
+          <button
+            onClick={() => setIsMiniGamesOpen(true)}
+            className="bg-purple-950/50 hover:bg-purple-900/70 text-purple-300 hover:text-white border border-purple-500/50 hover:border-purple-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Cross-Platform Mini-Games Arcade (Scavenger Hunt, Trivia, Resource Race)"
+          >
+            <span className="text-sm">🎮</span>
+            <span className="hidden sm:inline">Mini-Games</span>
+          </button>
+
+          {/* Unified Multiverse Lore Codex Button */}
+          <button
+            onClick={() => setIsLoreModalOpen(true)}
+            className="bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 hover:text-white border border-amber-500/50 hover:border-amber-400 px-2.5 py-1.5 rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5 cursor-pointer font-mono"
+            title="Open Unified Multiverse Lore Codex (Epochs, 10 Factions, Legends & Quest Hooks)"
+          >
+            <span className="text-sm">📜</span>
+            <span className="hidden sm:inline">Lore Codex</span>
           </button>
 
           {/* Global Game Settings Button */}
@@ -394,6 +580,18 @@ export default function App() {
           onOpenProgression={() => setIsProgressionOpen(true)}
           onOpenVoiceChat={() => setIsVoiceChatOpen(true)}
           onOpenDashboard={() => setActiveView('dashboard')}
+          onOpenEditor={() => setActiveView('editor')}
+          onOpenVideos={() => setIsVideosOpen(true)}
+          onOpenGuilds={() => setIsGuildsOpen(true)}
+          onOpenDailyMissions={() => setIsDailyMissionsOpen(true)}
+          onOpenLoreCodex={() => setIsLoreModalOpen(true)}
+          onOpenWorldMap={() => setIsWorldMapOpen(true)}
+          onOpenLegoWebsite={() => setIsLegoWebsiteOpen(true)}
+          onOpenCountryballCreator={() => setIsCountryballCreatorOpen(true)}
+          onOpenCommunityHubs={() => setIsCommunityHubsOpen(true)}
+          onOpenMiniGames={() => setIsMiniGamesOpen(true)}
+          onOpenChristmasMegaModal={() => setIsChristmasMegaModalOpen(true)}
+          onOpenBrandHubs={() => setIsBrandHubOpen(true)}
         />
       ) : activeView === 'game' ? (
         <GameWorld 
@@ -404,6 +602,12 @@ export default function App() {
           onOpenRoblox={() => setActiveView('roblox')}
           onOpenProgression={() => setIsProgressionOpen(true)}
           onOpenVoiceChat={() => setIsVoiceChatOpen(true)}
+          onOpenDailyMissions={() => setIsDailyMissionsOpen(true)}
+          onOpenWorldMap={() => setIsWorldMapOpen(true)}
+          onOpenLegoWebsite={() => setIsLegoWebsiteOpen(true)}
+          onOpenCountryballCreator={() => setIsCountryballCreatorOpen(true)}
+          onOpenCommunityHubs={() => setIsCommunityHubsOpen(true)}
+          onOpenMiniGames={() => setIsMiniGamesOpen(true)}
         />
       ) : activeView === 'gallery' ? (
         <CharacterGallery
@@ -418,6 +622,18 @@ export default function App() {
           onLaunchGame={() => setActiveView('game')}
           currentAvatar={selectedAvatar}
           onClose={() => setActiveView('menu')}
+          onOpenCommunityDashboard={() => setActiveView('menu')}
+          initialGameId={selectedRobloxExperienceId}
+        />
+      ) : activeView === 'editor' ? (
+        <WorldEditor
+          initialSchematic={customEditorLevel}
+          onClose={() => setActiveView('menu')}
+          onPlayInWorld={(customWorld) => {
+            setActiveView('game');
+          }}
+          user={user}
+          selectedAvatar={selectedAvatar}
         />
       ) : (
         <Dashboard
@@ -430,12 +646,25 @@ export default function App() {
           onOpenMarketplace={() => setIsMarketplaceOpen(true)}
           onOpenStore={() => setIsStoreOpen(true)}
           onOpenTitleMenu={() => setActiveView('menu')}
+          onOpenEditor={() => setActiveView('editor')}
+          onOpenVideos={() => setIsVideosOpen(true)}
+          onOpenGuilds={() => setIsGuildsOpen(true)}
+          onOpenDailyMissions={() => setIsDailyMissionsOpen(true)}
+          onSelectRobloxExperience={(gameId) => {
+            setSelectedRobloxExperienceId(gameId);
+            setActiveView('roblox');
+          }}
           onImportBuild={(schematic) => {
-            setActiveView('game');
+            setCustomEditorLevel(schematic);
+            setActiveView('editor');
           }}
           onWarpToCoordinates={(x, y) => {
             setActiveView('game');
           }}
+          onOpenLegoWebsite={() => setIsLegoWebsiteOpen(true)}
+          onOpenCountryballCreator={() => setIsCountryballCreatorOpen(true)}
+          onOpenCommunityHubs={() => setIsCommunityHubsOpen(true)}
+          onOpenMiniGames={() => setIsMiniGamesOpen(true)}
         />
       )}
 
@@ -494,6 +723,134 @@ export default function App() {
         onClose={() => setIsVoiceChatOpen(false)}
         user={user}
         currentAvatarName={selectedAvatar?.name || 'Player'}
+      />
+
+      {/* MegaWorld RP Cinema & Video Vault Modal */}
+      <MegaWorldVideosModal
+        isOpen={isVideosOpen}
+        onClose={() => setIsVideosOpen(false)}
+        user={user}
+        currentAvatar={selectedAvatar}
+        onWarpToScene={(x: number, y: number) => {
+          setIsVideosOpen(false);
+          setActiveView('game');
+        }}
+        onOpenVoiceChat={(freq?: string) => {
+          setIsVoiceChatOpen(true);
+        }}
+      />
+
+      {/* Guilds & Factions Hub Modal */}
+      <GuildFactionModal
+        isOpen={isGuildsOpen}
+        onClose={() => setIsGuildsOpen(false)}
+        user={user}
+        currentAvatar={selectedAvatar}
+        onJoinVoiceRadar={(freq?: string) => {
+          setIsGuildsOpen(false);
+          setIsVoiceChatOpen(true);
+        }}
+      />
+
+      {/* Daily Missions & Bounties Modal */}
+      <DailyMissionsModal
+        isOpen={isDailyMissionsOpen}
+        onClose={() => setIsDailyMissionsOpen(false)}
+        user={user}
+        onNavigateToGame={() => {
+          setIsDailyMissionsOpen(false);
+          setActiveView('game');
+        }}
+      />
+
+      {/* Unified Multiverse Lore Codex Modal */}
+      <UnifiedLoreCodexModal
+        isOpen={isLoreModalOpen}
+        onClose={() => setIsLoreModalOpen(false)}
+      />
+
+      {/* Interactive Multiverse World Map Modal */}
+      {isWorldMapOpen && (
+        <InteractiveWorldMapModal
+          isOpen={isWorldMapOpen}
+          onClose={() => setIsWorldMapOpen(false)}
+          playerX={playerCoords.x}
+          playerY={playerCoords.y}
+          onFastTravel={(x: number, y: number) => {
+            setPlayerCoords({ x, y });
+            window.dispatchEvent(new CustomEvent('megaworld_warp_request', { detail: { x, y } }));
+            setActiveView('game');
+            setIsWorldMapOpen(false);
+          }}
+          playerAvatarName={selectedAvatar?.name || 'Player'}
+        />
+      )}
+
+      {/* Official LEGO Website & Builder Portal Modal */}
+      <LegoWebsiteModal
+        isOpen={isLegoWebsiteOpen}
+        onClose={() => setIsLegoWebsiteOpen(false)}
+        user={user}
+        onSpawnLegoBuild={() => {
+          setIsLegoWebsiteOpen(false);
+          setActiveView('game');
+        }}
+      />
+
+      {/* Detailed Polandball & Countryball Creator Modal */}
+      <CountryballCreatorModal
+        isOpen={isCountryballCreatorOpen}
+        onClose={() => setIsCountryballCreatorOpen(false)}
+        user={user}
+        onApplyCountryball={(cbData) => {
+          setIsCountryballCreatorOpen(false);
+          setActiveView('game');
+        }}
+      />
+
+      {/* Persistent Community Event Hubs Modal */}
+      <CommunityEventHubsModal
+        isOpen={isCommunityHubsOpen}
+        onClose={() => setIsCommunityHubsOpen(false)}
+        user={user}
+        onWarpToLocation={(coords) => {
+          setPlayerCoords({ x: coords.x, y: coords.y });
+          window.dispatchEvent(new CustomEvent('megaworld_warp_request', { detail: coords }));
+          setIsCommunityHubsOpen(false);
+          setActiveView('game');
+        }}
+      />
+
+      {/* Cross-Platform Arcade & Mini-Games Modal */}
+      <CrossPlatformMiniGamesModal
+        isOpen={isMiniGamesOpen}
+        onClose={() => setIsMiniGamesOpen(false)}
+        user={user}
+      />
+
+      {/* 1,000 Christmas Characters, Items & Settings Modal */}
+      <ChristmasMegaModal
+        isOpen={isChristmasMegaModalOpen}
+        onClose={() => setIsChristmasMegaModalOpen(false)}
+        currentAvatar={selectedAvatar}
+        user={user}
+        onSelectCharacter={(char) => {
+          setSelectedAvatar(char);
+          setActiveView('game');
+        }}
+      />
+
+      {/* Multiverse Brand Hubs & Outposts Modal */}
+      <BrandHubModal
+        isOpen={isBrandHubOpen}
+        onClose={() => setIsBrandHubOpen(false)}
+        user={user}
+        onTeleportToHub={(coords, hubName) => {
+          setPlayerCoords({ x: coords.x, y: coords.y });
+          window.dispatchEvent(new CustomEvent('megaworld_warp_request', { detail: coords }));
+          setIsBrandHubOpen(false);
+          setActiveView('game');
+        }}
       />
     </div>
   );

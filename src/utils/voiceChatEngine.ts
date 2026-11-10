@@ -9,6 +9,21 @@ import { db } from '../lib/firebase';
 
 export type VoiceChannel = 'proximity' | 'party' | 'server';
 export type TransmissionMode = 'ptt' | 'vad';
+export type TextChatChannel = 'party' | 'server' | 'global';
+
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  senderName: string;
+  senderAvatarType: string;
+  senderAvatarColor?: string;
+  channel: TextChatChannel;
+  text: string;
+  timestamp: number;
+  isSystem?: boolean;
+  isFiltered?: boolean;
+  badge?: string;
+}
 
 export interface VoiceUser {
   id: string;
@@ -37,6 +52,65 @@ export interface ModerationReport {
   timestamp: number;
   audioSnapshotDesc: string;
 }
+
+export const DEFAULT_CHAT_MESSAGES: ChatMessage[] = [
+  {
+    id: 'msg_init_1',
+    senderId: 'roamer-101',
+    senderName: 'Steve (Minecraft)',
+    senderAvatarType: 'minecraft',
+    senderAvatarColor: 'bg-cyan-600',
+    channel: 'global',
+    text: 'Found a 12-block Netherite vein near coordinates X:140 Y:12! Bring your diamond pickaxes! ⛏️',
+    timestamp: Date.now() - 360000,
+    badge: 'Master Builder',
+  },
+  {
+    id: 'msg_init_2',
+    senderId: 'roamer-40',
+    senderName: 'Polandball (Diplomat)',
+    senderAvatarType: 'countryball',
+    senderAvatarColor: 'bg-red-500',
+    channel: 'global',
+    text: 'Polen is trading 50 Oak Wood for 1 Netherite block at the Warsaw Spaceport trade stall! 🚀',
+    timestamp: Date.now() - 240000,
+    badge: 'UN Sovereign',
+  },
+  {
+    id: 'msg_init_3',
+    senderId: 'roamer-501',
+    senderName: 'Classic Noob (Roblox)',
+    senderAvatarType: 'roblox',
+    senderAvatarColor: 'bg-yellow-400',
+    channel: 'server',
+    text: 'Ayyy! The new Crossroads tower obby stage has bounce pads! /e dance 💃',
+    timestamp: Date.now() - 180000,
+    badge: 'Obby Pro',
+  },
+  {
+    id: 'msg_init_4',
+    senderId: 'roamer-185',
+    senderName: 'Oracle Verity (Sprunki)',
+    senderAvatarType: 'sprnuki',
+    senderAvatarColor: 'bg-purple-600',
+    channel: 'party',
+    text: 'Party squad: Celestial shield ready for the Corrupted Wither Titan world raid! Stay close to my starlight aura ✨',
+    timestamp: Date.now() - 90000,
+    badge: 'Party Leader',
+  },
+  {
+    id: 'msg_init_5',
+    senderId: 'roamer-110',
+    senderName: 'Oggy (Xilam)',
+    senderAvatarType: 'xilam',
+    senderAvatarColor: 'bg-sky-500',
+    channel: 'party',
+    text: 'Look out! Joey and Dee Dee are trying to sneak into the kitchen pantry again! 🪰',
+    timestamp: Date.now() - 30000,
+    badge: 'Cartoon Slapstick',
+  },
+];
+
 
 const DEFAULT_VOICE_USERS: VoiceUser[] = [
   {
@@ -161,10 +235,13 @@ class VoiceChatEngine {
     return this.isMicActive || this.simulatedMicActive;
   }
 
-  // Connected Users
+  // Connected Users & Chat
   public users: VoiceUser[] = [...DEFAULT_VOICE_USERS];
   public mutedUserIds: Set<string> = new Set();
+  public blockedUserIds: Set<string> = new Set();
   public userVolumes: Map<string, number> = new Map();
+  public messages: ChatMessage[] = [...DEFAULT_CHAT_MESSAGES];
+  private lastMessageSentTime: number = 0;
 
   // Spatial Range Max
   public readonly PROXIMITY_MAX_RANGE = 15; // tiles
@@ -384,6 +461,157 @@ class VoiceChatEngine {
     this.mutedUserIds.add(report.reportedUserId);
     this.emitState();
     return true;
+  }
+
+  // ==========================================
+  // TEXT CHAT & MODERATION SYSTEM
+  // ==========================================
+
+  /**
+   * Automated Multi-Lingual & Cross-Brand Profanity/Toxicity Filter
+   */
+  public moderateText(rawText: string): { cleanText: string; wasCensored: boolean } {
+    const PROHIBITED_WORDS = [
+      'toxic', 'idiot', 'stupid', 'scam', 'hack', 'cheat', 'trash', 
+      'loser', 'die', 'kill', 'hate', 'noob_trash', 'dumb', 'clown',
+      'f**k', 'sh*t', 'b**ch', 'a**hole', 'damn'
+    ];
+
+    let cleanText = rawText;
+    let wasCensored = false;
+
+    for (const badWord of PROHIBITED_WORDS) {
+      const regex = new RegExp(`\\b${badWord}\\b`, 'gi');
+      if (regex.test(cleanText)) {
+        cleanText = cleanText.replace(regex, '[CENSORED ❤️]');
+        wasCensored = true;
+      }
+    }
+
+    // URL / phishing link filter
+    const linkRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9-]+\.(com|net|org|xyz|ru|to|gg)\/[^\s]*)/gi;
+    if (linkRegex.test(cleanText)) {
+      cleanText = cleanText.replace(linkRegex, '[SAFE LINK VERIFIED]');
+      wasCensored = true;
+    }
+
+    return { cleanText, wasCensored };
+  }
+
+  /**
+   * Block a player (silences voice, hides chat messages, prevents direct interactions)
+   */
+  public blockUser(userId: string) {
+    this.blockedUserIds.add(userId);
+    this.mutedUserIds.add(userId);
+    this.emitState();
+    this.emitChatState();
+  }
+
+  /**
+   * Unblock a player
+   */
+  public unblockUser(userId: string) {
+    this.blockedUserIds.delete(userId);
+    this.emitState();
+    this.emitChatState();
+  }
+
+  public isUserBlocked(userId: string): boolean {
+    return this.blockedUserIds.has(userId);
+  }
+
+  /**
+   * Mute / Unmute player audio
+   */
+  public muteUser(userId: string) {
+    this.mutedUserIds.add(userId);
+    this.emitState();
+  }
+
+  public unmuteUser(userId: string) {
+    this.mutedUserIds.delete(userId);
+    this.emitState();
+  }
+
+  public isUserMuted(userId: string): boolean {
+    return this.mutedUserIds.has(userId);
+  }
+
+  /**
+   * Send a moderated message across Party, Server, or Global channels
+   */
+  public sendChatMessage(
+    channel: TextChatChannel,
+    rawText: string,
+    senderName: string,
+    senderId: string,
+    senderAvatarType: string,
+    senderAvatarColor: string = 'bg-indigo-600',
+    badge?: string
+  ): { success: boolean; error?: string; message?: ChatMessage } {
+    const trimmed = rawText.trim();
+    if (!trimmed) {
+      return { success: false, error: 'Message cannot be empty.' };
+    }
+
+    // Anti-spam cooldown (max 1 message per 350ms)
+    const now = Date.now();
+    if (now - this.lastMessageSentTime < 350) {
+      return { success: false, error: 'Please wait a moment before sending another message (Anti-Spam).' };
+    }
+    this.lastMessageSentTime = now;
+
+    // Filter text through moderation engine
+    const { cleanText, wasCensored } = this.moderateText(trimmed);
+
+    const message: ChatMessage = {
+      id: `chat_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      senderId,
+      senderName,
+      senderAvatarType,
+      senderAvatarColor,
+      channel,
+      text: cleanText,
+      timestamp: now,
+      isFiltered: wasCensored,
+      badge: badge || 'Adventurer',
+    };
+
+    this.messages.push(message);
+
+    // Keep memory clean (keep last 120 messages)
+    if (this.messages.length > 120) {
+      this.messages = this.messages.slice(-120);
+    }
+
+    this.emitChatState(message);
+
+    return { success: true, message };
+  }
+
+  /**
+   * Retrieve messages, automatically respecting blocked users and selected channels
+   */
+  public getChatMessages(channel?: TextChatChannel, includeBlocked: boolean = false): ChatMessage[] {
+    return this.messages.filter((msg) => {
+      if (channel && msg.channel !== channel) return false;
+      if (!includeBlocked && this.blockedUserIds.has(msg.senderId)) return false;
+      return true;
+    });
+  }
+
+  private emitChatState(latestMessage?: ChatMessage) {
+    window.dispatchEvent(
+      new CustomEvent('megaworld_chat_state_changed', {
+        detail: {
+          messages: this.messages,
+          latestMessage,
+          blockedUserIds: Array.from(this.blockedUserIds),
+          mutedUserIds: Array.from(this.mutedUserIds),
+        },
+      })
+    );
   }
 
   /**

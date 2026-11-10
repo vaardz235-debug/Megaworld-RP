@@ -70,9 +70,27 @@ export interface PlayerProgressionData {
   acquiredItems: AcquiredItem[];
   completedQuests: string[];
   cosmeticUnlocks: string[];
+  megaCoins: number;
+  robuxGems: number;
+  unlockedItems: string[];
   platformProfiles: PlatformProfile[];
   dataIntegrityHash: string;
   cloudSyncLatencyMs: number;
+  countryballCustomization?: {
+    baseCountryName: string;
+    flagLayout: string;
+    colorTop?: string;
+    colorMid?: string;
+    colorBot?: string;
+    isInverted?: boolean;
+    eyeStyle: string;
+    hat: string;
+    glasses: string;
+    prop: string;
+    personalityTrait: 'diplomatic' | 'clay_hungry' | 'industrious' | 'jovial' | 'stoic' | 'space_dreamer';
+  };
+  brandReputation?: Record<string, number>;
+  christmasSettings?: Record<string, any>;
   stats: {
     blocksMined: number;
     blocksPlaced: number;
@@ -467,6 +485,9 @@ export const DEFAULT_PROGRESSION: PlayerProgressionData = {
   ],
   completedQuests: ['q_oggy_kitchen'],
   cosmeticUnlocks: ['hat_crown', 'face_shades', 'back_elytra', 'aura_none', 'emblem_none', 'hat_silver_fern'],
+  megaCoins: 850,
+  robuxGems: 250,
+  unlockedItems: ['pickaxe', 'wood', 'stone', 'diamond', 'apple'],
   platformProfiles: [
     { platform: 'PC', deviceModel: 'Custom Rig (RTX 4090 / Windows 11)', osVersion: 'Win11 23H2', lastActive: Date.now() - 360000, latencyMs: 16, status: 'SYNCED' },
     { platform: 'Console', deviceModel: 'PlayStation 5 / Xbox Series X', osVersion: 'Firmware 9.0', lastActive: Date.now() - 86400000, latencyMs: 28, status: 'STANDBY' },
@@ -475,6 +496,16 @@ export const DEFAULT_PROGRESSION: PlayerProgressionData = {
   ],
   dataIntegrityHash: 'sha256-d8f3b92a4e912c77f0a',
   cloudSyncLatencyMs: 22,
+  brandReputation: {
+    mcdonalds: 60,
+    roblox: 85,
+    xilam: 40,
+    tarragower: 90,
+    bp: 55,
+    newworld: 70,
+    youtube: 75,
+  },
+  christmasSettings: {},
   stats: {
     blocksMined: 0,
     blocksPlaced: 0,
@@ -487,7 +518,7 @@ export const DEFAULT_PROGRESSION: PlayerProgressionData = {
 
 class CrossPlatformProgressionManager {
   private memoryCache: PlayerProgressionData;
-  private syncTimeout: NodeJS.Timeout | null = null;
+  private syncTimeout: ReturnType<typeof setTimeout> | null = null;
   private currentUid: string = '';
 
   constructor() {
@@ -598,6 +629,13 @@ class CrossPlatformProgressionManager {
       ? cloudData.acquiredItems
       : localData.acquiredItems || DEFAULT_PROGRESSION.acquiredItems;
 
+    // Reconcile currency & unlocked items
+    const higherCoins = Math.max(localData.megaCoins || 0, cloudData.megaCoins || 0);
+    const higherRobux = Math.max(localData.robuxGems || 0, cloudData.robuxGems || 0);
+    const combinedUnlockedItems = Array.from(
+      new Set([...(localData.unlockedItems || []), ...(cloudData.unlockedItems || [])])
+    );
+
     const merged: PlayerProgressionData = {
       ...DEFAULT_PROGRESSION,
       ...localData,
@@ -617,6 +655,9 @@ class CrossPlatformProgressionManager {
       acquiredItems: acquiredItemsList,
       completedQuests: combinedCompletedQuests,
       cosmeticUnlocks: combinedCosmetics,
+      megaCoins: higherCoins,
+      robuxGems: higherRobux,
+      unlockedItems: combinedUnlockedItems,
       platformProfiles: localData.platformProfiles || DEFAULT_PROGRESSION.platformProfiles,
       dataIntegrityHash: `sha256-verified-${Date.now().toString(16)}`,
       cloudSyncLatencyMs: cloudData.cloudSyncLatencyMs || 22,
@@ -752,6 +793,46 @@ class CrossPlatformProgressionManager {
     }
 
     return { leveledUp, newLevel, pointsAwarded: earnedPoints };
+  }
+
+  /**
+   * Record Acquired Item to progression inventory and unlock list
+   */
+  public recordItemAcquired(
+    id: string,
+    name: string,
+    icon: string,
+    tier: 'common' | 'rare' | 'epic' | 'legendary'
+  ): void {
+    const current = { ...this.memoryCache };
+    const items = [...(current.acquiredItems || [])];
+    const existingIndex = items.findIndex((it) => it.id === id);
+
+    if (existingIndex >= 0) {
+      items[existingIndex].count += 1;
+    } else {
+      items.push({ id, name, count: 1, icon, tier });
+    }
+
+    const unlocked = Array.from(new Set([...(current.unlockedItems || []), id]));
+
+    current.acquiredItems = items;
+    current.unlockedItems = unlocked;
+    this.saveLocal(current);
+    this.triggerAutoSync();
+  }
+
+  /**
+   * Complete Quest and award progression rewards
+   */
+  public completeQuest(questId: string, xpReward: number, coinReward: number): void {
+    const current = { ...this.memoryCache };
+    const completed = Array.from(new Set([...(current.completedQuests || []), questId]));
+    current.completedQuests = completed;
+    current.megaCoins = (current.megaCoins || 0) + coinReward;
+    current.stats.questsFinished = (current.stats.questsFinished || 0) + 1;
+    this.saveLocal(current);
+    this.addXp(xpReward, `Quest Completed: ${questId}`);
   }
 
   /**
@@ -901,6 +982,54 @@ class CrossPlatformProgressionManager {
     } catch (e: any) {
       return { success: false, message: `Redeem error: ${e.message || 'Network failure'}` };
     }
+  }
+
+  /**
+   * Set and save Countryball Avatar Customization (Flag, Glasses, Hat, Personality Trait)
+   */
+  public setCountryballCustomization(
+    custom: PlayerProgressionData['countryballCustomization'],
+    userId?: string
+  ): void {
+    this.memoryCache.countryballCustomization = custom;
+    this.saveLocal(this.memoryCache);
+    this.triggerAutoSync(userId);
+  }
+
+  public getCountryballCustomization(): PlayerProgressionData['countryballCustomization'] {
+    return this.memoryCache.countryballCustomization;
+  }
+
+  /**
+   * Add Brand Reputation and sync cross-platform
+   */
+  public addBrandReputation(brandId: string, amount: number, userId?: string): number {
+    if (!this.memoryCache.brandReputation) {
+      this.memoryCache.brandReputation = {};
+    }
+    const current = this.memoryCache.brandReputation[brandId] || 0;
+    const next = current + amount;
+    this.memoryCache.brandReputation[brandId] = next;
+    this.saveLocal(this.memoryCache);
+    this.triggerAutoSync(userId);
+    return next;
+  }
+
+  public getBrandReputation(): Record<string, number> {
+    return this.memoryCache.brandReputation || {};
+  }
+
+  /**
+   * Save 1,000 Christmas Settings to local and cloud
+   */
+  public setChristmasSettings(settings: Record<string, any>, userId?: string): void {
+    this.memoryCache.christmasSettings = settings;
+    this.saveLocal(this.memoryCache);
+    this.triggerAutoSync(userId);
+  }
+
+  public getChristmasSettings(): Record<string, any> {
+    return this.memoryCache.christmasSettings || {};
   }
 
   /**
